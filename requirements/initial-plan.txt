@@ -1,0 +1,141 @@
+================================================================================
+DATA MANAGER PORTAL — INITIAL PROJECT PLAN
+================================================================================
+Based on: requirements/initial_braindump.txt
+Goal: Working prototype for data managers; bulk upload/download; simple, seed-on-first-run.
+
+--------------------------------------------------------------------------------
+PHASE 1: FOUNDATION (Repo, Docker, DB, S3)
+--------------------------------------------------------------------------------
+1.1  Repository & structure
+     - Create folder structure: frontend/, backend/, docker/, requirements/
+     - Add .gitignore (Python, Node, Angular, IDE, env files, Docker)
+     - Add README with quick start (docker-compose up, URLs for app, API, DB admin, S3 admin)
+
+1.2  Docker & local services
+     - docker-compose.yml: PostgreSQL, S3 emulation (e.g. MinIO or localstack), backend service, frontend (dev or build)
+     - Backend Dockerfile (Python/FastAPI)
+     - Frontend Dockerfile (Node/Angular build) — optional for dev; use ng serve locally initially if preferred
+     - Env file template (.env.example) for DB URL, S3 endpoint, keys
+
+1.5  Backend admin tools (each in its own container)
+     - Database admin: run a DB admin UI in a dedicated Docker container (e.g. pgAdmin, Adminer) for browsing tables, running ad-hoc SQL, inspecting seed data
+     - S3 admin: run an S3 bucket admin UI in a dedicated Docker container (e.g. MinIO Console if using MinIO, or s3-browser image) for listing buckets, viewing/uploading/downloading objects
+     - Both admin tools are for development/ops only; document their URLs in README (e.g. http://localhost:5050 for pgAdmin, http://localhost:9001 for MinIO console)
+
+1.3  Database
+     - PostgreSQL in Docker; create DB and user on first run (init script or backend startup)
+     - SQLAlchemy models for core entities (see Phase 2); single migration approach or create-all on first run to keep simple
+     - Seed script that runs on first start: at least one domain, sample CDEs, applications, EUCs, endpoints, DQ rules, DQ exceptions, data concerns
+
+1.4  S3 / object storage
+     - Configure backend to use S3-compatible client (boto3 or similar); endpoint from env (Docker S3 emulator)
+     - Define bucket(s) for uploads/downloads (e.g. "bulk-uploads", "exports")
+     - Create buckets on first run if not present
+     - Pluggable or env-based backend so tests can use in-memory or local FS
+
+--------------------------------------------------------------------------------
+PHASE 2: BACKEND (FastAPI, API, Storage)
+--------------------------------------------------------------------------------
+2.1  FastAPI app skeleton
+     - App entrypoint (main.py or app/main.py), CORS for frontend origin
+     - Health/readiness endpoints for Docker and frontend
+     - Well-commented modules: config, database session, S3 client
+
+2.2  Core domain models (SQLAlchemy)
+     - Domain (hierarchy if needed), DataElement (critical data elements), Application, EUC (end-user computing / ITESS)
+     - Endpoint, DataQualityRule, DataQualityException, DataConcern
+     - Relationships: Domain -> CDEs, Applications, EUCs, Endpoints; CDE <-> DQ rules, DQ exceptions, concerns; link concerns to apps/EUCs/endpoints/elements as per braindump
+     - Keep names and relationships aligned with Concepts in braindump; add only what’s needed for the initial views
+
+2.3  REST API (minimal for prototype)
+     - Domains: list (and by id for “current domain”)
+     - Critical Data Elements: list by domain
+     - Applications / EUCs: list by domain
+     - Endpoints: list (filter by domain/application as needed)
+     - Data quality rules: list by domain or by data element
+     - Data quality exceptions: list by domain or by data element
+     - Data concerns: list by domain; optional filter by application/EUC/endpoint/element
+     - Metrics: one endpoint returning counts/summaries for attestation, concerns, DQ rules, DQ exceptions (as needed for “metrics view”)
+     - Use Pydantic schemas for request/response; keep responses flat and UI-friendly
+
+2.4  Bulk upload / download
+     - Upload: accept file (e.g. CSV/Excel) per entity type (CDEs, applications, etc.); parse, validate, upsert; store raw file in S3; return summary (created/updated counts, any errors)
+     - Download: generate CSV/JSON (or Excel) for selected entity type (and filters); optionally store in S3 and return link or stream file
+     - Document expected file formats (templates) in README or /docs
+
+2.5  Seed data
+     - Script or startup hook that checks “already seeded” (e.g. table or flag); if not, insert sample domain, CDEs, applications, EUCs, endpoints, DQ rules, DQ exceptions, data concerns
+     - Ensure relationships and IDs are consistent so UI can navigate
+
+--------------------------------------------------------------------------------
+PHASE 3: FRONTEND (Angular, Redux, UI)
+--------------------------------------------------------------------------------
+3.1  Angular app bootstrap
+     - Angular 18.2.0, non-standalone components (per project rules)
+     - Tailwind CSS configured; dark theme (CSS variables or Tailwind dark theme)
+     - Layout: sidebar + header + main content + footer (dashboard format)
+     - Responsive layout; target QHD; mobile not required
+
+3.2  State & API
+     - Redux Toolkit: slices for domains, CDEs, applications, EUCs, endpoints, DQ rules, DQ exceptions, data concerns, metrics
+     - API service(s) calling FastAPI; base URL from environment
+     - Load data per view (e.g. select domain -> load CDEs, applications, etc.); avoid over-fetching
+
+3.3  Core views (cards/tables + modals)
+     - Domain selector (sidebar or header) — current domain drives all lists
+     - Critical Data Elements: table/card list; modal for detail/context
+     - Applications & EUCs: table/card list; modal for detail
+     - Endpoints: table/card list; modal for detail
+     - Data quality rules: table by domain or by data element; modal for detail
+     - Data quality exceptions: table by domain or by data element; modal for detail
+     - Data concerns: table with filters (application, EUC, endpoint, element); modal for detail
+     - Metrics view: single view with summary metrics (attestation, concerns, DQ rules, DQ exceptions)
+
+3.4  Bulk actions (prototype)
+     - Upload: page or modal to choose file and entity type; call backend upload; show result (success/error counts)
+     - Download: button(s) to download current view or selected entity type as file (backend generates and returns file)
+
+3.5  Theming & UX
+     - Dark, sleek, professional palette (sidebar, header, cards, tables)
+     - Cards/tables for all main data types; modals for extra context and actions
+     - Consistent typography and spacing; no flashy effects
+
+--------------------------------------------------------------------------------
+PHASE 4: INTEGRATION & POLISH
+--------------------------------------------------------------------------------
+4.1  End-to-end
+     - docker-compose up brings up DB, S3, backend, frontend, DB admin container, S3 admin container (or frontend via ng serve against composed backend)
+     - Seed runs automatically; open app and see seeded domain with sample data
+     - Use DB admin and S3 admin containers to inspect data and objects as needed
+     - Navigate all views; upload one bulk file and download one export; verify in DB/S3
+
+4.2  Documentation & comments
+     - README: how to run, env vars, main URLs (frontend, API, DB admin, S3 admin)
+     - Comment complex logic in backend and frontend; document API (OpenAPI/Swagger from FastAPI is sufficient for prototype)
+
+4.3  Optional (only if time and still “simple”)
+     - Basic validation and error messages on upload
+     - Simple loading states and error toasts in UI
+     - One or two unit tests for critical backend logic (e.g. upload parser, metrics aggregation)
+
+--------------------------------------------------------------------------------
+OUT OF SCOPE FOR INITIAL PROTOTYPE
+--------------------------------------------------------------------------------
+- SSO / authentication (per braindump: “not for now”)
+- Full hierarchy of data domains (implement only what’s needed for “one domain” view)
+- Mobile-specific layouts
+- Real-time sync with other applications; other teams consume via bulk download
+
+--------------------------------------------------------------------------------
+SUGGESTED ORDER OF EXECUTION
+--------------------------------------------------------------------------------
+1. Phase 1.1–1.2, 1.5: Repo structure, Docker Compose (Postgres + S3 + DB admin + S3 admin containers), env template
+2. Phase 2.1–2.2: FastAPI app, DB connection, SQLAlchemy models
+3. Phase 1.3–1.4: DB init, S3 bucket creation, seed script
+4. Phase 2.3–2.4: REST endpoints for all entity types + metrics, then bulk upload/download
+5. Phase 3.1–3.2: Angular app, layout, Redux, API client
+6. Phase 3.3–3.5: All dashboard views and bulk UI
+7. Phase 4: E2E run, README, comments, minimal tests if desired
+
+================================================================================

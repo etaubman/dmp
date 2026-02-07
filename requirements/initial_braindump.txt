@@ -1,0 +1,75 @@
+Context:
+    - We are going to rapidly prototype an application that will serve as the user-facing portal that integrates with a large number of different services and applications.
+    - The main priority is to get a working prototype that can be used to test the integration with the different services and applications
+    - To start we will use bulk uploads of data and store actions that can then be downloaded and the other application teams can figure out how to process updates
+    - The application should consist of a number of different components:
+        - A frontend that will be used to display the data and allow the user to interact with the application
+        - A web api that will be used to interact with the application
+        - A database that will be used to store the data
+        - An S3 bucket that will be used to store the data that is uploaded or downloaded from the application
+    - This needs to not be over-complicated
+    - We will start as simple as possible to get a working prototype
+    
+Tech Stack:
+    - Frontend: Angular 18.2.0, Redux Toolkit, Tailwind CSS, TypeScript
+    - Backend: FastAPI, SQLAlchemy
+    - Database: PostgreSQL
+    - S3: Docker Emulation of S3, pluggable storage backend for testing
+    - Containerization: Docker, Docker Compose
+
+Tech Notes:
+    - Ensure that the tech stack is simple and easy to understand and maintain
+    - Everything should provision and seed on first run
+    - All code should be well-commented
+
+Aesthetics:
+    - Use a "dashboard" format with a sidebar and header, main content area, and footer
+    - Use a "card" or table format for data elements, applications, eucs, endpoints, data concerns, data quality rules, data quality exceptions, etc
+    - Modal windows should be used for additional context / actions
+    - The theme should be dark and sleek, keep professional and not too flashy
+    - Make use of responsive design. Mobile not required for now.
+    - Assume most users have a QHD monitor
+
+Initial Goal:
+    - Create a working prototype of a "Data Manager Portal" that allows a person who is a data manager for a specific domain to manage the data in that domain
+    - The data manager should be able to see all "Critical Data Elements" for the domain
+    - The data manager should be able to see all applications, and EUCs (including ITESS) that are used to consume or produce the data
+    - The data manager should be able to see the data quality rules that are applied to each data element in the domain and which endpoints they apply to
+    - The data manager should be able to see the data quality exceptions that have been identified for each data element in the domain
+    - The data manager should be able to see all data concerns for the domain, and aligned to each application, euc, endpoint, data element, etc
+    - The data manager should be able to see a view with all metrics pertaining to data element attestation, data concerns, data quality rules, data quality exceptions, etc
+
+Business Context:
+    - We are creating a data governance platform that will be used across the enterprise
+    - Eventually the platform will need to integrate with SSO, but not for now
+
+Concepts:
+    - Data Governance: The process of managing and controlling the data across the enterprise
+    - Data Domain: A hierachy of data domains that are used to group data together
+    - Data Element: A single piece of data that is used to represent a specific concept
+    - System of Record: A system that is used to store the data for a specific purpose
+    - Authorized Redistributor: A system that is used to distribute the data to the authorized recipients
+    - Licensed Application: A system that is used to distribute the data to the authorized recipients
+    - Application: A system that is used in the business for a specific purpose
+    - Data Feed: A set of data that is provided from to or from a specific source
+    - Data Source: A source of data that is used to provide the data for a specific purpose
+    - Consumer Application: A system that is used to consume the data for a specific purpose
+    - Producer Application: A system that is used to produce the data for a specific purpose
+    - Domain Sponsor: A senior leader in the business who is accountable for the data in a specific domain
+    - Domain Owner: A senior leader in the business who is responsible for the data in a specific domain
+    - Data Manager: A mid-senior leader in the business who is responsible for the data in a specific domain
+    - Data Consumer: A mid-senior leader in the business who is responsible for the data in a specific use of data
+    - Endpoint: A specific use case for the data (e.g. a regulatory report, a business process)
+    - Application Owner: A technological leader in the business who is responsible for the application that is used to consume or produce the data
+    - End User Computing Tool: A user-developed application that is used to consume or produce the data (e.g. Excel, Power BI, Tableau, etc.)
+    - IT Enabled Smart Solution: A user-configured application in a technology-managed environment (e.g. SharePoint)
+    - Data Governance Policy: A policy that is used to govern the data across the enterprise
+    - Data Quality Rule: A rule that is run against the data to ensure that it is of a certain quality (Accuracy, Validity, Timeliness)
+    - Data Concern: A concern about the data that is used to govern the data across the enterprise
+    - Data Quality Execption: An identifed record that fails a data quality rule
+    - Data Lineage: The relationship between the data and the source of the data
+    - Preventative Control: A control at the point of data creation to ensure that the data is of a certain quality (e.g. a data validation rule on input)
+    - Physical Data Element: A single piece of data that is used to represent a specific concept (e.g. a column in a database table)
+    - Logical Data Element: A single piece of data that is used to represent a specific concept (e.g. a column in a database table)
+    - Data Element Type: The type of data that is used to represent a specific concept (e.g. a string, a number, a date, a boolean)
+

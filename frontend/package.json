@@ -1,0 +1,10 @@
+{
+  "name": "dmp-frontend",
+  "version": "0.1.0",
+  "description": "Data Manager Portal — Angular frontend (Phase 3)",
+  "private": true,
+  "scripts": {
+    "start": "echo Add Angular app in Phase 3",
+    "ng": "ng"
+  }
+}
