@@ -1,0 +1,12 @@
+<div class="admin-layout">
+  <div class="admin-layout__header">
+    <span class="admin-layout__label">Admin</span>
+    <nav class="admin-subnav" aria-label="Admin section">
+      <a routerLink="/admin/domains" routerLinkActive="admin-subnav__active" class="admin-subnav__link">Domain Management</a>
+      <a routerLink="/admin/settings" routerLinkActive="admin-subnav__active" class="admin-subnav__link">Settings</a>
+    </nav>
+  </div>
+  <div class="admin-outlet">
+    <router-outlet></router-outlet>
+  </div>
+</div>

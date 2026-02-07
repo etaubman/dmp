@@ -1,0 +1,111 @@
+<div class="admin-domains flex flex-col flex-1 min-h-0">
+  <div class="admin-domains__header flex-shrink-0">
+    <div class="admin-domains__header-text">
+      <h2 class="admin-domains__title">Domain Management</h2>
+      <p class="admin-domains__subtitle">Add, edit, or remove domains in the L0→L1→L2→L3 hierarchy.</p>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="admin-domains__error flex-shrink-0">
+    <span>{{ error }}</span>
+    <button type="button" class="admin-domains__error-dismiss" (click)="clearError()" aria-label="Dismiss">×</button>
+  </div>
+
+  <div *ngIf="loading" class="admin-domains__loading flex-shrink-0">Loading…</div>
+
+  <div class="admin-domains__body flex-1 min-h-0 flex gap-6">
+    <!-- Left: form panel -->
+    <aside class="admin-domains__panel flex-shrink-0">
+      <div class="admin-domains__panel-inner">
+        <ng-container *ngIf="!loading && !showAddForm && editingId == null">
+          <p class="admin-domains__panel-hint">Select a domain to edit or add a new one.</p>
+          <button type="button" class="admin-domains__btn-add" (click)="openAdd()">
+            Add domain
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="!loading && (showAddForm || editingId != null)">
+          <h3 class="admin-domains__form-title">{{ editingId != null ? 'Edit domain' : 'New domain' }}</h3>
+          <form class="admin-domains__form" (ngSubmit)="submitForm()">
+            <div class="admin-domains__field">
+              <label class="admin-domains__label" for="domain-name">Name</label>
+              <input id="domain-name" type="text" class="admin-domains__input" [(ngModel)]="formName" name="formName" placeholder="Domain name" />
+            </div>
+            <div class="admin-domains__field">
+              <label class="admin-domains__label" for="domain-desc">Description</label>
+              <input id="domain-desc" type="text" class="admin-domains__input" [(ngModel)]="formDescription" name="formDescription" placeholder="Optional" />
+            </div>
+            <div class="admin-domains__field">
+              <label class="admin-domains__label" for="domain-parent">Parent</label>
+              <select id="domain-parent" class="admin-domains__input" [(ngModel)]="formParentId" name="formParentId">
+                <option [ngValue]="null">None (L0 root)</option>
+                <option *ngFor="let opt of parentOptions" [ngValue]="opt.id">{{ opt.label }}</option>
+              </select>
+            </div>
+            <div class="admin-domains__form-divider"></div>
+            <div class="admin-domains__field">
+              <label class="admin-domains__label" for="domain-owner">Domain owner</label>
+              <input id="domain-owner" type="text" class="admin-domains__input" [(ngModel)]="formOwner" name="formOwner" placeholder="Owner (coming soon)" />
+            </div>
+            <div class="admin-domains__field">
+              <label class="admin-domains__label" for="domain-sponsor">Sponsor</label>
+              <input id="domain-sponsor" type="text" class="admin-domains__input" [(ngModel)]="formSponsor" name="formSponsor" placeholder="Sponsor (coming soon)" />
+            </div>
+            <div class="admin-domains__field">
+              <label class="admin-domains__label" for="domain-manager">Data manager</label>
+              <input id="domain-manager" type="text" class="admin-domains__input" [(ngModel)]="formManager" name="formManager" placeholder="Manager (coming soon)" />
+            </div>
+            <div class="admin-domains__form-actions">
+              <button type="button" class="admin-domains__btn-secondary" (click)="cancelForm()">Cancel</button>
+              <button type="submit" class="admin-domains__btn-primary">{{ editingId != null ? 'Save' : 'Create' }}</button>
+            </div>
+          </form>
+        </ng-container>
+      </div>
+    </aside>
+
+    <!-- Right: domain list -->
+    <div class="admin-domains__list-wrap flex-1 min-w-0 flex flex-col min-h-0">
+      <div *ngIf="!loading && flatList.length === 0" class="admin-domains__empty">No domains. Add one to get started.</div>
+      <ng-container *ngIf="!loading && flatList.length > 0">
+        <div class="admin-domains__search-wrap flex-shrink-0">
+          <label class="admin-domains__search-label" for="domain-search">Search domains</label>
+          <input
+            id="domain-search"
+            type="text"
+            class="admin-domains__search-input"
+            placeholder="Filter by name or description…"
+            [(ngModel)]="searchFilter"
+            name="searchFilter"
+          />
+        </div>
+        <div class="admin-domains__table-scroll scrollbar-aurora flex-1 min-h-0">
+          <table class="admin-domains__table">
+            <thead>
+              <tr>
+                <th class="admin-domains__th-name">Name</th>
+                <th class="admin-domains__th-desc">Description</th>
+                <th class="admin-domains__th-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let node of filteredList" [class.admin-domains__row--selected]="editingId === node.id">
+              <td class="admin-domains__td-name">
+                <span class="admin-domains__indent" [style.marginLeft.rem]="node.level * 1.25"></span>
+                <span class="admin-domains__level">L{{ node.level }}</span>
+                <span class="admin-domains__name">{{ node.name }}</span>
+              </td>
+              <td class="admin-domains__td-desc">{{ node.description || '—' }}</td>
+              <td class="admin-domains__td-actions">
+                <button type="button" class="admin-domains__action admin-domains__action--edit" (click)="openEdit(node)" title="Edit">Edit</button>
+                <button type="button" class="admin-domains__action admin-domains__action--delete" (click)="deleteNode(node.id)" title="Delete">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p *ngIf="searchFilter && filteredList.length === 0" class="admin-domains__no-results">No domains match "{{ searchFilter }}".</p>
+      </ng-container>
+    </div>
+  </div>
+</div>

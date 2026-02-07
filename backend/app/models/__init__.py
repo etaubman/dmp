@@ -46,7 +46,8 @@ class Domain(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    parent = relationship("Domain", remote_side=[id])
+    parent = relationship("Domain", remote_side=[id], back_populates="children")
+    children = relationship("Domain", back_populates="parent", foreign_keys=[parent_id])
     data_elements = relationship("DataElement", back_populates="domain")
     applications = relationship("Application", back_populates="domain")
     eucs = relationship("EUC", back_populates="domain")

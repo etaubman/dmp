@@ -2,13 +2,16 @@
 Data Manager Portal — FastAPI app entrypoint.
 Phase 2: config, DB, S3, routers, seed on startup, health/readiness.
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.database import get_engine_and_session
+from app.database import get_engine_and_session, get_db_dep
 from app.seed import run_seed
 from app.api import domains, data_elements, applications, eucs, endpoints, data_quality, data_concerns, metrics, bulk
+from app.api.domains import get_domains_tree_list
+from app.schemas.domain import DomainTreeOut
 
 app = FastAPI(
     title="Data Manager Portal API",
@@ -24,6 +27,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Domain tree at dedicated path so it is never matched by GET /api/domains/{domain_id} (avoids 422 when "tree" was parsed as int)
+@app.get("/api/domain-tree", response_model=list[DomainTreeOut])
+def api_domain_tree(db: Session = Depends(get_db_dep)):
+    """Return domain hierarchy as a tree (L0→L1→L2→L3)."""
+    return get_domains_tree_list(db)
 
 # Include routers
 app.include_router(domains.router, prefix="/api")

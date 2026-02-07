@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 
@@ -26,3 +26,19 @@ class DomainOut(DomainBase):
 
     class Config:
         from_attributes = True
+
+
+class DomainTreeOut(BaseModel):
+    """Recursive tree node for L0→L1→L2→L3 hierarchy."""
+    id: int
+    name: str
+    description: Optional[str] = None
+    parent_id: Optional[int] = None
+    level: int = 0
+    children: List["DomainTreeOut"] = []
+
+    class Config:
+        from_attributes = True
+
+
+DomainTreeOut.model_rebuild()

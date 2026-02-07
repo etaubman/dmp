@@ -183,4 +183,88 @@ export class AppEffects {
       }),
     ),
   );
+
+  loadDomainsTree$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AppActions.loadDomainsTree),
+      mergeMap(() => {
+        this.store.dispatch(AppActions.setLoading({ key: 'adminDomainsTree', loading: true }));
+        return this.api.getDomainsTree().pipe(
+          map((tree) => {
+            this.store.dispatch(AppActions.setLoading({ key: 'adminDomainsTree', loading: false }));
+            return AppActions.setDomainsTree({ tree });
+          }),
+          catchError((err) => {
+            this.store.dispatch(AppActions.setLoading({ key: 'adminDomainsTree', loading: false }));
+            const msg = err?.error?.detail || err?.message || 'Failed to load domain tree';
+            this.store.dispatch(AppActions.setAdminDomainsError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
+            return of(AppActions.setDomainsTree({ tree: [] }));
+          }),
+        );
+      }),
+    ),
+  );
+
+  createDomain$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AppActions.createDomainRequest),
+      mergeMap(({ body }) =>
+        this.api.createDomain(body).pipe(
+          map(() => {
+            this.store.dispatch(AppActions.loadDomainsTree());
+            this.store.dispatch(AppActions.loadDomains());
+            return { type: '[App] Create Domain Success' };
+          }),
+          catchError((err) => {
+            const msg = err?.error?.detail || err?.message || 'Failed to create domain';
+            this.store.dispatch(AppActions.setAdminDomainsError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
+            return of({ type: '[App] Create Domain Failed' });
+          }),
+        ),
+      ),
+    ),
+    { dispatch: false },
+  );
+
+  updateDomain$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AppActions.updateDomainRequest),
+      mergeMap(({ id, body }) =>
+        this.api.updateDomain(id, body).pipe(
+          map(() => {
+            this.store.dispatch(AppActions.loadDomainsTree());
+            this.store.dispatch(AppActions.loadDomains());
+            return { type: '[App] Update Domain Success' };
+          }),
+          catchError((err) => {
+            const msg = err?.error?.detail || err?.message || 'Failed to update domain';
+            this.store.dispatch(AppActions.setAdminDomainsError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
+            return of({ type: '[App] Update Domain Failed' });
+          }),
+        ),
+      ),
+    ),
+    { dispatch: false },
+  );
+
+  deleteDomain$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AppActions.deleteDomainRequest),
+      mergeMap(({ id }) =>
+        this.api.deleteDomain(id).pipe(
+          map(() => {
+            this.store.dispatch(AppActions.loadDomainsTree());
+            this.store.dispatch(AppActions.loadDomains());
+            return { type: '[App] Delete Domain Success' };
+          }),
+          catchError((err) => {
+            const msg = err?.error?.detail || err?.message || 'Failed to delete domain';
+            this.store.dispatch(AppActions.setAdminDomainsError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
+            return of({ type: '[App] Delete Domain Failed' });
+          }),
+        ),
+      ),
+    ),
+    { dispatch: false },
+  );
 }

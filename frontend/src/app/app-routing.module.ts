@@ -11,6 +11,9 @@ import { DataConcernsPageComponent } from './pages/data-concerns-page/data-conce
 import { MetricsPageComponent } from './pages/metrics-page/metrics-page.component';
 import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
+import { AdminDomainsPageComponent } from './pages/admin-domains-page/admin-domains-page.component';
+import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
+import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-settings-page.component';
 
 const routes: Routes = [
   {
@@ -27,6 +30,15 @@ const routes: Routes = [
       { path: 'data-concerns', component: DataConcernsPageComponent },
       { path: 'metrics', component: MetricsPageComponent },
       { path: 'bulk', component: BulkPageComponent },
+      {
+        path: 'admin',
+        component: AdminLayoutComponent,
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'domains' },
+          { path: 'domains', component: AdminDomainsPageComponent },
+          { path: 'settings', component: AdminSettingsPageComponent },
+        ],
+      },
     ],
   },
   { path: '**', redirectTo: '' },

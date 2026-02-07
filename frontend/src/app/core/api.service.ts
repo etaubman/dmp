@@ -12,6 +12,28 @@ export interface Domain {
   parent_id?: number;
 }
 
+/** Tree node for admin domain hierarchy (L0→L1→L2→L3). */
+export interface DomainTreeNode {
+  id: number;
+  name: string;
+  description?: string;
+  parent_id?: number;
+  level: number;
+  children: DomainTreeNode[];
+}
+
+export interface DomainCreate {
+  name: string;
+  description?: string;
+  parent_id?: number;
+}
+
+export interface DomainUpdate {
+  name?: string;
+  description?: string;
+  parent_id?: number | null;
+}
+
 export interface DataElement {
   id: number;
   domain_id: number;
@@ -119,6 +141,22 @@ export class ApiService {
 
   getDomain(id: number): Observable<Domain> {
     return this.http.get<Domain>(`${API}/domains/${id}`);
+  }
+
+  getDomainsTree(): Observable<DomainTreeNode[]> {
+    return this.http.get<DomainTreeNode[]>(`${API}/domain-tree`);
+  }
+
+  createDomain(body: DomainCreate): Observable<Domain> {
+    return this.http.post<Domain>(`${API}/domains`, body);
+  }
+
+  updateDomain(id: number, body: DomainUpdate): Observable<Domain> {
+    return this.http.patch<Domain>(`${API}/domains/${id}`, body);
+  }
+
+  deleteDomain(id: number): Observable<void> {
+    return this.http.delete<void>(`${API}/domains/${id}`);
   }
 
   getDataElements(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<DataElement[]> {

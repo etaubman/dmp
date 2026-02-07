@@ -1,22 +1,39 @@
 import { createReducer, on } from '@ngrx/store';
-import * as AppActions from './app.actions';
-import { initialAppState } from './app.state';
+import { initialAppState } from 'app/store/app.state';
+import {
+  setDomains,
+  setCurrentDomainId,
+  setDataElements,
+  setApplications,
+  setEucs,
+  setEndpoints,
+  setDataQualityRules,
+  setDataQualityExceptions,
+  setDataConcerns,
+  setMetrics,
+  setLoading,
+  setError,
+  setDomainsTree,
+  setAdminDomainsError,
+} from 'app/store/app.actions';
 
 export const appReducer = createReducer(
   initialAppState,
-  on(AppActions.setDomains, (state, { domains }) => ({ ...state, domains })),
-  on(AppActions.setCurrentDomainId, (state, { id }) => ({ ...state, currentDomainId: id })),
-  on(AppActions.setDataElements, (state, { dataElements }) => ({ ...state, dataElements })),
-  on(AppActions.setApplications, (state, { applications }) => ({ ...state, applications })),
-  on(AppActions.setEucs, (state, { eucs }) => ({ ...state, eucs })),
-  on(AppActions.setEndpoints, (state, { endpoints }) => ({ ...state, endpoints })),
-  on(AppActions.setDataQualityRules, (state, { dataQualityRules }) => ({ ...state, dataQualityRules })),
-  on(AppActions.setDataQualityExceptions, (state, { dataQualityExceptions }) => ({ ...state, dataQualityExceptions })),
-  on(AppActions.setDataConcerns, (state, { dataConcerns }) => ({ ...state, dataConcerns })),
-  on(AppActions.setMetrics, (state, { metrics }) => ({ ...state, metrics })),
-  on(AppActions.setLoading, (state, { key, loading }) => ({
+  on(setDomains, (state, { domains }) => ({ ...state, domains })),
+  on(setCurrentDomainId, (state, { id }) => ({ ...state, currentDomainId: id })),
+  on(setDataElements, (state, { dataElements }) => ({ ...state, dataElements })),
+  on(setApplications, (state, { applications }) => ({ ...state, applications })),
+  on(setEucs, (state, { eucs }) => ({ ...state, eucs })),
+  on(setEndpoints, (state, { endpoints }) => ({ ...state, endpoints })),
+  on(setDataQualityRules, (state, { dataQualityRules }) => ({ ...state, dataQualityRules })),
+  on(setDataQualityExceptions, (state, { dataQualityExceptions }) => ({ ...state, dataQualityExceptions })),
+  on(setDataConcerns, (state, { dataConcerns }) => ({ ...state, dataConcerns })),
+  on(setMetrics, (state, { metrics }) => ({ ...state, metrics })),
+  on(setLoading, (state, { key, loading }) => ({
     ...state,
     loading: { ...state.loading, [key]: loading },
   })),
-  on(AppActions.setError, (state, { error }) => ({ ...state, error })),
+  on(setError, (state, { error }) => ({ ...state, error })),
+  on(setDomainsTree, (state, { tree }) => ({ ...state, adminDomainsTree: tree, adminDomainsError: null })),
+  on(setAdminDomainsError, (state, { error }) => ({ ...state, adminDomainsError: error })),
 );

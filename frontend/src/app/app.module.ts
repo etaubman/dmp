@@ -16,6 +16,7 @@ import { appReducer } from './store/app.reducer';
 import { AppEffects } from './store/app.effects';
 
 import { LayoutComponent } from './layout/layout.component';
+import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { DomainSelectorComponent } from './layout/domain-selector/domain-selector.component';
 import { DetailModalComponent } from './shared/detail-modal/detail-modal.component';
 import { DetailPanelComponent } from './shared/detail-panel/detail-panel.component';
@@ -42,11 +43,14 @@ import { DataConcernsPageComponent } from './pages/data-concerns-page/data-conce
 import { MetricsPageComponent } from './pages/metrics-page/metrics-page.component';
 import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
+import { AdminDomainsPageComponent } from './pages/admin-domains-page/admin-domains-page.component';
+import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-settings-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LayoutComponent,
+    AdminLayoutComponent,
     DomainSelectorComponent,
     DetailModalComponent,
     DetailPanelComponent,
@@ -71,6 +75,8 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
     MetricsPageComponent,
     BulkPageComponent,
     HomePageComponent,
+    AdminDomainsPageComponent,
+    AdminSettingsPageComponent,
   ],
   imports: [
     BrowserModule,

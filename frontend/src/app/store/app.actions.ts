@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Domain, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
+import { Domain, DomainTreeNode, DomainCreate, DomainUpdate, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
 
 export const setDomains = createAction('[App] Set Domains', props<{ domains: Domain[] }>());
 export const setCurrentDomainId = createAction('[App] Set Current Domain Id', props<{ id: number | null }>());
@@ -25,3 +25,10 @@ export const loadDataQualityRules = createAction('[App] Load Data Quality Rules'
 export const loadDataQualityExceptions = createAction('[App] Load Data Quality Exceptions', props<{ domainId?: number; dataElementId?: number }>());
 export const loadDataConcerns = createAction('[App] Load Data Concerns', props<{ domainId: number }>());
 export const loadMetrics = createAction('[App] Load Metrics', props<{ domainId?: number }>());
+
+export const loadDomainsTree = createAction('[App] Load Domains Tree');
+export const setDomainsTree = createAction('[App] Set Domains Tree', props<{ tree: DomainTreeNode[] }>());
+export const setAdminDomainsError = createAction('[App] Set Admin Domains Error', props<{ error: string | null }>());
+export const createDomainRequest = createAction('[App] Create Domain Request', props<{ body: DomainCreate }>());
+export const updateDomainRequest = createAction('[App] Update Domain Request', props<{ id: number; body: DomainUpdate }>());
+export const deleteDomainRequest = createAction('[App] Delete Domain Request', props<{ id: number }>());

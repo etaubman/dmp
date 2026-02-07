@@ -19,3 +19,5 @@ export const selectDataConcerns = createSelector(selectAppState, (s) => s.dataCo
 export const selectMetrics = createSelector(selectAppState, (s) => s.metrics);
 export const selectLoading = (key: string) => createSelector(selectAppState, (s) => s.loading[key] === true);
 export const selectError = createSelector(selectAppState, (s) => s.error);
+export const selectDomainsTree = createSelector(selectAppState, (s) => s.adminDomainsTree);
+export const selectAdminDomainsError = createSelector(selectAppState, (s) => s.adminDomainsError);
