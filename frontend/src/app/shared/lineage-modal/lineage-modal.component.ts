@@ -8,6 +8,10 @@ import {
   signal,
   computed,
   inject,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  OnDestroy,
 } from '@angular/core';
 import { initializeModel, provideNgDiagram, NgDiagramViewportService } from 'ng-diagram';
 import type { ModelAdapter } from 'ng-diagram';
@@ -21,13 +25,16 @@ import { DetailRow } from '../detail-modal/detail-modal.component';
   styleUrls: ['./lineage-modal.component.css'],
   providers: [provideNgDiagram()],
 })
-export class LineageModalComponent implements OnChanges {
+export class LineageModalComponent implements OnChanges, AfterViewInit, OnDestroy {
   @Input() dataElement: DataElement | null = null;
   @Input() open = false;
   @Output() openChange = new EventEmitter<boolean>();
 
+  @ViewChild('diagramWrap') diagramWrapRef?: ElementRef<HTMLElement>;
+
   private api = inject(ApiService);
   private viewportService = inject(NgDiagramViewportService);
+  private resizeObserver: ResizeObserver | null = null;
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -52,16 +59,23 @@ export class LineageModalComponent implements OnChanges {
     },
   };
 
-  /** Run zoomToFit once when viewport has valid size (top-half of modal) */
+  /** Run zoomToFit when viewport has valid size (top-half of modal). */
   private hasCentered = false;
+  /** True if the pointer was pressed down on the overlay (not on modal content). Used to avoid closing when user releases after dragging. */
+  private pointerDownOnOverlay = false;
 
   hasNodes(): boolean {
     return this.nodeMap.size > 0;
   }
 
-  /** Only close when the overlay itself is clicked (not when click bubbles from modal content). */
+  /** Track where pointer went down so we only close on a real overlay click, not when releasing a drag outside. */
+  onOverlayPointerDown(event: MouseEvent): void {
+    this.pointerDownOnOverlay = event.target === event.currentTarget;
+  }
+
+  /** Only close when the overlay itself was clicked (not when click bubbles from modal, or when user released drag outside). */
   onOverlayClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) this.close();
+    if (event.target === event.currentTarget && this.pointerDownOnOverlay) this.close();
   }
 
   onDiagramInit(): void {
@@ -72,13 +86,14 @@ export class LineageModalComponent implements OnChanges {
   /** Schedule zoomToFit so it runs after the diagram viewport has its final size (top-half of modal). */
   private scheduleRecenter(): void {
     const run = (): void => {
-      if (!this.hasCentered) {
+      if (!this.hasCentered && this.lineageLoaded() && this.hasNodes()) {
         this.recenter();
         this.hasCentered = true;
       }
     };
     setTimeout(run, 100);
     setTimeout(run, 350);
+    setTimeout(run, 600);
   }
 
   onViewportChanged(event: { viewport: { width?: number; height?: number } }): void {
@@ -90,14 +105,71 @@ export class LineageModalComponent implements OnChanges {
 
   recenter(): void {
     this.viewportService.zoomToFit({ padding: 48 });
+    // Defer so viewport is updated; then shift view up so graph is centered in the visible top-half
+    setTimeout(() => this.correctViewportVerticalOffset(), 0);
+  }
+
+  /**
+   * Shift the view up so the graph is centered in the diagram area (top half of modal).
+   * The library may center for a larger area; we always apply an upward correction using
+   * the actual container height.
+   */
+  private correctViewportVerticalOffset(): void {
+    const el = this.diagramWrapRef?.nativeElement;
+    if (!el) return;
+    const vp = this.viewportService.viewport();
+    const rect = el.getBoundingClientRect();
+    const actualHeight = rect.height;
+    const scale = vp?.scale ?? 1;
+    if (actualHeight <= 0 || scale <= 0) return;
+    let shiftPx: number;
+    const vpHeight = vp?.height ?? 0;
+    if (vpHeight > actualHeight) {
+      shiftPx = (vpHeight - actualHeight) / 2 + actualHeight * 0.75;
+    } else {
+      // Library may report same as container; apply upward shift so content centers in top half
+      shiftPx = actualHeight * 1.25;
+    }
+    const dyFlow = shiftPx / scale;
+    this.viewportService.moveViewportBy(0, -dyFlow);
+  }
+
+  ngAfterViewInit(): void {
+    this.observeDiagramSize();
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+  }
+
+  private observeDiagramSize(): void {
+    if (typeof ResizeObserver === 'undefined') return;
+    const el = this.diagramWrapRef?.nativeElement;
+    if (!el) return;
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = new ResizeObserver(() => {
+      if (!this.open || !this.lineageLoaded() || !this.hasNodes() || this.hasCentered) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        this.recenter();
+        this.hasCentered = true;
+      }
+    });
+    this.resizeObserver.observe(el);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open']?.currentValue && this.dataElement) {
+      this.hasCentered = false;
       this.lineageLoaded.set(false);
       this.loadLineage();
     }
+    if (changes['open']?.currentValue) {
+      setTimeout(() => this.observeDiagramSize(), 100);
+    }
     if (!changes['open']?.currentValue) {
+      this.resizeObserver?.disconnect();
       this.selectedDetailTitle.set('');
       this.selectedDetailRows.set([]);
     }

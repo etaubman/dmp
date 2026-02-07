@@ -1,4 +1,4 @@
-<div *ngIf="open" class="lineage-modal-overlay" (click)="onOverlayClick($event)">
+<div *ngIf="open" class="lineage-modal-overlay" (mousedown)="onOverlayPointerDown($event)" (click)="onOverlayClick($event)">
   <div class="lineage-modal" (click)="$event.stopPropagation()">
     <div class="lineage-modal__header">
       <h3 class="lineage-modal__title">Lineage: {{ dataElement?.name ?? '—' }}</h3>
@@ -6,7 +6,7 @@
     </div>
     <div class="lineage-modal__body">
       <!-- Top half: diagram -->
-      <div class="lineage-modal__diagram-wrap">
+      <div #diagramWrap class="lineage-modal__diagram-wrap">
         <div *ngIf="loading()" class="lineage-modal__loading">Loading lineage…</div>
         <p *ngIf="error()" class="lineage-modal__error">{{ error() }}</p>
         <div *ngIf="lineageLoaded() && !loading() && !error() && hasNodes()" class="lineage-modal__diagram">

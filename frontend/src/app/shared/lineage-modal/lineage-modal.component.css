@@ -61,10 +61,10 @@
   flex-direction: column;
 }
 
-/* Top half: diagram */
+/* Top half: diagram – explicit min-height so viewport gets valid size for zoomToFit/recenter */
 .lineage-modal__diagram-wrap {
   flex: 0 0 50%;
-  min-height: 0;
+  min-height: 280px;
   position: relative;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
