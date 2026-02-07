@@ -3,6 +3,7 @@ import { Store } from '@ngrx/store';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { ColDef } from 'ag-grid-community';
+import { LineageButtonCellComponent } from './lineage-button-cell/lineage-button-cell.component';
 import { selectDataElements, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import { DataElement } from '../../core/api.service';
@@ -22,12 +23,25 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
   panelRows: DetailRow[] = [];
   panelTitle = '';
 
+  lineageModalOpen = false;
+  lineageElement: DataElement | null = null;
+
   metrics: MetricItem[] = [];
 
   columnDefs: ColDef<DataElement>[] = [
     { field: 'name', headerName: 'Name', flex: 1 },
     { field: 'description', headerName: 'Description', flex: 1 },
     { field: 'element_type', headerName: 'Type', width: 120 },
+    {
+      headerName: 'Lineage',
+      width: 100,
+      sortable: false,
+      filter: false,
+      cellRenderer: LineageButtonCellComponent,
+      cellRendererParams: {
+        onOpenLineage: (data: DataElement) => this.openLineage(data),
+      },
+    },
   ];
   defaultColDef: ColDef = { sortable: true, filter: true };
 
@@ -79,6 +93,16 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
 
   closePanel(): void {
     this.selectedItem = null;
+  }
+
+  openLineage(data: DataElement): void {
+    this.lineageElement = data;
+    this.lineageModalOpen = true;
+  }
+
+  onLineageOpenChange(open: boolean): void {
+    this.lineageModalOpen = open;
+    if (!open) this.lineageElement = null;
   }
 
   getRowId = (params: { data: DataElement }) => String(params.data.id);

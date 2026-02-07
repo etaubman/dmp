@@ -87,6 +87,26 @@ export interface Metrics {
   attestation_count?: number;
 }
 
+export interface LineageNode {
+  id: string;
+  type: string;
+  label: string;
+  data: Record<string, unknown>;
+}
+
+export interface LineageEdge {
+  id: string;
+  source: string;
+  target: string;
+  type?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface LineageResponse {
+  nodes: LineageNode[];
+  edges: LineageEdge[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   constructor(private http: HttpClient) {}
@@ -103,6 +123,10 @@ export class ApiService {
     return this.http.get<DataElement[]>(`${API}/data-elements`, {
       params: new HttpParams().set('domain_id', domainId),
     });
+  }
+
+  getDataElementLineage(dataElementId: number): Observable<LineageResponse> {
+    return this.http.get<LineageResponse>(`${API}/data-elements/${dataElementId}/lineage`);
   }
 
   getApplications(domainId: number): Observable<Application[]> {

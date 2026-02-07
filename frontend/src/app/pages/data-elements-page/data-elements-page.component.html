@@ -20,4 +20,9 @@
     </div>
     <app-detail-panel [title]="panelTitle" [rows]="panelRows" [open]="!!selectedItem" (openChange)="closePanel()"></app-detail-panel>
   </div>
+  <app-lineage-modal
+    [dataElement]="lineageElement"
+    [open]="lineageModalOpen"
+    (openChange)="onLineageOpenChange($event)"
+  ></app-lineage-modal>
 </div>

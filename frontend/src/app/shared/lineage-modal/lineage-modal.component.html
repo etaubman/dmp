@@ -1,0 +1,43 @@
+<div *ngIf="open" class="lineage-modal-overlay" (click)="onOverlayClick($event)">
+  <div class="lineage-modal" (click)="$event.stopPropagation()">
+    <div class="lineage-modal__header">
+      <h3 class="lineage-modal__title">Lineage: {{ dataElement?.name ?? '—' }}</h3>
+      <button type="button" class="lineage-modal__close" (click)="close()">✕</button>
+    </div>
+    <div class="lineage-modal__body">
+      <!-- Top half: diagram -->
+      <div class="lineage-modal__diagram-wrap">
+        <div *ngIf="loading()" class="lineage-modal__loading">Loading lineage…</div>
+        <p *ngIf="error()" class="lineage-modal__error">{{ error() }}</p>
+        <div *ngIf="lineageLoaded() && !loading() && !error() && hasNodes()" class="lineage-modal__diagram">
+          <ng-diagram
+            [model]="model()"
+            [config]="diagramConfig"
+            (diagramInit)="onDiagramInit()"
+            (viewportChanged)="onViewportChanged($event)"
+            (selectionChanged)="onSelectionChanged($event)"
+          ></ng-diagram>
+          <button type="button" class="lineage-modal__recenter" title="Recenter diagram" (click)="recenter()" aria-label="Recenter diagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
+        </div>
+        <p *ngIf="lineageLoaded() && !loading() && !error() && !hasNodes()" class="lineage-modal__empty">No lineage data for this element.</p>
+      </div>
+      <!-- Bottom half: details when a node or edge is selected -->
+      <div class="lineage-modal__details-wrap">
+        <div class="lineage-modal__details-inner">
+          <p *ngIf="!hasSelection()" class="lineage-modal__details-placeholder">Click a node or edge to view details.</p>
+          <div *ngIf="hasSelection()">
+            <h4 class="lineage-modal__details-title">{{ selectedDetailTitle() }}</h4>
+            <dl class="lineage-modal__details-list">
+              <div *ngFor="let row of selectedDetailRows()" class="lineage-modal__details-row">
+                <dt class="lineage-modal__details-dt">{{ row.label }}</dt>
+                <dd class="lineage-modal__details-dd">{{ row.value ?? '—' }}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

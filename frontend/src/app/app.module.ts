@@ -18,8 +18,11 @@ import { DomainSelectorComponent } from './layout/domain-selector/domain-selecto
 import { DetailModalComponent } from './shared/detail-modal/detail-modal.component';
 import { DetailPanelComponent } from './shared/detail-panel/detail-panel.component';
 import { ConceptMetricsComponent } from './shared/concept-metrics/concept-metrics.component';
+import { LineageModalComponent } from './shared/lineage-modal/lineage-modal.component';
+import { NgDiagramComponent } from 'ng-diagram';
 
 import { DataElementsPageComponent } from './pages/data-elements-page/data-elements-page.component';
+import { LineageButtonCellComponent } from './pages/data-elements-page/lineage-button-cell/lineage-button-cell.component';
 import { ApplicationsPageComponent } from './pages/applications-page/applications-page.component';
 import { EucsPageComponent } from './pages/eucs-page/eucs-page.component';
 import { EndpointsPageComponent } from './pages/endpoints-page/endpoints-page.component';
@@ -37,6 +40,8 @@ import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
     DetailModalComponent,
     DetailPanelComponent,
     ConceptMetricsComponent,
+    LineageModalComponent,
+    LineageButtonCellComponent,
     DataElementsPageComponent,
     ApplicationsPageComponent,
     EucsPageComponent,
@@ -52,6 +57,7 @@ import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
     HttpClientModule,
     FormsModule,
     AgGridModule,
+    NgDiagramComponent,
     AppRoutingModule,
     StoreModule.forRoot({ app: appReducer }),
     EffectsModule.forRoot([AppEffects]),
