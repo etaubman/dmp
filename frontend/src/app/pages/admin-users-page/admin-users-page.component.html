@@ -1,0 +1,91 @@
+<div class="admin-users flex flex-col flex-1 min-h-0">
+  <div class="admin-users__header flex-shrink-0">
+    <div class="admin-users__header-text">
+      <h2 class="admin-users__title">User Management</h2>
+      <p class="admin-users__subtitle">Add, edit, or remove portal users.</p>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="admin-users__error flex-shrink-0">
+    <span>{{ error }}</span>
+    <button type="button" class="admin-users__error-dismiss" (click)="clearError()" aria-label="Dismiss">×</button>
+  </div>
+
+  <div *ngIf="loading" class="admin-users__loading flex-shrink-0">Loading…</div>
+
+  <div class="admin-users__body flex-1 min-h-0 flex gap-6">
+    <aside class="admin-users__panel flex-shrink-0">
+      <div class="admin-users__panel-inner">
+        <ng-container *ngIf="!loading && !showAddForm && editingId == null">
+          <p class="admin-users__panel-hint">Select a user to edit or add a new one.</p>
+          <button type="button" class="admin-users__btn-add" (click)="openAdd()">
+            Add user
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="!loading && (showAddForm || editingId != null)">
+          <h3 class="admin-users__form-title">{{ editingId != null ? 'Edit user' : 'New user' }}</h3>
+          <form class="admin-users__form" (ngSubmit)="submitForm()">
+            <div class="admin-users__field">
+              <label class="admin-users__label" for="user-email">Email</label>
+              <input id="user-email" type="email" class="admin-users__input" [(ngModel)]="formEmail" name="formEmail" placeholder="user@example.com" />
+            </div>
+            <div class="admin-users__field">
+              <label class="admin-users__label" for="user-name">Name</label>
+              <input id="user-name" type="text" class="admin-users__input" [(ngModel)]="formName" name="formName" placeholder="Display name (optional)" />
+            </div>
+            <div class="admin-users__field">
+              <label class="admin-users__label" for="user-role">Role</label>
+              <input id="user-role" type="text" class="admin-users__input" [(ngModel)]="formRole" name="formRole" placeholder="e.g. admin, viewer (optional)" />
+            </div>
+            <div class="admin-users__form-actions">
+              <button type="button" class="admin-users__btn-secondary" (click)="cancelForm()">Cancel</button>
+              <button type="submit" class="admin-users__btn-primary">{{ editingId != null ? 'Save' : 'Create' }}</button>
+            </div>
+          </form>
+        </ng-container>
+      </div>
+    </aside>
+
+    <div class="admin-users__list-wrap flex-1 min-w-0 flex flex-col min-h-0">
+      <div *ngIf="!loading && users.length === 0" class="admin-users__empty">No users. Add one to get started.</div>
+      <ng-container *ngIf="!loading && users.length > 0">
+        <div class="admin-users__search-wrap flex-shrink-0">
+          <label class="admin-users__search-label" for="user-search">Search users</label>
+          <input
+            id="user-search"
+            type="text"
+            class="admin-users__search-input"
+            placeholder="Filter by email, name, or role…"
+            [(ngModel)]="searchFilter"
+            name="searchFilter"
+          />
+        </div>
+        <div class="admin-users__table-scroll scrollbar-aurora flex-1 min-h-0">
+          <table class="admin-users__table">
+            <thead>
+              <tr>
+                <th class="admin-users__th-email">Email</th>
+                <th class="admin-users__th-name">Name</th>
+                <th class="admin-users__th-role">Role</th>
+                <th class="admin-users__th-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of filteredList" [class.admin-users__row--selected]="editingId === user.id">
+                <td class="admin-users__td-email">{{ user.email }}</td>
+                <td class="admin-users__td-name">{{ user.name || '—' }}</td>
+                <td class="admin-users__td-role">{{ user.role || '—' }}</td>
+                <td class="admin-users__td-actions">
+                  <button type="button" class="admin-users__action admin-users__action--edit" (click)="openEdit(user)" title="Edit">Edit</button>
+                  <button type="button" class="admin-users__action admin-users__action--delete" (click)="deleteUser(user)" title="Delete">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p *ngIf="searchFilter && filteredList.length === 0" class="admin-users__no-results">No users match "{{ searchFilter }}".</p>
+      </ng-container>
+    </div>
+  </div>
+</div>

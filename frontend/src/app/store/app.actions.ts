@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Domain, DomainTreeNode, DomainCreate, DomainUpdate, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
+import { Domain, DomainTreeNode, DomainCreate, DomainUpdate, User, UserCreate, UserUpdate, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
 
 export const setDomains = createAction('[App] Set Domains', props<{ domains: Domain[] }>());
 export const setCurrentDomainId = createAction('[App] Set Current Domain Id', props<{ id: number | null }>());
@@ -32,3 +32,10 @@ export const setAdminDomainsError = createAction('[App] Set Admin Domains Error'
 export const createDomainRequest = createAction('[App] Create Domain Request', props<{ body: DomainCreate }>());
 export const updateDomainRequest = createAction('[App] Update Domain Request', props<{ id: number; body: DomainUpdate }>());
 export const deleteDomainRequest = createAction('[App] Delete Domain Request', props<{ id: number }>());
+
+export const loadUsers = createAction('[App] Load Users');
+export const setUsers = createAction('[App] Set Users', props<{ users: User[] }>());
+export const setAdminUsersError = createAction('[App] Set Admin Users Error', props<{ error: string | null }>());
+export const createUserRequest = createAction('[App] Create User Request', props<{ body: UserCreate }>());
+export const updateUserRequest = createAction('[App] Update User Request', props<{ id: number; body: UserUpdate }>());
+export const deleteUserRequest = createAction('[App] Delete User Request', props<{ id: number }>());

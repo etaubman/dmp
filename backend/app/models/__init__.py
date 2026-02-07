@@ -20,6 +20,7 @@ __all__ = [
     "DataQualityException",
     "DataConcern",
     "SeedFlag",
+    "User",
 ]
 
 
@@ -191,3 +192,15 @@ class SeedFlag(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     seeded_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+# --- User: portal users for admin management ---
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    email = Column(String(255), nullable=False, unique=True, index=True)
+    name = Column(String(255), nullable=True)
+    role = Column(String(64), nullable=True)  # e.g. admin, viewer, editor
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())

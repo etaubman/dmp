@@ -267,4 +267,85 @@ export class AppEffects {
     ),
     { dispatch: false },
   );
+
+  loadUsers$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AppActions.loadUsers),
+      mergeMap(() => {
+        this.store.dispatch(AppActions.setLoading({ key: 'adminUsers', loading: true }));
+        return this.api.getUsers().pipe(
+          map((users) => {
+            this.store.dispatch(AppActions.setLoading({ key: 'adminUsers', loading: false }));
+            return AppActions.setUsers({ users });
+          }),
+          catchError((err) => {
+            this.store.dispatch(AppActions.setLoading({ key: 'adminUsers', loading: false }));
+            const msg = err?.error?.detail || err?.message || 'Failed to load users';
+            this.store.dispatch(AppActions.setAdminUsersError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
+            return of(AppActions.setUsers({ users: [] }));
+          }),
+        );
+      }),
+    ),
+  );
+
+  createUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AppActions.createUserRequest),
+      mergeMap(({ body }) =>
+        this.api.createUser(body).pipe(
+          map(() => {
+            this.store.dispatch(AppActions.loadUsers());
+            return { type: '[App] Create User Success' };
+          }),
+          catchError((err) => {
+            const msg = err?.error?.detail || err?.message || 'Failed to create user';
+            this.store.dispatch(AppActions.setAdminUsersError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
+            return of({ type: '[App] Create User Failed' });
+          }),
+        ),
+      ),
+    ),
+    { dispatch: false },
+  );
+
+  updateUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AppActions.updateUserRequest),
+      mergeMap(({ id, body }) =>
+        this.api.updateUser(id, body).pipe(
+          map(() => {
+            this.store.dispatch(AppActions.loadUsers());
+            return { type: '[App] Update User Success' };
+          }),
+          catchError((err) => {
+            const msg = err?.error?.detail || err?.message || 'Failed to update user';
+            this.store.dispatch(AppActions.setAdminUsersError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
+            return of({ type: '[App] Update User Failed' });
+          }),
+        ),
+      ),
+    ),
+    { dispatch: false },
+  );
+
+  deleteUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AppActions.deleteUserRequest),
+      mergeMap(({ id }) =>
+        this.api.deleteUser(id).pipe(
+          map(() => {
+            this.store.dispatch(AppActions.loadUsers());
+            return { type: '[App] Delete User Success' };
+          }),
+          catchError((err) => {
+            const msg = err?.error?.detail || err?.message || 'Failed to delete user';
+            this.store.dispatch(AppActions.setAdminUsersError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
+            return of({ type: '[App] Delete User Failed' });
+          }),
+        ),
+      ),
+    ),
+    { dispatch: false },
+  );
 }

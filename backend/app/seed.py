@@ -7,6 +7,7 @@ from app.database import get_engine_and_session
 from app.models import (
     SeedFlag,
     Domain,
+    User,
     DataElement,
     Application,
     EUC,
@@ -52,6 +53,24 @@ DOMAIN_HIERARCHY = [
         "Retail Banking",
     ]),
 ]
+
+
+# Seed users: portal users for admin (only if table is empty)
+SEED_USERS = [
+    {"email": "admin@example.com", "name": "Admin User", "role": "admin"},
+    {"email": "viewer@example.com", "name": "Viewer User", "role": "viewer"},
+    {"email": "editor@example.com", "name": "Editor User", "role": "editor"},
+    {"email": "ethan.taubman@example.com", "name": "Ethan Taubman", "role": "admin"},
+]
+
+
+def _add_users(db):
+    """Create seed users if the users table is empty."""
+    if db.query(User).first() is not None:
+        return
+    for u in SEED_USERS:
+        db.add(User(email=u["email"], name=u["name"], role=u["role"]))
+    db.flush()
 
 
 def _add_domains(db):
@@ -1039,9 +1058,12 @@ def run_seed():
     try:
         existing = db.query(SeedFlag).first()
         if existing:
+            _add_users(db)  # Seed users if table empty (e.g. added after first seed)
+            db.commit()
             return  # Already seeded
 
         name_to_id = _add_domains(db)
+        _add_users(db)
 
         for l1_name, seeder in L1_SEEDERS.items():
             if l1_name in name_to_id:

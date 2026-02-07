@@ -44,6 +44,7 @@ import { MetricsPageComponent } from './pages/metrics-page/metrics-page.componen
 import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { AdminDomainsPageComponent } from './pages/admin-domains-page/admin-domains-page.component';
+import { AdminUsersPageComponent } from './pages/admin-users-page/admin-users-page.component';
 import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-settings-page.component';
 
 @NgModule({
@@ -76,6 +77,7 @@ import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-se
     BulkPageComponent,
     HomePageComponent,
     AdminDomainsPageComponent,
+    AdminUsersPageComponent,
     AdminSettingsPageComponent,
   ],
   imports: [

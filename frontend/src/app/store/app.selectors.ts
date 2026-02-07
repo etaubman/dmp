@@ -21,3 +21,5 @@ export const selectLoading = (key: string) => createSelector(selectAppState, (s)
 export const selectError = createSelector(selectAppState, (s) => s.error);
 export const selectDomainsTree = createSelector(selectAppState, (s) => s.adminDomainsTree);
 export const selectAdminDomainsError = createSelector(selectAppState, (s) => s.adminDomainsError);
+export const selectAdminUsers = createSelector(selectAppState, (s) => s.adminUsers);
+export const selectAdminUsersError = createSelector(selectAppState, (s) => s.adminUsersError);

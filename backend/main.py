@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.database import get_engine_and_session, get_db_dep
 from app.seed import run_seed
-from app.api import domains, data_elements, applications, eucs, endpoints, data_quality, data_concerns, metrics, bulk
+from app.api import domains, users, data_elements, applications, eucs, endpoints, data_quality, data_concerns, metrics, bulk
 from app.api.domains import get_domains_tree_list
 from app.schemas.domain import DomainTreeOut
 
@@ -36,6 +36,7 @@ def api_domain_tree(db: Session = Depends(get_db_dep)):
 
 # Include routers
 app.include_router(domains.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
 app.include_router(data_elements.router, prefix="/api")
 app.include_router(applications.router, prefix="/api")
 app.include_router(eucs.router, prefix="/api")

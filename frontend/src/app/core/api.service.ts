@@ -34,6 +34,27 @@ export interface DomainUpdate {
   parent_id?: number | null;
 }
 
+export interface User {
+  id: number;
+  email: string;
+  name?: string;
+  role?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface UserCreate {
+  email: string;
+  name?: string;
+  role?: string;
+}
+
+export interface UserUpdate {
+  email?: string;
+  name?: string;
+  role?: string;
+}
+
 export interface DataElement {
   id: number;
   domain_id: number;
@@ -157,6 +178,26 @@ export class ApiService {
 
   deleteDomain(id: number): Observable<void> {
     return this.http.delete<void>(`${API}/domains/${id}`);
+  }
+
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${API}/users`);
+  }
+
+  getUser(id: number): Observable<User> {
+    return this.http.get<User>(`${API}/users/${id}`);
+  }
+
+  createUser(body: UserCreate): Observable<User> {
+    return this.http.post<User>(`${API}/users`, body);
+  }
+
+  updateUser(id: number, body: UserUpdate): Observable<User> {
+    return this.http.patch<User>(`${API}/users/${id}`, body);
+  }
+
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${API}/users/${id}`);
   }
 
   getDataElements(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<DataElement[]> {

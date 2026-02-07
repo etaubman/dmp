@@ -1,10 +1,12 @@
-import { Domain, DomainTreeNode, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
+import { Domain, DomainTreeNode, User, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
 
 export interface AppState {
   domains: Domain[];
   currentDomainId: number | null;
   adminDomainsTree: DomainTreeNode[] | null;
   adminDomainsError: string | null;
+  adminUsers: User[];
+  adminUsersError: string | null;
   dataElements: DataElement[];
   applications: Application[];
   eucs: EUC[];
@@ -22,6 +24,8 @@ export const initialAppState: AppState = {
   currentDomainId: null,
   adminDomainsTree: null,
   adminDomainsError: null,
+  adminUsers: [],
+  adminUsersError: null,
   dataElements: [],
   applications: [],
   eucs: [],

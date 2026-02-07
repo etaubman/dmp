@@ -15,6 +15,8 @@ import {
   setError,
   setDomainsTree,
   setAdminDomainsError,
+  setUsers,
+  setAdminUsersError,
 } from 'app/store/app.actions';
 
 export const appReducer = createReducer(
@@ -36,4 +38,6 @@ export const appReducer = createReducer(
   on(setError, (state, { error }) => ({ ...state, error })),
   on(setDomainsTree, (state, { tree }) => ({ ...state, adminDomainsTree: tree, adminDomainsError: null })),
   on(setAdminDomainsError, (state, { error }) => ({ ...state, adminDomainsError: error })),
+  on(setUsers, (state, { users }) => ({ ...state, adminUsers: users, adminUsersError: null })),
+  on(setAdminUsersError, (state, { error }) => ({ ...state, adminUsersError: error })),
 );
