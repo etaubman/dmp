@@ -23,8 +23,33 @@
   </aside>
   <!-- Main area -->
   <div class="flex-1 flex flex-col min-w-0 bg-aurora-bg">
-    <header class="h-14 flex-shrink-0 flex items-center px-6 gap-4 bg-aurora-header" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-      <span class="text-gray-500 text-sm font-medium">Data Governance</span>
+    <header class="layout-header h-14 flex-shrink-0 flex items-center justify-between px-6 bg-aurora-header" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+      <nav class="layout-header-nav flex items-center gap-2">
+        <div class="header-dropdown">
+          <button type="button" class="header-dropdown-trigger" aria-haspopup="true" aria-expanded="false">
+            <span>Nav 1</span>
+            <span class="header-dropdown-chevron" aria-hidden="true">▼</span>
+          </button>
+          <div class="header-dropdown-panel" role="menu">
+            <a href="#" class="header-dropdown-item" role="menuitem">Placeholder link</a>
+            <a href="#" class="header-dropdown-item" role="menuitem">Placeholder link</a>
+          </div>
+        </div>
+        <div class="header-dropdown">
+          <button type="button" class="header-dropdown-trigger" aria-haspopup="true" aria-expanded="false">
+            <span>Nav 2</span>
+            <span class="header-dropdown-chevron" aria-hidden="true">▼</span>
+          </button>
+          <div class="header-dropdown-panel" role="menu">
+            <a href="#" class="header-dropdown-item" role="menuitem">Placeholder link</a>
+            <a href="#" class="header-dropdown-item" role="menuitem">Placeholder link</a>
+          </div>
+        </div>
+      </nav>
+      <div class="layout-header-profile flex items-center gap-3">
+        <span class="header-profile-name text-sm text-gray-300">User</span>
+        <div class="header-profile-avatar" aria-hidden="true"></div>
+      </div>
     </header>
     <main class="flex-1 flex flex-col min-h-0 bg-aurora-bg" style="padding: var(--gutter, 24px);">
       <div class="outlet-wrapper flex-1 flex flex-col min-h-0 overflow-hidden">
