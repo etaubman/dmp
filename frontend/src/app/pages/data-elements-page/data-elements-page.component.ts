@@ -9,6 +9,7 @@ import * as AppActions from '../../store/app.actions';
 import { DataElement } from '../../core/api.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
+import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
 
 @Component({
   selector: 'app-data-elements-page',
@@ -67,10 +68,16 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
   }
 
   private updateMetrics(): void {
+    const total = this.dataElements.length;
+    const withDesc = this.dataElements.filter((e) => e.description?.trim()).length;
+    const logical = this.dataElements.filter((e) => e.element_type === 'logical').length;
+    const tCh = mockChangeFromValue(total, 0);
+    const wCh = mockChangeFromValue(withDesc, 1);
+    const lCh = mockChangeFromValue(logical, 2);
     this.metrics = [
-      { label: 'Total', value: this.dataElements.length },
-      { label: 'With description', value: this.dataElements.filter((e) => e.description?.trim()).length },
-      { label: 'Logical', value: this.dataElements.filter((e) => e.element_type === 'logical').length },
+      { label: 'Total', value: total, sparklineData: mockSparklineFromValue(total, 0), change: tCh.change, changePercent: tCh.changePercent },
+      { label: 'With description', value: withDesc, sparklineData: mockSparklineFromValue(withDesc, 1), change: wCh.change, changePercent: wCh.changePercent },
+      { label: 'Logical', value: logical, sparklineData: mockSparklineFromValue(logical, 2), change: lCh.change, changePercent: lCh.changePercent },
     ];
   }
 

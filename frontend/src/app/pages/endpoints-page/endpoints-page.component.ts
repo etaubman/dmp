@@ -8,6 +8,7 @@ import * as AppActions from '../../store/app.actions';
 import { Endpoint } from '../../core/api.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
+import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
 
 @Component({
   selector: 'app-endpoints-page',
@@ -45,9 +46,13 @@ export class EndpointsPageComponent implements OnInit, OnDestroy {
       .subscribe(([list, loading]) => {
         this.endpoints = list;
         this.loading = loading;
+        const total = list.length;
+        const withDesc = list.filter((e) => e.description?.trim()).length;
+        const tCh = mockChangeFromValue(total, 0);
+        const wCh = mockChangeFromValue(withDesc, 1);
         this.metrics = [
-          { label: 'Total', value: list.length },
-          { label: 'With description', value: list.filter((e) => e.description?.trim()).length },
+          { label: 'Total', value: total, sparklineData: mockSparklineFromValue(total, 0), change: tCh.change, changePercent: tCh.changePercent },
+          { label: 'With description', value: withDesc, sparklineData: mockSparklineFromValue(withDesc, 1), change: wCh.change, changePercent: wCh.changePercent },
         ];
       });
   }

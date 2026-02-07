@@ -8,6 +8,7 @@ import * as AppActions from '../../store/app.actions';
 import { DataQualityException } from '../../core/api.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
+import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
 
 @Component({
   selector: 'app-dq-exceptions-page',
@@ -46,10 +47,16 @@ export class DqExceptionsPageComponent implements OnInit, OnDestroy {
       .subscribe(([list, loading]) => {
         this.exceptions = list;
         this.loading = loading;
+        const total = list.length;
+        const open = list.filter((e) => e.status === 'open').length;
+        const closed = list.filter((e) => e.status === 'closed').length;
+        const tCh = mockChangeFromValue(total, 0);
+        const oCh = mockChangeFromValue(open, 1);
+        const cCh = mockChangeFromValue(closed, 2);
         this.metrics = [
-          { label: 'Total', value: list.length },
-          { label: 'Open', value: list.filter((e) => e.status === 'open').length },
-          { label: 'Closed', value: list.filter((e) => e.status === 'closed').length },
+          { label: 'Total', value: total, sparklineData: mockSparklineFromValue(total, 0), change: tCh.change, changePercent: tCh.changePercent },
+          { label: 'Open', value: open, sparklineData: mockSparklineFromValue(open, 1), change: oCh.change, changePercent: oCh.changePercent },
+          { label: 'Closed', value: closed, sparklineData: mockSparklineFromValue(closed, 2), change: cCh.change, changePercent: cCh.changePercent },
         ];
       });
   }

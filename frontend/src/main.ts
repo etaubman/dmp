@@ -1,10 +1,12 @@
 import '@angular/compiler';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+import { ModuleRegistry as AgGridModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+import { ModuleRegistry as AgChartsModuleRegistry, AllCommunityModule as AgChartsAllCommunity } from 'ag-charts-community';
 
 import { AppModule } from './app/app.module';
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+AgGridModuleRegistry.registerModules([AllCommunityModule]);
+AgChartsModuleRegistry.registerModules([AgChartsAllCommunity]);
 
 platformBrowserDynamic().bootstrapModule(AppModule, {
   ngZoneEventCoalescing: true

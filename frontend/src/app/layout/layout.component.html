@@ -10,6 +10,7 @@
       <app-domain-selector></app-domain-selector>
     </div>
     <nav class="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
+      <a routerLink="/" routerLinkActive="!bg-accent/20 !text-accent" [routerLinkActiveOptions]="{ exact: true }" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Home</a>
       <a routerLink="/data-elements" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Critical Data Elements</a>
       <a routerLink="/applications" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Applications</a>
       <a routerLink="/eucs" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">EUCs</a>

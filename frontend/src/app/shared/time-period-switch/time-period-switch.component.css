@@ -1,0 +1,39 @@
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.time-period-switch {
+  display: inline-flex;
+  background-color: rgba(255, 255, 255, 0.04);
+  border-radius: var(--input, 0.5rem);
+  padding: 2px;
+  gap: 0;
+}
+
+.time-period-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--input, 0.5rem) - 2px);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.time-period-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.time-period-btn--active {
+  color: var(--text-primary, #f3f4f6);
+  background: var(--accent, #14b8a6);
+}
+
+.time-period-btn--active:hover {
+  background: var(--accent-hover, #0d9488);
+  color: var(--text-primary, #f3f4f6);
+}

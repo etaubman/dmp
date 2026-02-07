@@ -8,6 +8,7 @@ import * as AppActions from '../../store/app.actions';
 import { DataConcern } from '../../core/api.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
+import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
 
 @Component({
   selector: 'app-data-concerns-page',
@@ -46,10 +47,16 @@ export class DataConcernsPageComponent implements OnInit, OnDestroy {
       .subscribe(([list, loading]) => {
         this.concerns = list;
         this.loading = loading;
+        const total = list.length;
+        const open = list.filter((c) => c.status === 'open').length;
+        const withDesc = list.filter((c) => c.description?.trim()).length;
+        const tCh = mockChangeFromValue(total, 0);
+        const oCh = mockChangeFromValue(open, 1);
+        const wCh = mockChangeFromValue(withDesc, 2);
         this.metrics = [
-          { label: 'Total', value: list.length },
-          { label: 'Open', value: list.filter((c) => c.status === 'open').length },
-          { label: 'With description', value: list.filter((c) => c.description?.trim()).length },
+          { label: 'Total', value: total, sparklineData: mockSparklineFromValue(total, 0), change: tCh.change, changePercent: tCh.changePercent },
+          { label: 'Open', value: open, sparklineData: mockSparklineFromValue(open, 1), change: oCh.change, changePercent: oCh.changePercent },
+          { label: 'With description', value: withDesc, sparklineData: mockSparklineFromValue(withDesc, 2), change: wCh.change, changePercent: wCh.changePercent },
         ];
       });
   }

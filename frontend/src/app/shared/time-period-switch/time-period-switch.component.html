@@ -1,0 +1,10 @@
+<div class="time-period-switch" role="group" aria-label="Time period">
+  <button
+    *ngFor="let opt of options"
+    type="button"
+    class="time-period-btn"
+    [class.time-period-btn--active]="isSelected(opt.id)"
+    (click)="select(opt.id)">
+    {{ opt.label }}
+  </button>
+</div>

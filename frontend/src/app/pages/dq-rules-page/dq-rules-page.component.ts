@@ -8,6 +8,7 @@ import * as AppActions from '../../store/app.actions';
 import { DataQualityRule } from '../../core/api.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
+import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
 
 @Component({
   selector: 'app-dq-rules-page',
@@ -46,10 +47,16 @@ export class DqRulesPageComponent implements OnInit, OnDestroy {
       .subscribe(([list, loading]) => {
         this.rules = list;
         this.loading = loading;
+        const total = list.length;
+        const validity = list.filter((r) => r.rule_type === 'validity').length;
+        const timeliness = list.filter((r) => r.rule_type === 'timeliness').length;
+        const tCh = mockChangeFromValue(total, 0);
+        const vCh = mockChangeFromValue(validity, 1);
+        const tiCh = mockChangeFromValue(timeliness, 2);
         this.metrics = [
-          { label: 'Total', value: list.length },
-          { label: 'Validity', value: list.filter((r) => r.rule_type === 'validity').length },
-          { label: 'Timeliness', value: list.filter((r) => r.rule_type === 'timeliness').length },
+          { label: 'Total', value: total, sparklineData: mockSparklineFromValue(total, 0), change: tCh.change, changePercent: tCh.changePercent },
+          { label: 'Validity', value: validity, sparklineData: mockSparklineFromValue(validity, 1), change: vCh.change, changePercent: vCh.changePercent },
+          { label: 'Timeliness', value: timeliness, sparklineData: mockSparklineFromValue(timeliness, 2), change: tiCh.change, changePercent: tiCh.changePercent },
         ];
       });
   }

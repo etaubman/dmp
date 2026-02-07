@@ -8,6 +8,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 import { AgGridModule } from 'ag-grid-angular';
+import { AgChartsModule } from 'ag-charts-angular';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { appReducer } from './store/app.reducer';
@@ -18,6 +19,7 @@ import { DomainSelectorComponent } from './layout/domain-selector/domain-selecto
 import { DetailModalComponent } from './shared/detail-modal/detail-modal.component';
 import { DetailPanelComponent } from './shared/detail-panel/detail-panel.component';
 import { ConceptMetricsComponent } from './shared/concept-metrics/concept-metrics.component';
+import { TimePeriodSwitchComponent } from './shared/time-period-switch/time-period-switch.component';
 import { LineageModalComponent } from './shared/lineage-modal/lineage-modal.component';
 import { NgDiagramComponent } from 'ng-diagram';
 
@@ -31,6 +33,7 @@ import { DqExceptionsPageComponent } from './pages/dq-exceptions-page/dq-excepti
 import { DataConcernsPageComponent } from './pages/data-concerns-page/data-concerns-page.component';
 import { MetricsPageComponent } from './pages/metrics-page/metrics-page.component';
 import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
+import { HomePageComponent } from './pages/home-page/home-page.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +43,7 @@ import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
     DetailModalComponent,
     DetailPanelComponent,
     ConceptMetricsComponent,
+    TimePeriodSwitchComponent,
     LineageModalComponent,
     LineageButtonCellComponent,
     DataElementsPageComponent,
@@ -51,12 +55,14 @@ import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
     DataConcernsPageComponent,
     MetricsPageComponent,
     BulkPageComponent,
+    HomePageComponent,
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     FormsModule,
     AgGridModule,
+    AgChartsModule,
     NgDiagramComponent,
     AppRoutingModule,
     StoreModule.forRoot({ app: appReducer }),

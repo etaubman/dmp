@@ -8,6 +8,7 @@ import * as AppActions from '../../store/app.actions';
 import { EUC } from '../../core/api.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
+import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
 
 @Component({
   selector: 'app-eucs-page',
@@ -46,10 +47,16 @@ export class EucsPageComponent implements OnInit, OnDestroy {
       .subscribe(([list, loading]) => {
         this.eucs = list;
         this.loading = loading;
+        const total = list.length;
+        const eucType = list.filter((e) => e.euc_type === 'euc').length;
+        const itess = list.filter((e) => e.euc_type === 'itess').length;
+        const tCh = mockChangeFromValue(total, 0);
+        const eCh = mockChangeFromValue(eucType, 1);
+        const iCh = mockChangeFromValue(itess, 2);
         this.metrics = [
-          { label: 'Total', value: list.length },
-          { label: 'EUC type', value: list.filter((e) => e.euc_type === 'euc').length },
-          { label: 'ITESS', value: list.filter((e) => e.euc_type === 'itess').length },
+          { label: 'Total', value: total, sparklineData: mockSparklineFromValue(total, 0), change: tCh.change, changePercent: tCh.changePercent },
+          { label: 'EUC type', value: eucType, sparklineData: mockSparklineFromValue(eucType, 1), change: eCh.change, changePercent: eCh.changePercent },
+          { label: 'ITESS', value: itess, sparklineData: mockSparklineFromValue(itess, 2), change: iCh.change, changePercent: iCh.changePercent },
         ];
       });
   }

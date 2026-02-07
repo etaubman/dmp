@@ -22,6 +22,8 @@
     "@ngrx/effects": "^18.1.1",
     "@ngrx/store": "^18.1.1",
     "@ngrx/store-devtools": "^18.1.1",
+    "ag-charts-angular": "^13.0.1",
+    "ag-charts-community": "^13.0.1",
     "ag-grid-angular": "^35.0.1",
     "ag-grid-community": "^35.0.1",
     "ng-diagram": "^1.0.0",

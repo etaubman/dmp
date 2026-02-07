@@ -1,6 +1,13 @@
 <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
-  <h2 class="text-xl font-semibold text-gray-100 mb-1">Data Quality Rules</h2>
-  <p class="text-gray-500 text-sm mb-4">Select a domain to load rules.</p>
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-4 flex-shrink-0">
+    <div class="min-w-0">
+      <h2 class="text-xl font-semibold text-gray-100 mb-1">Data Quality Rules</h2>
+      <p class="text-gray-500 text-sm">Select a domain to load rules.</p>
+    </div>
+    <div class="flex-shrink-0">
+      <app-time-period-switch></app-time-period-switch>
+    </div>
+  </div>
   <app-concept-metrics *ngIf="!loading" [metrics]="metrics"></app-concept-metrics>
   <div *ngIf="loading" class="text-accent mb-4">Loading…</div>
   <div *ngIf="!loading && rules.length === 0" class="text-gray-500 mb-4">No data quality rules.</div>

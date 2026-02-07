@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
+import type { AgCartesianChartOptions } from 'ag-charts-community';
 import { selectMetrics, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import { Metrics } from '../../core/api.service';
@@ -16,6 +17,7 @@ export class MetricsPageComponent implements OnInit, OnDestroy {
   metrics: Metrics | null = null;
   loading = false;
   domainId: number | null = null;
+  chartOptions: AgCartesianChartOptions | null = null;
 
   constructor(private store: Store) {}
 
@@ -35,7 +37,35 @@ export class MetricsPageComponent implements OnInit, OnDestroy {
       .subscribe(([metrics, loading]) => {
         this.metrics = metrics;
         this.loading = loading;
+        this.buildChart(metrics);
       });
+  }
+
+  private buildChart(metrics: Metrics | null): void {
+    if (!metrics) {
+      this.chartOptions = null;
+      return;
+    }
+    const barData = [
+      { category: 'Data Elements', value: metrics.data_elements_count },
+      { category: 'Applications', value: metrics.applications_count },
+      { category: 'EUCs', value: metrics.eucs_count },
+      { category: 'Endpoints', value: metrics.endpoints_count },
+      { category: 'DQ Rules', value: metrics.data_quality_rules_count },
+      { category: 'DQ Exceptions', value: metrics.data_quality_exceptions_count },
+      { category: 'Data Concerns', value: metrics.data_concerns_count },
+    ];
+    this.chartOptions = {
+      theme: { overrides: { common: { background: { fill: '#181b20' } } } },
+      data: barData,
+      axes: {
+        x: { type: 'category', position: 'bottom', label: { color: '#9ca3af', fontSize: 11 } },
+        y: { type: 'number', position: 'left', title: { text: 'Count', color: '#9ca3af' }, label: { color: '#9ca3af' } },
+      },
+      series: [{ type: 'bar', xKey: 'category', yKey: 'value', fill: '#14b8a6', stroke: '#0d9488' }],
+      height: 300,
+      padding: { top: 16, right: 20, bottom: 48, left: 56 },
+    };
   }
 
   ngOnDestroy(): void {

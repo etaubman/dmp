@@ -10,13 +10,14 @@ import { DqExceptionsPageComponent } from './pages/dq-exceptions-page/dq-excepti
 import { DataConcernsPageComponent } from './pages/data-concerns-page/data-concerns-page.component';
 import { MetricsPageComponent } from './pages/metrics-page/metrics-page.component';
 import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
+import { HomePageComponent } from './pages/home-page/home-page.component';
 
 const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
     children: [
-      { path: '', redirectTo: 'metrics', pathMatch: 'full' },
+      { path: '', pathMatch: 'full', component: HomePageComponent },
       { path: 'data-elements', component: DataElementsPageComponent },
       { path: 'applications', component: ApplicationsPageComponent },
       { path: 'eucs', component: EucsPageComponent },

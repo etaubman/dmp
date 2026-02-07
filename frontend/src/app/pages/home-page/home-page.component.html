@@ -1,0 +1,92 @@
+<div class="home-scroll flex flex-col space-y-8 pb-4">
+  <header class="flex-shrink-0">
+    <h1 class="text-2xl font-semibold text-gray-100">Home</h1>
+    <p class="text-gray-500 text-sm mt-1" *ngIf="domainName">
+      Key metrics for <span class="text-accent font-medium">{{ domainName }}</span>
+    </p>
+    <p class="text-gray-500 text-sm mt-1" *ngIf="!domainId && !loading">
+      Select a domain in the sidebar to see domain-specific metrics and attention items.
+    </p>
+  </header>
+
+  <div *ngIf="loading" class="text-accent">Loading…</div>
+
+  <ng-container *ngIf="!loading">
+    <!-- Key metrics -->
+    <section class="flex-shrink-0">
+      <h2 class="text-lg font-medium text-gray-200 mb-4">Key metrics</h2>
+      <div *ngIf="metrics" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div class="card-aurora p-4">
+          <div class="text-gray-500 text-sm">Data Elements</div>
+          <div class="text-xl font-semibold text-accent mt-1">{{ metrics.data_elements_count }}</div>
+        </div>
+        <div class="card-aurora p-4">
+          <div class="text-gray-500 text-sm">Applications</div>
+          <div class="text-xl font-semibold text-accent mt-1">{{ metrics.applications_count }}</div>
+        </div>
+        <div class="card-aurora p-4">
+          <div class="text-gray-500 text-sm">EUCs</div>
+          <div class="text-xl font-semibold text-accent mt-1">{{ metrics.eucs_count }}</div>
+        </div>
+        <div class="card-aurora p-4">
+          <div class="text-gray-500 text-sm">Endpoints</div>
+          <div class="text-xl font-semibold text-accent mt-1">{{ metrics.endpoints_count }}</div>
+        </div>
+        <div class="card-aurora p-4">
+          <div class="text-gray-500 text-sm">DQ Rules</div>
+          <div class="text-xl font-semibold text-accent mt-1">{{ metrics.data_quality_rules_count }}</div>
+        </div>
+        <div class="card-aurora p-4">
+          <div class="text-gray-500 text-sm">DQ Exceptions</div>
+          <div class="text-xl font-semibold text-accent mt-1">{{ metrics.data_quality_exceptions_count }}</div>
+        </div>
+        <div class="card-aurora p-4">
+          <div class="text-gray-500 text-sm">Data Concerns</div>
+          <div class="text-xl font-semibold text-accent mt-1">{{ metrics.data_concerns_count }}</div>
+        </div>
+        <div class="card-aurora p-4" *ngIf="metrics.domains_count !== undefined">
+          <div class="text-gray-500 text-sm">Domains</div>
+          <div class="text-xl font-semibold text-accent mt-1">{{ metrics.domains_count }}</div>
+        </div>
+      </div>
+      <div *ngIf="!metrics" class="text-gray-500 text-sm">No metrics yet. Select a domain or view global metrics.</div>
+    </section>
+
+    <!-- Items needing attention -->
+    <section class="flex-shrink-0" *ngIf="domainId">
+      <h2 class="text-lg font-medium text-gray-200 mb-4">Items needing attention</h2>
+      <div *ngIf="attentionItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <button
+          *ngFor="let item of attentionItems"
+          type="button"
+          (click)="goTo(item.route)"
+          class="card-aurora p-4 text-left hover:bg-aurora-cardHover transition-colors border-l-4"
+          [class.border-amber-500]="item.severity === 'warning'"
+          [class.border-accent]="item.severity === 'info'"
+        >
+          <div class="flex items-center justify-between">
+            <span class="font-medium text-gray-200">{{ item.title }}</span>
+            <span class="text-2xl font-bold text-accent">{{ item.count }}</span>
+          </div>
+          <p class="text-gray-500 text-sm mt-2">{{ item.description }}</p>
+          <span class="text-accent text-sm mt-2 inline-block">View →</span>
+        </button>
+      </div>
+      <div *ngIf="attentionItems.length === 0 && metrics" class="card-aurora p-6 text-center text-gray-500">
+        <span class="text-accent text-lg">✓</span> No items needing attention for this domain.
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="flex-shrink-0 grid grid-cols-1 xl:grid-cols-2 gap-6" *ngIf="metrics && (chartOptions || donutOptions)">
+      <div class="card-aurora p-4" *ngIf="chartOptions">
+        <h3 class="text-base font-medium text-gray-200 mb-3">Entity counts</h3>
+        <ag-charts [options]="chartOptions" style="width: 100%; height: 280px;"></ag-charts>
+      </div>
+      <div class="card-aurora p-4" *ngIf="donutOptions">
+        <h3 class="text-base font-medium text-gray-200 mb-3">Distribution</h3>
+        <ag-charts [options]="donutOptions" style="width: 100%; height: 260px;"></ag-charts>
+      </div>
+    </section>
+  </ng-container>
+</div>
