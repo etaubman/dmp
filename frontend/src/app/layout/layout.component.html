@@ -66,4 +66,9 @@
       An Ethan Taubman Creation - Copyright 2026
     </footer>
   </div>
+  <app-data-concern-detail-modal
+    [concern]="(concernModal.state$ | async)?.concern ?? null"
+    [open]="(concernModal.state$ | async)?.open ?? false"
+    (openChange)="onConcernModalOpenChange($event)"
+  ></app-data-concern-detail-modal>
 </div>

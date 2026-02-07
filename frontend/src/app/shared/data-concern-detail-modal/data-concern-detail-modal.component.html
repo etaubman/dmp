@@ -1,0 +1,59 @@
+<div *ngIf="open" class="data-concern-modal-overlay" (click)="onOverlayClick($event)">
+  <div class="data-concern-modal" (click)="$event.stopPropagation()">
+    <div class="data-concern-modal__header">
+      <h3 class="data-concern-modal__title">Data Concern: {{ concern?.title ?? '—' }}</h3>
+      <button type="button" class="data-concern-modal__close" (click)="close()" aria-label="Close">✕</button>
+    </div>
+    <div class="data-concern-modal__body">
+      <dl *ngIf="concern" class="data-concern-modal__detail-list">
+        <div class="data-concern-modal__row">
+          <dt class="data-concern-modal__dt">ID</dt>
+          <dd class="data-concern-modal__dd">{{ concern.id }}</dd>
+        </div>
+        <div class="data-concern-modal__row">
+          <dt class="data-concern-modal__dt">Title</dt>
+          <dd class="data-concern-modal__dd">{{ concern.title }}</dd>
+        </div>
+        <div class="data-concern-modal__row">
+          <dt class="data-concern-modal__dt">Status</dt>
+          <dd class="data-concern-modal__dd">
+            <span [class.data-concern-modal__status-critical]="concern.status === 'critical'">{{ concern.status ?? '—' }}</span>
+          </dd>
+        </div>
+        <div class="data-concern-modal__row">
+          <dt class="data-concern-modal__dt">Domain ID</dt>
+          <dd class="data-concern-modal__dd">{{ concern.domain_id }}</dd>
+        </div>
+        <div class="data-concern-modal__row" *ngIf="concern.application_id != null">
+          <dt class="data-concern-modal__dt">Application ID</dt>
+          <dd class="data-concern-modal__dd">{{ concern.application_id }}</dd>
+        </div>
+        <div class="data-concern-modal__row" *ngIf="concern.euc_id != null">
+          <dt class="data-concern-modal__dt">EUC ID</dt>
+          <dd class="data-concern-modal__dd">{{ concern.euc_id }}</dd>
+        </div>
+        <div class="data-concern-modal__row" *ngIf="concern.endpoint_id != null">
+          <dt class="data-concern-modal__dt">Endpoint ID</dt>
+          <dd class="data-concern-modal__dd">{{ concern.endpoint_id }}</dd>
+        </div>
+        <div class="data-concern-modal__row" *ngIf="concern.data_element_id != null">
+          <dt class="data-concern-modal__dt">Data Element ID</dt>
+          <dd class="data-concern-modal__dd">{{ concern.data_element_id }}</dd>
+        </div>
+        <div class="data-concern-modal__row">
+          <dt class="data-concern-modal__dt">Description</dt>
+          <dd class="data-concern-modal__dd">{{ concern.description ?? '—' }}</dd>
+        </div>
+        <div class="data-concern-modal__row">
+          <dt class="data-concern-modal__dt">Created at</dt>
+          <dd class="data-concern-modal__dd">{{ formatDate(concern.created_at) }}</dd>
+        </div>
+        <div class="data-concern-modal__row">
+          <dt class="data-concern-modal__dt">Updated at</dt>
+          <dd class="data-concern-modal__dd">{{ formatDate(concern.updated_at) }}</dd>
+        </div>
+      </dl>
+      <p *ngIf="open && !concern" class="data-concern-modal__empty">No concern selected.</p>
+    </div>
+  </div>
+</div>

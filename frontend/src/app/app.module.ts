@@ -21,11 +21,13 @@ import { DetailPanelComponent } from './shared/detail-panel/detail-panel.compone
 import { ConceptMetricsComponent } from './shared/concept-metrics/concept-metrics.component';
 import { TimePeriodSwitchComponent } from './shared/time-period-switch/time-period-switch.component';
 import { LineageModalComponent } from './shared/lineage-modal/lineage-modal.component';
+import { DataConcernDetailModalComponent } from './shared/data-concern-detail-modal/data-concern-detail-modal.component';
 import { NgDiagramComponent } from 'ng-diagram';
 
 import { DataElementsPageComponent } from './pages/data-elements-page/data-elements-page.component';
 import { KebabActionsCellComponent } from './shared/kebab-actions-cell/kebab-actions-cell.component';
 import { LineageButtonCellComponent } from './pages/data-elements-page/lineage-button-cell/lineage-button-cell.component';
+import { DataConcernsCountCellComponent } from './pages/data-elements-page/data-concerns-count-cell/data-concerns-count-cell.component';
 import { ApplicationsPageComponent } from './pages/applications-page/applications-page.component';
 import { EucsPageComponent } from './pages/eucs-page/eucs-page.component';
 import { EndpointsPageComponent } from './pages/endpoints-page/endpoints-page.component';
@@ -46,8 +48,10 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
     ConceptMetricsComponent,
     TimePeriodSwitchComponent,
     LineageModalComponent,
+    DataConcernDetailModalComponent,
     KebabActionsCellComponent,
     LineageButtonCellComponent,
+    DataConcernsCountCellComponent,
     DataElementsPageComponent,
     ApplicationsPageComponent,
     EucsPageComponent,

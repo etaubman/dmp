@@ -15,7 +15,7 @@
     <div class="main-content" [class.main-content--panel-open]="selectedItem">
       <div class="ag-theme-quartz h-full min-h-[200px]">
         <ag-grid-angular
-          [rowData]="dataElements"
+          [rowData]="enrichedElements"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
           [suppressRowClickSelection]="true"
@@ -25,7 +25,14 @@
         ></ag-grid-angular>
       </div>
     </div>
-    <app-detail-panel [title]="panelTitle" [rows]="panelRows" [open]="!!selectedItem" (openChange)="closePanel()"></app-detail-panel>
+    <app-detail-panel
+      [title]="panelTitle"
+      [rows]="panelRows"
+      [concerns]="panelConcerns"
+      [open]="!!selectedItem"
+      (openChange)="closePanel()"
+      (concernClick)="openConcernModal($event)"
+    ></app-detail-panel>
   </div>
   <app-lineage-modal
     [dataElement]="lineageElement"

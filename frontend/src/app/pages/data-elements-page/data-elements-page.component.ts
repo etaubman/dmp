@@ -5,9 +5,11 @@ import { distinctUntilChanged } from 'rxjs/operators';
 import { ColDef } from 'ag-grid-community';
 import { KebabActionsCellComponent } from '../../shared/kebab-actions-cell/kebab-actions-cell.component';
 import { LineageButtonCellComponent } from './lineage-button-cell/lineage-button-cell.component';
-import { selectDataElements, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
+import { DataConcernsCountCellComponent } from './data-concerns-count-cell/data-concerns-count-cell.component';
+import { selectDataElements, selectDataConcerns, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
-import { DataElement } from '../../core/api.service';
+import { DataElement, DataConcern } from '../../core/api.service';
+import { DataConcernModalService } from '../../core/data-concern-modal.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
 import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
@@ -20,10 +22,14 @@ import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concep
 export class DataElementsPageComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   dataElements: DataElement[] = [];
+  enrichedElements: (DataElement & { concernCount?: number; hasCriticalConcern?: boolean })[] = [];
   loading = false;
   selectedItem: DataElement | null = null;
   panelRows: DetailRow[] = [];
   panelTitle = '';
+  panelConcerns: DataConcern[] = [];
+  dataConcerns: DataConcern[] = [];
+  concernsByElement: Record<number, { count: number; hasCritical: boolean }> = {};
 
   lineageModalOpen = false;
   lineageElement: DataElement | null = null;
@@ -42,6 +48,16 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
     { field: 'description', headerName: 'Description', flex: 1 },
     { field: 'element_type', headerName: 'Type', width: 120 },
     {
+      headerName: '# DC',
+      width: 120,
+      sortable: false,
+      filter: false,
+      cellRenderer: DataConcernsCountCellComponent,
+      cellRendererParams: {
+        onOpenConcerns: (data: DataElement) => this.openConcernsPanel(data),
+      },
+    },
+    {
       headerName: 'Lineage',
       width: 100,
       sortable: false,
@@ -54,25 +70,48 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
   ];
   defaultColDef: ColDef = { sortable: true, filter: true };
 
-  constructor(private store: Store) {}
+  constructor(private store: Store, private concernModal: DataConcernModalService) {}
 
   ngOnInit(): void {
     this.store
       .select(selectCurrentDomainId)
       .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((domainId) => {
-        if (domainId != null) this.store.dispatch(AppActions.loadDataElements({ domainId }));
+        if (domainId != null) {
+          this.store.dispatch(AppActions.loadDataElements({ domainId }));
+          this.store.dispatch(AppActions.loadDataConcerns({ domainId }));
+        }
       });
     combineLatest([
       this.store.select(selectDataElements),
+      this.store.select(selectDataConcerns),
       this.store.select(selectLoading('dataElements')),
     ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([list, loading]) => {
+      .subscribe(([list, concerns, loading]) => {
         this.dataElements = list;
+        this.dataConcerns = concerns;
         this.loading = loading;
+        this.updateConcernsByElement();
+        this.enrichedElements = list.map((e) => ({
+          ...e,
+          concernCount: this.concernsByElement[e.id]?.count ?? 0,
+          hasCriticalConcern: this.concernsByElement[e.id]?.hasCritical ?? false,
+        }));
         this.updateMetrics();
       });
+  }
+
+  private updateConcernsByElement(): void {
+    const map: Record<number, { count: number; hasCritical: boolean }> = {};
+    for (const c of this.dataConcerns) {
+      const id = c.data_element_id;
+      if (id == null) continue;
+      if (!map[id]) map[id] = { count: 0, hasCritical: false };
+      map[id].count++;
+      if (c.status === 'critical') map[id].hasCritical = true;
+    }
+    this.concernsByElement = map;
   }
 
   private updateMetrics(): void {
@@ -98,6 +137,7 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
     if (!item) return;
     this.selectedItem = item;
     this.panelTitle = item.name;
+    this.panelConcerns = [];
     this.panelRows = [
       { label: 'ID', value: item.id },
       { label: 'Name', value: item.name },
@@ -106,8 +146,16 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
     ];
   }
 
+  openConcernsPanel(element: DataElement): void {
+    this.selectedItem = element;
+    this.panelTitle = 'Data Concerns – ' + element.name;
+    this.panelRows = [];
+    this.panelConcerns = this.dataConcerns.filter((c) => c.data_element_id === element.id);
+  }
+
   closePanel(): void {
     this.selectedItem = null;
+    this.panelConcerns = [];
   }
 
   openLineage(data: DataElement): void {
@@ -118,6 +166,10 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
   onLineageOpenChange(open: boolean): void {
     this.lineageModalOpen = open;
     if (!open) this.lineageElement = null;
+  }
+
+  openConcernModal(concern: DataConcern): void {
+    this.concernModal.open(concern);
   }
 
   getRowId = (params: { data: DataElement }) => String(params.data.id);

@@ -5,7 +5,23 @@
       <button type="button" class="text-gray-500 hover:text-gray-200 transition-colors" (click)="close()">✕</button>
     </div>
     <div class="detail-panel__content p-4 flex-1">
-      <dl class="space-y-2">
+      <div *ngIf="concerns && concerns.length > 0" class="detail-panel__concerns-list">
+        <button *ngFor="let c of concerns" type="button" class="concern-card" (click)="onConcernCardClick(c)">
+          <div class="concern-card__title">{{ c.title }}</div>
+          <div class="concern-card__meta">
+            <span *ngIf="c.status" class="concern-card__status" [class.concern-card__status--critical]="c.status === 'critical'">{{ c.status }}</span>
+            <span *ngIf="c.id" class="concern-card__id">ID {{ c.id }}</span>
+          </div>
+          <div *ngIf="c.description" class="concern-card__description">{{ c.description }}</div>
+          <div class="concern-card__refs">
+            <span *ngIf="c.application_id != null" class="concern-card__ref">App {{ c.application_id }}</span>
+            <span *ngIf="c.euc_id != null" class="concern-card__ref">EUC {{ c.euc_id }}</span>
+            <span *ngIf="c.endpoint_id != null" class="concern-card__ref">Endpoint {{ c.endpoint_id }}</span>
+            <span *ngIf="c.data_element_id != null" class="concern-card__ref">Element {{ c.data_element_id }}</span>
+          </div>
+        </button>
+      </div>
+      <dl *ngIf="!concerns || concerns.length === 0" class="space-y-2">
         <div *ngFor="let row of rows" class="flex">
           <dt class="w-36 flex-shrink-0 text-gray-500 text-sm">{{ row.label }}</dt>
           <dd class="text-gray-200 text-sm break-words">{{ row.value ?? '—' }}</dd>
