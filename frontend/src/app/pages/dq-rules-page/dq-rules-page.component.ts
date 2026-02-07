@@ -6,6 +6,7 @@ import { ColDef } from 'ag-grid-community';
 import { selectDataQualityRules, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import { DataQualityRule } from '../../core/api.service';
+import { KebabActionsCellComponent } from '../../shared/kebab-actions-cell/kebab-actions-cell.component';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
 import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
@@ -24,6 +25,13 @@ export class DqRulesPageComponent implements OnInit, OnDestroy {
   panelTitle = '';
   metrics: MetricItem[] = [];
   columnDefs: ColDef<DataQualityRule>[] = [
+    {
+      headerName: '',
+      width: 56,
+      sortable: false,
+      filter: false,
+      cellRenderer: KebabActionsCellComponent,
+    },
     { field: 'name', headerName: 'Name', flex: 1 },
     { field: 'rule_type', headerName: 'Type', width: 120 },
     { field: 'description', headerName: 'Description', flex: 1 },

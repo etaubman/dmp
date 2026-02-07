@@ -3,6 +3,7 @@ import { Store } from '@ngrx/store';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { ColDef } from 'ag-grid-community';
+import { KebabActionsCellComponent } from '../../shared/kebab-actions-cell/kebab-actions-cell.component';
 import { LineageButtonCellComponent } from './lineage-button-cell/lineage-button-cell.component';
 import { selectDataElements, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
@@ -30,6 +31,13 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
   metrics: MetricItem[] = [];
 
   columnDefs: ColDef<DataElement>[] = [
+    {
+      headerName: '',
+      width: 56,
+      sortable: false,
+      filter: false,
+      cellRenderer: KebabActionsCellComponent,
+    },
     { field: 'name', headerName: 'Name', flex: 1 },
     { field: 'description', headerName: 'Description', flex: 1 },
     { field: 'element_type', headerName: 'Type', width: 120 },

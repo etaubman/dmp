@@ -24,6 +24,7 @@ import { LineageModalComponent } from './shared/lineage-modal/lineage-modal.comp
 import { NgDiagramComponent } from 'ng-diagram';
 
 import { DataElementsPageComponent } from './pages/data-elements-page/data-elements-page.component';
+import { KebabActionsCellComponent } from './shared/kebab-actions-cell/kebab-actions-cell.component';
 import { LineageButtonCellComponent } from './pages/data-elements-page/lineage-button-cell/lineage-button-cell.component';
 import { ApplicationsPageComponent } from './pages/applications-page/applications-page.component';
 import { EucsPageComponent } from './pages/eucs-page/eucs-page.component';
@@ -45,6 +46,7 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
     ConceptMetricsComponent,
     TimePeriodSwitchComponent,
     LineageModalComponent,
+    KebabActionsCellComponent,
     LineageButtonCellComponent,
     DataElementsPageComponent,
     ApplicationsPageComponent,

@@ -6,6 +6,7 @@ import { ColDef } from 'ag-grid-community';
 import { selectDataConcerns, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import { DataConcern } from '../../core/api.service';
+import { KebabActionsCellComponent } from '../../shared/kebab-actions-cell/kebab-actions-cell.component';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
 import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
@@ -24,6 +25,13 @@ export class DataConcernsPageComponent implements OnInit, OnDestroy {
   panelTitle = '';
   metrics: MetricItem[] = [];
   columnDefs: ColDef<DataConcern>[] = [
+    {
+      headerName: '',
+      width: 56,
+      sortable: false,
+      filter: false,
+      cellRenderer: KebabActionsCellComponent,
+    },
     { field: 'title', headerName: 'Title', flex: 1 },
     { field: 'status', headerName: 'Status', width: 100 },
     { field: 'description', headerName: 'Description', flex: 1 },
