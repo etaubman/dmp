@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +29,10 @@ import { DataElementsPageComponent } from './pages/data-elements-page/data-eleme
 import { KebabActionsCellComponent } from './shared/kebab-actions-cell/kebab-actions-cell.component';
 import { LineageButtonCellComponent } from './pages/data-elements-page/lineage-button-cell/lineage-button-cell.component';
 import { DataConcernsCountCellComponent } from './pages/data-elements-page/data-concerns-count-cell/data-concerns-count-cell.component';
+import { EndpointsCountCellComponent } from './pages/data-elements-page/endpoints-count-cell/endpoints-count-cell.component';
+import { DqRulesCountCellComponent } from './pages/data-elements-page/dq-rules-count-cell/dq-rules-count-cell.component';
+import { EndpointDetailModalComponent } from './shared/endpoint-detail-modal/endpoint-detail-modal.component';
+import { DqRuleDetailModalComponent } from './shared/dq-rule-detail-modal/dq-rule-detail-modal.component';
 import { ApplicationsPageComponent } from './pages/applications-page/applications-page.component';
 import { EucsPageComponent } from './pages/eucs-page/eucs-page.component';
 import { EndpointsPageComponent } from './pages/endpoints-page/endpoints-page.component';
@@ -52,6 +57,10 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
     KebabActionsCellComponent,
     LineageButtonCellComponent,
     DataConcernsCountCellComponent,
+    EndpointsCountCellComponent,
+    DqRulesCountCellComponent,
+    EndpointDetailModalComponent,
+    DqRuleDetailModalComponent,
     DataElementsPageComponent,
     ApplicationsPageComponent,
     EucsPageComponent,
@@ -65,6 +74,7 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     HttpClientModule,
     FormsModule,
     AgGridModule,

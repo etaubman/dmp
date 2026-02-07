@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { DetailRow } from '../detail-modal/detail-modal.component';
-import { DataConcern } from '../../core/api.service';
+import { DataConcern, Endpoint, DataQualityRule } from '../../core/api.service';
 
 @Component({
   selector: 'app-detail-panel',
@@ -11,9 +11,13 @@ export class DetailPanelComponent {
   @Input() title = 'Details';
   @Input() rows: DetailRow[] = [];
   @Input() concerns: DataConcern[] = [];
+  @Input() endpoints: Endpoint[] = [];
+  @Input() dqRules: DataQualityRule[] = [];
   @Input() open = false;
   @Output() openChange = new EventEmitter<boolean>();
   @Output() concernClick = new EventEmitter<DataConcern>();
+  @Output() endpointClick = new EventEmitter<Endpoint>();
+  @Output() dqRuleClick = new EventEmitter<DataQualityRule>();
 
   @HostBinding('class.detail-panel-open') get isPanelOpen(): boolean {
     return this.open;
@@ -26,5 +30,13 @@ export class DetailPanelComponent {
 
   onConcernCardClick(concern: DataConcern): void {
     this.concernClick.emit(concern);
+  }
+
+  onEndpointCardClick(ep: Endpoint): void {
+    this.endpointClick.emit(ep);
+  }
+
+  onDqRuleCardClick(rule: DataQualityRule): void {
+    this.dqRuleClick.emit(rule);
   }
 }

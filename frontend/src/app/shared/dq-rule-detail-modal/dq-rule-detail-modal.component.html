@@ -1,0 +1,41 @@
+<div *ngIf="open" class="dq-rule-modal-overlay" (click)="onOverlayClick($event)">
+  <div class="dq-rule-modal" (click)="$event.stopPropagation()">
+    <div class="dq-rule-modal__header">
+      <h3 class="dq-rule-modal__title">DQ Rule: {{ rule?.name ?? '—' }}</h3>
+      <button type="button" class="dq-rule-modal__close" (click)="close()" aria-label="Close">✕</button>
+    </div>
+    <div class="dq-rule-modal__body">
+      <dl *ngIf="rule" class="dq-rule-modal__detail-list">
+        <div class="dq-rule-modal__row">
+          <dt class="dq-rule-modal__dt">ID</dt>
+          <dd class="dq-rule-modal__dd">{{ rule.id }}</dd>
+        </div>
+        <div class="dq-rule-modal__row">
+          <dt class="dq-rule-modal__dt">Name</dt>
+          <dd class="dq-rule-modal__dd">{{ rule.name }}</dd>
+        </div>
+        <div class="dq-rule-modal__row">
+          <dt class="dq-rule-modal__dt">Rule type</dt>
+          <dd class="dq-rule-modal__dd">{{ rule.rule_type ?? '—' }}</dd>
+        </div>
+        <div class="dq-rule-modal__row" *ngIf="rule.domain_id != null">
+          <dt class="dq-rule-modal__dt">Domain ID</dt>
+          <dd class="dq-rule-modal__dd">{{ rule.domain_id }}</dd>
+        </div>
+        <div class="dq-rule-modal__row" *ngIf="rule.data_element_id != null">
+          <dt class="dq-rule-modal__dt">Data Element ID</dt>
+          <dd class="dq-rule-modal__dd">{{ rule.data_element_id }}</dd>
+        </div>
+        <div class="dq-rule-modal__row" *ngIf="rule.endpoint_id != null">
+          <dt class="dq-rule-modal__dt">Endpoint ID</dt>
+          <dd class="dq-rule-modal__dd">{{ rule.endpoint_id }}</dd>
+        </div>
+        <div class="dq-rule-modal__row">
+          <dt class="dq-rule-modal__dt">Description</dt>
+          <dd class="dq-rule-modal__dd">{{ rule.description ?? '—' }}</dd>
+        </div>
+      </dl>
+      <p *ngIf="open && !rule" class="dq-rule-modal__empty">No DQ rule selected.</p>
+    </div>
+  </div>
+</div>

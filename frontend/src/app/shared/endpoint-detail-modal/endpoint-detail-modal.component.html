@@ -1,0 +1,33 @@
+<div *ngIf="open" class="endpoint-modal-overlay" (click)="onOverlayClick($event)">
+  <div class="endpoint-modal" (click)="$event.stopPropagation()">
+    <div class="endpoint-modal__header">
+      <h3 class="endpoint-modal__title">Endpoint: {{ endpoint?.name ?? '—' }}</h3>
+      <button type="button" class="endpoint-modal__close" (click)="close()" aria-label="Close">✕</button>
+    </div>
+    <div class="endpoint-modal__body">
+      <dl *ngIf="endpoint" class="endpoint-modal__detail-list">
+        <div class="endpoint-modal__row">
+          <dt class="endpoint-modal__dt">ID</dt>
+          <dd class="endpoint-modal__dd">{{ endpoint.id }}</dd>
+        </div>
+        <div class="endpoint-modal__row">
+          <dt class="endpoint-modal__dt">Name</dt>
+          <dd class="endpoint-modal__dd">{{ endpoint.name }}</dd>
+        </div>
+        <div class="endpoint-modal__row" *ngIf="endpoint.domain_id != null">
+          <dt class="endpoint-modal__dt">Domain ID</dt>
+          <dd class="endpoint-modal__dd">{{ endpoint.domain_id }}</dd>
+        </div>
+        <div class="endpoint-modal__row" *ngIf="endpoint.application_id != null">
+          <dt class="endpoint-modal__dt">Application ID</dt>
+          <dd class="endpoint-modal__dd">{{ endpoint.application_id }}</dd>
+        </div>
+        <div class="endpoint-modal__row">
+          <dt class="endpoint-modal__dt">Description</dt>
+          <dd class="endpoint-modal__dd">{{ endpoint.description ?? '—' }}</dd>
+        </div>
+      </dl>
+      <p *ngIf="open && !endpoint" class="endpoint-modal__empty">No endpoint selected.</p>
+    </div>
+  </div>
+</div>

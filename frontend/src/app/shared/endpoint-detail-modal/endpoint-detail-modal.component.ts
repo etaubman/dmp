@@ -1,0 +1,24 @@
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Endpoint } from '../../core/api.service';
+
+@Component({
+  selector: 'app-endpoint-detail-modal',
+  templateUrl: './endpoint-detail-modal.component.html',
+  styleUrls: ['./endpoint-detail-modal.component.css'],
+})
+export class EndpointDetailModalComponent {
+  @Input() endpoint: Endpoint | null = null;
+  @Input() open = false;
+  @Output() openChange = new EventEmitter<boolean>();
+
+  close(): void {
+    this.open = false;
+    this.openChange.emit(false);
+  }
+
+  onOverlayClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement).classList.contains('endpoint-modal-overlay')) {
+      this.close();
+    }
+  }
+}

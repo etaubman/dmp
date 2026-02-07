@@ -111,6 +111,7 @@ def _seed_liquidity_management(db, domain_id):
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], name="Cash position non-null", rule_type="validity", description="Daily cash position must be populated"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[1], endpoint_id=ep1.id, name="Projected flow timeliness", rule_type="timeliness", description="Projections must be as of T+0"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[3], name="Legal entity ID format", rule_type="validity", description="Legal entity ID must match registry"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], endpoint_id=ep2.id, name="Cash position refresh timeliness", rule_type="timeliness", description="Daily position refreshed by 6am"),
     ]
     db.add_all(dqrs)
     db.flush()
@@ -119,7 +120,8 @@ def _seed_liquidity_management(db, domain_id):
         DataQualityException(rule_id=dqrs[1].id, data_element_id=de_ids[1], description="Stale projection in LCR run for EUR", status="open"),
     ])
     db.add_all([
-        DataConcern(domain_id=domain_id, application_id=app_ids[0], data_element_id=de_ids[0], title="Multi-source cash reconciliation", description="Cash position sourced from 3 systems; alignment gaps", status="open"),
+        DataConcern(domain_id=domain_id, application_id=app_ids[0], data_element_id=de_ids[0], endpoint_id=ep1.id, title="Multi-source cash reconciliation", description="Cash position sourced from 3 systems; alignment gaps", status="open"),
+        DataConcern(domain_id=domain_id, application_id=app_ids[1], data_element_id=de_ids[2], endpoint_id=ep2.id, title="Intraday buffer calculation", description="Intraday liquidity metric sourced from monitoring endpoint", status="open"),
         DataConcern(domain_id=domain_id, title="Intraday data latency", description="Intraday feeds delayed during peak settlement", status="open"),
     ])
 
@@ -155,6 +157,7 @@ def _seed_payments(db, domain_id):
     db.flush()
     dqrs = [
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], name="Payment ref unique", rule_type="validity", description="Payment reference must be unique per day"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], endpoint_id=ep1.id, name="Payment ref in batch file", rule_type="timeliness", description="Reference present in batch submission"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[2], name="Amount positive", rule_type="validity", description="Payment amount must be positive"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[3], endpoint_id=ep2.id, name="Timestamp within SLA", rule_type="timeliness", description="Settlement within 60 seconds"),
     ]
@@ -162,10 +165,11 @@ def _seed_payments(db, domain_id):
     db.flush()
     db.add_all([
         DataQualityException(rule_id=dqrs[0].id, data_element_id=de_ids[0], description="Duplicate payment ref in batch 2024-02-01", status="open"),
-        DataQualityException(rule_id=dqrs[2].id, data_element_id=de_ids[3], description="RTP settlement delay spike on 2024-01-20", status="closed"),
+        DataQualityException(rule_id=dqrs[3].id, data_element_id=de_ids[3], description="RTP settlement delay spike on 2024-01-20", status="closed"),
     ])
     db.add_all([
-        DataConcern(domain_id=domain_id, application_id=app_ids[0], data_element_id=de_ids[1], title="Beneficiary account validation", description="Cross-border account format inconsistencies", status="open"),
+        DataConcern(domain_id=domain_id, application_id=app_ids[0], data_element_id=de_ids[1], endpoint_id=ep1.id, title="Beneficiary account validation", description="Cross-border account format inconsistencies", status="open"),
+        DataConcern(domain_id=domain_id, application_id=app_ids[0], data_element_id=de_ids[4], endpoint_id=ep2.id, title="Originator RTP trace", description="Originator ID traceability via RTP API", status="open"),
         DataConcern(domain_id=domain_id, title="SWIFT MT/MX migration", description="Data mapping gaps in MX migration", status="open"),
     ])
 
@@ -201,16 +205,18 @@ def _seed_trade_working_capital(db, domain_id):
     db.flush()
     dqrs = [
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], name="LC ref format", rule_type="validity", description="LC reference must match SWIFT format"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], endpoint_id=ep1.id, name="LC ref in issuance report", rule_type="timeliness", description="LC reference in daily issuance report"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[2], name="Due date in future", rule_type="validity", description="Due date must be >= value date"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[3], endpoint_id=ep1.id, name="Counterparty in LC report", rule_type="validity", description="Counterparty ID present in LC issuance"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[4], endpoint_id=ep2.id, name="Facility limit refreshed", rule_type="timeliness", description="Limit data refreshed daily"),
     ]
     db.add_all(dqrs)
     db.flush()
     db.add_all([
-        DataQualityException(rule_id=dqrs[1].id, data_element_id=de_ids[2], description="Historical invoices with past due dates in legacy load", status="closed"),
+        DataQualityException(rule_id=dqrs[2].id, data_element_id=de_ids[2], description="Historical invoices with past due dates in legacy load", status="closed"),
     ])
     db.add_all([
-        DataConcern(domain_id=domain_id, application_id=app_ids[1], data_element_id=de_ids[3], title="Counterparty hierarchy", description="Parent/subsidiary linking incomplete", status="open"),
+        DataConcern(domain_id=domain_id, application_id=app_ids[1], data_element_id=de_ids[3], endpoint_id=ep1.id, title="Counterparty hierarchy", description="Parent/subsidiary linking incomplete", status="open"),
     ])
 
 
@@ -244,6 +250,8 @@ def _seed_platforms_data_services(db, domain_id):
     db.flush()
     dqrs = [
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], name="Entity ID not null", rule_type="validity", description="Entity master ID required"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], endpoint_id=ep1.id, name="Entity ID in lineage export", rule_type="validity", description="Entity ID present in lineage export"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[1], endpoint_id=ep2.id, name="Instrument ID from ref API", rule_type="timeliness", description="Instrument ID available via reference API"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[3], endpoint_id=ep2.id, name="Refresh within SLA", rule_type="timeliness", description="Reference data refreshed within 15 min"),
     ]
     db.add_all(dqrs)
@@ -252,7 +260,7 @@ def _seed_platforms_data_services(db, domain_id):
         DataQualityException(rule_id=dqrs[0].id, data_element_id=de_ids[0], description="Null entity ID in legacy party load", status="open"),
     ])
     db.add_all([
-        DataConcern(domain_id=domain_id, application_id=app_ids[0], title="Lineage coverage", description="Only 60% of critical flows have lineage", status="open"),
+        DataConcern(domain_id=domain_id, application_id=app_ids[0], data_element_id=de_ids[0], endpoint_id=ep1.id, title="Lineage coverage", description="Only 60% of critical flows have lineage", status="open"),
         DataConcern(domain_id=domain_id, data_element_id=de_ids[2], title="Classification drift", description="Some fields reclassified without audit", status="open"),
     ])
 

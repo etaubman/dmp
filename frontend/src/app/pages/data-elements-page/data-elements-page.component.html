@@ -34,9 +34,13 @@
       [title]="panelTitle"
       [rows]="panelRows"
       [concerns]="panelConcerns"
+      [endpoints]="panelEndpoints"
+      [dqRules]="panelDqRules"
       [open]="!!selectedItem"
       (openChange)="closePanel()"
       (concernClick)="openConcernModal($event)"
+      (endpointClick)="openEndpointModal($event)"
+      (dqRuleClick)="openDqRuleModal($event)"
     ></app-detail-panel>
   </div>
   <app-lineage-modal
@@ -44,4 +48,14 @@
     [open]="lineageModalOpen"
     (openChange)="onLineageOpenChange($event)"
   ></app-lineage-modal>
+  <app-endpoint-detail-modal
+    [endpoint]="endpointForModal"
+    [open]="endpointModalOpen"
+    (openChange)="onEndpointModalOpenChange($event)"
+  ></app-endpoint-detail-modal>
+  <app-dq-rule-detail-modal
+    [rule]="dqRuleForModal"
+    [open]="dqRuleModalOpen"
+    (openChange)="onDqRuleModalOpenChange($event)"
+  ></app-dq-rule-detail-modal>
 </div>

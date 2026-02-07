@@ -6,10 +6,12 @@ import { ColDef } from 'ag-grid-community';
 import { KebabActionsCellComponent } from '../../shared/kebab-actions-cell/kebab-actions-cell.component';
 import { LineageButtonCellComponent } from './lineage-button-cell/lineage-button-cell.component';
 import { DataConcernsCountCellComponent } from './data-concerns-count-cell/data-concerns-count-cell.component';
-import { selectDataElements, selectDataConcerns, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
+import { EndpointsCountCellComponent } from './endpoints-count-cell/endpoints-count-cell.component';
+import { DqRulesCountCellComponent } from './dq-rules-count-cell/dq-rules-count-cell.component';
+import { selectDataElements, selectDataConcerns, selectEndpoints, selectDataQualityRules, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import type { DomainScope } from '../../store/app.actions';
-import { DataElement, DataConcern } from '../../core/api.service';
+import { DataElement, DataConcern, Endpoint, DataQualityRule } from '../../core/api.service';
 import { DataConcernModalService } from '../../core/data-concern-modal.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
@@ -23,17 +25,27 @@ import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concep
 export class DataElementsPageComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   dataElements: DataElement[] = [];
-  enrichedElements: (DataElement & { concernCount?: number; hasCriticalConcern?: boolean })[] = [];
+  enrichedElements: (DataElement & { concernCount?: number; hasCriticalConcern?: boolean; endpointCount?: number; dqRulesCount?: number })[] = [];
   loading = false;
   selectedItem: DataElement | null = null;
   panelRows: DetailRow[] = [];
   panelTitle = '';
   panelConcerns: DataConcern[] = [];
+  panelEndpoints: Endpoint[] = [];
+  panelDqRules: DataQualityRule[] = [];
   dataConcerns: DataConcern[] = [];
+  endpoints: Endpoint[] = [];
+  dataQualityRules: DataQualityRule[] = [];
   concernsByElement: Record<number, { count: number; hasCritical: boolean }> = {};
+  endpointIdsByElement: Record<number, number[]> = {};
+  dqRulesByElement: Record<number, DataQualityRule[]> = {};
 
   lineageModalOpen = false;
   lineageElement: DataElement | null = null;
+  endpointModalOpen = false;
+  endpointForModal: Endpoint | null = null;
+  dqRuleModalOpen = false;
+  dqRuleForModal: DataQualityRule | null = null;
 
   domainScope: DomainScope = 'owned';
   currentDomainId: number | null = null;
@@ -55,9 +67,32 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
       width: 120,
       sortable: false,
       filter: false,
+      cellStyle: { textAlign: 'center' },
       cellRenderer: DataConcernsCountCellComponent,
       cellRendererParams: {
         onOpenConcerns: (data: DataElement) => this.openConcernsPanel(data),
+      },
+    },
+    {
+      headerName: '# EP',
+      width: 120,
+      sortable: false,
+      filter: false,
+      cellStyle: { textAlign: 'center' },
+      cellRenderer: EndpointsCountCellComponent,
+      cellRendererParams: {
+        onOpenEndpoints: (data: DataElement) => this.openEndpointsPanel(data),
+      },
+    },
+    {
+      headerName: '# DQR',
+      width: 120,
+      sortable: false,
+      filter: false,
+      cellStyle: { textAlign: 'center' },
+      cellRenderer: DqRulesCountCellComponent,
+      cellRendererParams: {
+        onOpenDqRules: (data: DataElement) => this.openDqRulesPanel(data),
       },
     },
     {
@@ -84,23 +119,33 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
         if (domainId != null) {
           this.store.dispatch(AppActions.loadDataElements({ domainId, scope: this.domainScope }));
           this.store.dispatch(AppActions.loadDataConcerns({ domainId }));
+          this.store.dispatch(AppActions.loadEndpoints({ domainId, scope: this.domainScope }));
+          this.store.dispatch(AppActions.loadDataQualityRules({ domainId }));
         }
       });
     combineLatest([
       this.store.select(selectDataElements),
       this.store.select(selectDataConcerns),
+      this.store.select(selectEndpoints),
+      this.store.select(selectDataQualityRules),
       this.store.select(selectLoading('dataElements')),
     ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([list, concerns, loading]) => {
+      .subscribe(([list, concerns, endpoints, dataQualityRules, loading]) => {
         this.dataElements = list;
         this.dataConcerns = concerns;
+        this.endpoints = endpoints;
+        this.dataQualityRules = dataQualityRules;
         this.loading = loading;
         this.updateConcernsByElement();
+        this.updateEndpointIdsByElement();
+        this.updateDqRulesByElement();
         this.enrichedElements = list.map((e) => ({
           ...e,
           concernCount: this.concernsByElement[e.id]?.count ?? 0,
           hasCriticalConcern: this.concernsByElement[e.id]?.hasCritical ?? false,
+          endpointCount: this.endpointIdsByElement[e.id]?.length ?? 0,
+          dqRulesCount: this.dqRulesByElement[e.id]?.length ?? 0,
         }));
         this.updateMetrics();
       });
@@ -116,6 +161,33 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
       if (c.status === 'critical') map[id].hasCritical = true;
     }
     this.concernsByElement = map;
+  }
+
+  private updateEndpointIdsByElement(): void {
+    const map: Record<number, number[]> = {};
+    const add = (elementId: number, endpointId: number | undefined) => {
+      if (endpointId == null) return;
+      if (!map[elementId]) map[elementId] = [];
+      if (!map[elementId].includes(endpointId)) map[elementId].push(endpointId);
+    };
+    for (const c of this.dataConcerns) {
+      if (c.data_element_id != null) add(c.data_element_id, c.endpoint_id);
+    }
+    for (const r of this.dataQualityRules) {
+      if (r.data_element_id != null) add(r.data_element_id, r.endpoint_id);
+    }
+    this.endpointIdsByElement = map;
+  }
+
+  private updateDqRulesByElement(): void {
+    const map: Record<number, DataQualityRule[]> = {};
+    for (const r of this.dataQualityRules) {
+      const id = r.data_element_id;
+      if (id == null) continue;
+      if (!map[id]) map[id] = [];
+      map[id].push(r);
+    }
+    this.dqRulesByElement = map;
   }
 
   private updateMetrics(): void {
@@ -142,6 +214,8 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
     this.selectedItem = item;
     this.panelTitle = item.name;
     this.panelConcerns = [];
+    this.panelEndpoints = [];
+    this.panelDqRules = [];
     this.panelRows = [
       { label: 'ID', value: item.id },
       { label: 'Name', value: item.name },
@@ -154,12 +228,35 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
     this.selectedItem = element;
     this.panelTitle = 'Data Concerns – ' + element.name;
     this.panelRows = [];
+    this.panelEndpoints = [];
+    this.panelDqRules = [];
     this.panelConcerns = this.dataConcerns.filter((c) => c.data_element_id === element.id);
+  }
+
+  openEndpointsPanel(element: DataElement): void {
+    this.selectedItem = element;
+    this.panelTitle = 'Endpoints – ' + element.name;
+    this.panelRows = [];
+    this.panelConcerns = [];
+    this.panelDqRules = [];
+    const ids = this.endpointIdsByElement[element.id] ?? [];
+    this.panelEndpoints = ids.map((id) => this.endpoints.find((ep) => ep.id === id)).filter((ep): ep is Endpoint => ep != null);
+  }
+
+  openDqRulesPanel(element: DataElement): void {
+    this.selectedItem = element;
+    this.panelTitle = 'DQ Rules – ' + element.name;
+    this.panelRows = [];
+    this.panelConcerns = [];
+    this.panelEndpoints = [];
+    this.panelDqRules = this.dqRulesByElement[element.id] ?? [];
   }
 
   closePanel(): void {
     this.selectedItem = null;
     this.panelConcerns = [];
+    this.panelEndpoints = [];
+    this.panelDqRules = [];
   }
 
   openLineage(data: DataElement): void {
@@ -174,6 +271,26 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
 
   openConcernModal(concern: DataConcern): void {
     this.concernModal.open(concern);
+  }
+
+  openEndpointModal(ep: Endpoint): void {
+    this.endpointForModal = ep;
+    this.endpointModalOpen = true;
+  }
+
+  onEndpointModalOpenChange(open: boolean): void {
+    this.endpointModalOpen = open;
+    if (!open) this.endpointForModal = null;
+  }
+
+  openDqRuleModal(rule: DataQualityRule): void {
+    this.dqRuleForModal = rule;
+    this.dqRuleModalOpen = true;
+  }
+
+  onDqRuleModalOpenChange(open: boolean): void {
+    this.dqRuleModalOpen = open;
+    if (!open) this.dqRuleForModal = null;
   }
 
   getRowId = (params: { data: DataElement }) => String(params.data.id);

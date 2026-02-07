@@ -21,7 +21,33 @@
           </div>
         </button>
       </div>
-      <dl *ngIf="!concerns || concerns.length === 0" class="space-y-2">
+      <div *ngIf="endpoints && endpoints.length > 0 && (!concerns || concerns.length === 0)" class="detail-panel__concerns-list">
+        <button *ngFor="let ep of endpoints" type="button" class="concern-card" (click)="onEndpointCardClick(ep)">
+          <div class="concern-card__title">{{ ep.name }}</div>
+          <div class="concern-card__meta">
+            <span *ngIf="ep.id" class="concern-card__id">ID {{ ep.id }}</span>
+          </div>
+          <div *ngIf="ep.description" class="concern-card__description">{{ ep.description }}</div>
+          <div class="concern-card__refs">
+            <span *ngIf="ep.application_id != null" class="concern-card__ref">App {{ ep.application_id }}</span>
+          </div>
+        </button>
+      </div>
+      <div *ngIf="dqRules && dqRules.length > 0 && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0)" class="detail-panel__concerns-list">
+        <button *ngFor="let r of dqRules" type="button" class="concern-card" (click)="onDqRuleCardClick(r)">
+          <div class="concern-card__title">{{ r.name }}</div>
+          <div class="concern-card__meta">
+            <span *ngIf="r.rule_type" class="concern-card__status">{{ r.rule_type }}</span>
+            <span *ngIf="r.id" class="concern-card__id">ID {{ r.id }}</span>
+          </div>
+          <div *ngIf="r.description" class="concern-card__description">{{ r.description }}</div>
+          <div class="concern-card__refs">
+            <span *ngIf="r.data_element_id != null" class="concern-card__ref">Element {{ r.data_element_id }}</span>
+            <span *ngIf="r.endpoint_id != null" class="concern-card__ref">Endpoint {{ r.endpoint_id }}</span>
+          </div>
+        </button>
+      </div>
+      <dl *ngIf="(!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0)" class="space-y-2">
         <div *ngFor="let row of rows" class="flex">
           <dt class="w-36 flex-shrink-0 text-gray-500 text-sm">{{ row.label }}</dt>
           <dd class="text-gray-200 text-sm break-words">{{ row.value ?? '—' }}</dd>
