@@ -1,1 +1,5 @@
-/* Layout uses Tailwind */
+/* Logo section (title + domain) and header same height */
+.layout-brand {
+  height: 8rem;
+  min-height: 8rem;
+}

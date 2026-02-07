@@ -2,10 +2,12 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { ColDef } from 'ag-grid-community';
 import { selectEucs, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import { EUC } from '../../core/api.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
+import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
 
 @Component({
   selector: 'app-eucs-page',
@@ -16,9 +18,16 @@ export class EucsPageComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   eucs: EUC[] = [];
   loading = false;
-  modalOpen = false;
-  modalRows: DetailRow[] = [];
-  modalTitle = '';
+  selectedItem: EUC | null = null;
+  panelRows: DetailRow[] = [];
+  panelTitle = '';
+  metrics: MetricItem[] = [];
+  columnDefs: ColDef<EUC>[] = [
+    { field: 'name', headerName: 'Name', flex: 1 },
+    { field: 'euc_type', headerName: 'Type', width: 100 },
+    { field: 'description', headerName: 'Description', flex: 1 },
+  ];
+  defaultColDef: ColDef = { sortable: true, filter: true };
 
   constructor(private store: Store) {}
 
@@ -37,6 +46,11 @@ export class EucsPageComponent implements OnInit, OnDestroy {
       .subscribe(([list, loading]) => {
         this.eucs = list;
         this.loading = loading;
+        this.metrics = [
+          { label: 'Total', value: list.length },
+          { label: 'EUC type', value: list.filter((e) => e.euc_type === 'euc').length },
+          { label: 'ITESS', value: list.filter((e) => e.euc_type === 'itess').length },
+        ];
       });
   }
 
@@ -45,14 +59,21 @@ export class EucsPageComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  openDetail(item: EUC): void {
-    this.modalTitle = item.name;
-    this.modalRows = [
+  onRowClicked(item: EUC | undefined): void {
+    if (!item) return;
+    this.selectedItem = item;
+    this.panelTitle = item.name;
+    this.panelRows = [
       { label: 'ID', value: item.id },
       { label: 'Name', value: item.name },
       { label: 'Type', value: item.euc_type },
       { label: 'Description', value: item.description },
     ];
-    this.modalOpen = true;
   }
+
+  closePanel(): void {
+    this.selectedItem = null;
+  }
+
+  getRowId = (params: { data: EUC }) => String(params.data.id);
 }

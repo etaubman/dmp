@@ -1,31 +1,35 @@
 <div class="flex h-screen bg-aurora-bg text-gray-100">
-  <!-- Sidebar: full-width active highlight, minimal border -->
+  <!-- Sidebar -->
   <aside class="w-64 flex-shrink-0 bg-aurora-bg flex flex-col" style="border-right: 1px solid rgba(255,255,255,0.06);">
-    <div class="p-5" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-      <h1 class="text-lg font-semibold tracking-tight">
-        <span class="text-accent">Data</span> Manager Portal
-      </h1>
+    <div class="layout-brand flex flex-col flex-shrink-0">
+      <div class="h-14 flex items-center px-6 flex-shrink-0" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+        <h1 class="text-lg font-semibold tracking-tight">
+          <span class="text-accent">Data</span> Manager Portal
+        </h1>
+      </div>
+      <app-domain-selector></app-domain-selector>
     </div>
-    <app-domain-selector></app-domain-selector>
     <nav class="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
-      <a routerLink="/data-elements" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Critical Data Elements</a>
-      <a routerLink="/applications" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Applications</a>
-      <a routerLink="/eucs" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">EUCs</a>
-      <a routerLink="/endpoints" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Endpoints</a>
-      <a routerLink="/data-quality-rules" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Data Quality Rules</a>
-      <a routerLink="/data-quality-exceptions" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">DQ Exceptions</a>
-      <a routerLink="/data-concerns" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Data Concerns</a>
-      <a routerLink="/metrics" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Metrics</a>
-      <a routerLink="/bulk" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Bulk Upload / Download</a>
+      <a routerLink="/data-elements" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Critical Data Elements</a>
+      <a routerLink="/applications" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Applications</a>
+      <a routerLink="/eucs" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">EUCs</a>
+      <a routerLink="/endpoints" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Endpoints</a>
+      <a routerLink="/data-quality-rules" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Data Quality Rules</a>
+      <a routerLink="/data-quality-exceptions" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">DQ Exceptions</a>
+      <a routerLink="/data-concerns" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Data Concerns</a>
+      <a routerLink="/metrics" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Metrics</a>
+      <a routerLink="/bulk" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-aurora-navInactive hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Bulk Upload / Download</a>
     </nav>
   </aside>
   <!-- Main area -->
   <div class="flex-1 flex flex-col min-w-0 bg-aurora-bg">
-    <header class="h-14 flex-shrink-0 flex items-center px-6 gap-4" style="border-bottom: 1px solid rgba(255,255,255,0.06); background: #1e2329;">
+    <header class="layout-brand flex-shrink-0 flex items-center px-6 gap-4 bg-aurora-header" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
       <span class="text-gray-500 text-sm font-medium">Data Governance</span>
     </header>
-    <main class="flex-1 overflow-auto p-6 bg-aurora-bg">
-      <router-outlet></router-outlet>
+    <main class="flex-1 flex flex-col min-h-0 bg-aurora-bg" style="padding: var(--gutter, 24px);">
+      <div class="outlet-wrapper flex-1 flex flex-col min-h-0 overflow-hidden">
+        <router-outlet></router-outlet>
+      </div>
     </main>
     <footer class="h-9 flex-shrink-0 flex items-center px-6 text-gray-500 text-xs" style="border-top: 1px solid rgba(255,255,255,0.06);">
       Data Manager Portal — Prototype

@@ -1,0 +1,6 @@
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+  <div *ngFor="let m of metrics" class="card-aurora p-4">
+    <div class="text-gray-500 text-sm">{{ m.label }}</div>
+    <div class="text-xl font-semibold text-accent mt-1">{{ m.value }}</div>
+  </div>
+</div>

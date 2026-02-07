@@ -1,0 +1,16 @@
+<div class="detail-panel" [class.detail-panel--open]="open">
+  <div class="detail-panel__inner">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
+      <h3 class="text-lg font-medium text-gray-100">{{ title }}</h3>
+      <button type="button" class="text-gray-500 hover:text-gray-200 transition-colors" (click)="close()">✕</button>
+    </div>
+    <div class="p-4 overflow-auto flex-1">
+      <dl class="space-y-2">
+        <div *ngFor="let row of rows" class="flex">
+          <dt class="w-36 flex-shrink-0 text-gray-500 text-sm">{{ row.label }}</dt>
+          <dd class="text-gray-200 text-sm break-words">{{ row.value ?? '—' }}</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>

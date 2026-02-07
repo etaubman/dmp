@@ -2,14 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Aurora-style dark theme: deep charcoal, teal accent, minimal borders */
+/* Darker black-gray theme; teal accents kept */
 :root {
-  --bg-primary: #1A1E24;
-  --bg-card: #22262E;
+  --bg-primary: #0f1114;
+  --bg-card: #181b20;
   --text-primary: #f3f4f6;
   --text-muted: #9ca3af;
   --border: rgba(255, 255, 255, 0.06);
   --accent: #14b8a6;
+  --gutter: 24px;
+}
+.gap-gutter { gap: var(--gutter); }
+
+/* Routed content fills height so table + panel stretch to footer */
+.outlet-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: 0;
+}
+.outlet-wrapper > * {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.outlet-wrapper > router-outlet > * {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 body {
@@ -35,4 +59,16 @@ body {
 }
 .table-aurora tbody tr:hover {
   background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* AG Grid dark theme to match aurora */
+.ag-theme-quartz {
+  --ag-background-color: #181b20;
+  --ag-header-background-color: #12151a;
+  --ag-odd-row-background-color: #181b20;
+  --ag-row-hover-color: rgba(255, 255, 255, 0.04);
+  --ag-border-color: rgba(255, 255, 255, 0.06);
+  --ag-foreground-color: #f3f4f6;
+  --ag-header-foreground-color: #9ca3af;
+  --ag-font-family: 'Inter', system-ui, sans-serif;
 }

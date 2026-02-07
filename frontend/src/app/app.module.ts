@@ -7,6 +7,7 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
+import { AgGridModule } from 'ag-grid-angular';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { appReducer } from './store/app.reducer';
@@ -15,6 +16,8 @@ import { AppEffects } from './store/app.effects';
 import { LayoutComponent } from './layout/layout.component';
 import { DomainSelectorComponent } from './layout/domain-selector/domain-selector.component';
 import { DetailModalComponent } from './shared/detail-modal/detail-modal.component';
+import { DetailPanelComponent } from './shared/detail-panel/detail-panel.component';
+import { ConceptMetricsComponent } from './shared/concept-metrics/concept-metrics.component';
 
 import { DataElementsPageComponent } from './pages/data-elements-page/data-elements-page.component';
 import { ApplicationsPageComponent } from './pages/applications-page/applications-page.component';
@@ -32,6 +35,8 @@ import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
     LayoutComponent,
     DomainSelectorComponent,
     DetailModalComponent,
+    DetailPanelComponent,
+    ConceptMetricsComponent,
     DataElementsPageComponent,
     ApplicationsPageComponent,
     EucsPageComponent,
@@ -46,6 +51,7 @@ import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
     BrowserModule,
     HttpClientModule,
     FormsModule,
+    AgGridModule,
     AppRoutingModule,
     StoreModule.forRoot({ app: appReducer }),
     EffectsModule.forRoot([AppEffects]),

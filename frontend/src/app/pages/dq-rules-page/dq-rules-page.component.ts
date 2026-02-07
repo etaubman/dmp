@@ -2,10 +2,12 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { ColDef } from 'ag-grid-community';
 import { selectDataQualityRules, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import { DataQualityRule } from '../../core/api.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
+import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
 
 @Component({
   selector: 'app-dq-rules-page',
@@ -16,9 +18,16 @@ export class DqRulesPageComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   rules: DataQualityRule[] = [];
   loading = false;
-  modalOpen = false;
-  modalRows: DetailRow[] = [];
-  modalTitle = '';
+  selectedItem: DataQualityRule | null = null;
+  panelRows: DetailRow[] = [];
+  panelTitle = '';
+  metrics: MetricItem[] = [];
+  columnDefs: ColDef<DataQualityRule>[] = [
+    { field: 'name', headerName: 'Name', flex: 1 },
+    { field: 'rule_type', headerName: 'Type', width: 120 },
+    { field: 'description', headerName: 'Description', flex: 1 },
+  ];
+  defaultColDef: ColDef = { sortable: true, filter: true };
 
   constructor(private store: Store) {}
 
@@ -37,6 +46,11 @@ export class DqRulesPageComponent implements OnInit, OnDestroy {
       .subscribe(([list, loading]) => {
         this.rules = list;
         this.loading = loading;
+        this.metrics = [
+          { label: 'Total', value: list.length },
+          { label: 'Validity', value: list.filter((r) => r.rule_type === 'validity').length },
+          { label: 'Timeliness', value: list.filter((r) => r.rule_type === 'timeliness').length },
+        ];
       });
   }
 
@@ -45,14 +59,21 @@ export class DqRulesPageComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  openDetail(item: DataQualityRule): void {
-    this.modalTitle = item.name;
-    this.modalRows = [
+  onRowClicked(item: DataQualityRule | undefined): void {
+    if (!item) return;
+    this.selectedItem = item;
+    this.panelTitle = item.name;
+    this.panelRows = [
       { label: 'ID', value: item.id },
       { label: 'Name', value: item.name },
       { label: 'Rule type', value: item.rule_type },
       { label: 'Description', value: item.description },
     ];
-    this.modalOpen = true;
   }
+
+  closePanel(): void {
+    this.selectedItem = null;
+  }
+
+  getRowId = (params: { data: DataQualityRule }) => String(params.data.id);
 }

@@ -1,25 +1,23 @@
-<div class="space-y-4">
-  <h2 class="text-xl font-semibold text-gray-100">Critical Data Elements</h2>
-  <p class="text-gray-500 text-sm">Select a domain in the sidebar to load data elements.</p>
-  <div *ngIf="loading" class="text-accent">Loading…</div>
-  <div *ngIf="!loading && dataElements.length === 0" class="text-gray-500">No data elements. Select a domain or upload bulk data.</div>
-  <div *ngIf="!loading && dataElements.length > 0" class="card-aurora overflow-hidden">
-    <table class="table-aurora min-w-full">
-      <thead>
-        <tr>
-          <th class="px-4 py-3">Name</th>
-          <th class="px-4 py-3">Description</th>
-          <th class="px-4 py-3">Type</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of dataElements" class="cursor-pointer" (click)="openDetail(item)">
-          <td class="px-4 py-3 text-gray-200">{{ item.name }}</td>
-          <td class="px-4 py-3 text-gray-500 text-sm">{{ item.description ?? '—' }}</td>
-          <td class="px-4 py-3 text-gray-500 text-sm">{{ item.element_type ?? '—' }}</td>
-        </tr>
-      </tbody>
-    </table>
+<div class="flex flex-col flex-1 min-h-0 overflow-hidden">
+  <h2 class="text-xl font-semibold text-gray-100 mb-1">Critical Data Elements</h2>
+  <p class="text-gray-500 text-sm mb-4">Select a domain in the sidebar to load data elements.</p>
+  <app-concept-metrics *ngIf="!loading && dataElements.length >= 0" [metrics]="metrics"></app-concept-metrics>
+  <div *ngIf="loading" class="text-accent mb-4">Loading…</div>
+  <div *ngIf="!loading && dataElements.length === 0" class="text-gray-500 mb-4">No data elements. Select a domain or upload bulk data.</div>
+  <div class="flex flex-1 min-h-0 gap-gutter" *ngIf="!loading && dataElements.length > 0">
+    <div class="main-content" [class.main-content--panel-open]="selectedItem">
+      <div class="ag-theme-quartz h-full min-h-[200px]">
+        <ag-grid-angular
+          [rowData]="dataElements"
+          [columnDefs]="columnDefs"
+          [defaultColDef]="defaultColDef"
+          [suppressRowClickSelection]="true"
+          (rowClicked)="onRowClicked($event.data)"
+          [getRowId]="getRowId"
+          class="ag-grid-full-height"
+        ></ag-grid-angular>
+      </div>
+    </div>
+    <app-detail-panel [title]="panelTitle" [rows]="panelRows" [open]="!!selectedItem" (openChange)="closePanel()"></app-detail-panel>
   </div>
-  <app-detail-modal [title]="modalTitle" [rows]="modalRows" [(open)]="modalOpen"></app-detail-modal>
 </div>

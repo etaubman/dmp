@@ -5,13 +5,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Aurora-style dark dashboard: deep charcoal base, softer cards
+        // Darker black-gray aesthetic; keep teal accents
         aurora: {
-          bg: '#1A1E24',
-          card: '#22262E',
-          cardHover: '#282d36',
+          bg: '#0f1114',
+          header: '#12151a',
+          card: '#181b20',
+          cardHover: '#1e2228',
           muted: '#6B7280',
           border: 'rgba(255,255,255,0.06)',
+          navInactive: '#3f4349',
         },
         accent: {
           DEFAULT: '#14b8a6',

@@ -2,10 +2,12 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { ColDef } from 'ag-grid-community';
 import { selectDataQualityExceptions, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import { DataQualityException } from '../../core/api.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
+import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
 
 @Component({
   selector: 'app-dq-exceptions-page',
@@ -16,9 +18,16 @@ export class DqExceptionsPageComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   exceptions: DataQualityException[] = [];
   loading = false;
-  modalOpen = false;
-  modalRows: DetailRow[] = [];
-  modalTitle = '';
+  selectedItem: DataQualityException | null = null;
+  panelRows: DetailRow[] = [];
+  panelTitle = '';
+  metrics: MetricItem[] = [];
+  columnDefs: ColDef<DataQualityException>[] = [
+    { field: 'rule_id', headerName: 'Rule ID', width: 100 },
+    { field: 'status', headerName: 'Status', width: 100 },
+    { field: 'description', headerName: 'Description', flex: 1 },
+  ];
+  defaultColDef: ColDef = { sortable: true, filter: true };
 
   constructor(private store: Store) {}
 
@@ -37,6 +46,11 @@ export class DqExceptionsPageComponent implements OnInit, OnDestroy {
       .subscribe(([list, loading]) => {
         this.exceptions = list;
         this.loading = loading;
+        this.metrics = [
+          { label: 'Total', value: list.length },
+          { label: 'Open', value: list.filter((e) => e.status === 'open').length },
+          { label: 'Closed', value: list.filter((e) => e.status === 'closed').length },
+        ];
       });
   }
 
@@ -45,15 +59,22 @@ export class DqExceptionsPageComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  openDetail(item: DataQualityException): void {
-    this.modalTitle = `Exception #${item.id}`;
-    this.modalRows = [
+  onRowClicked(item: DataQualityException | undefined): void {
+    if (!item) return;
+    this.selectedItem = item;
+    this.panelTitle = `Exception #${item.id}`;
+    this.panelRows = [
       { label: 'ID', value: item.id },
       { label: 'Rule ID', value: item.rule_id },
       { label: 'Status', value: item.status },
       { label: 'Description', value: item.description },
       { label: 'Identified at', value: item.identified_at },
     ];
-    this.modalOpen = true;
   }
+
+  closePanel(): void {
+    this.selectedItem = null;
+  }
+
+  getRowId = (params: { data: DataQualityException }) => String(params.data.id);
 }
