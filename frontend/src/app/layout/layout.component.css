@@ -1,3 +1,12 @@
+/* Side nav: Iconoir icons (iconoir.css uses 1em × 1em for ::before) */
+.nav-link-icon {
+  font-size: 1.25rem;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
 /* Aurora-style active nav: blue left border + subtle blue-gray background */
 .nav-link-active {
   background-color: #12161A !important;
