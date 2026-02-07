@@ -33,6 +33,12 @@ Rapid prototype of a user-facing portal for data governance: manage Critical Dat
 - **Storage:** MinIO (S3-compatible), Docker
 - **Containers:** Docker, Docker Compose
 
+## API (Phase 2)
+
+- **REST:** `/api/domains`, `/api/data-elements`, `/api/applications`, `/api/eucs`, `/api/endpoints`, `/api/data-quality-rules`, `/api/data-quality-exceptions`, `/api/data-concerns`, `/api/metrics`
+- **Bulk:** `POST /api/bulk/upload` (form: `entity_type`, `file`); `GET /api/bulk/download?entity_type=...&domain_id=...`. CSV header row required; columns per entity type — see OpenAPI docs at http://localhost:8000/docs
+- **Health:** `GET /health`, `GET /ready` (DB check)
+
 ## Development
 
 - Backend and frontend can be run locally (e.g. `uvicorn` and `ng serve`) against DB and MinIO from Docker.
