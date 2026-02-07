@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { selectDataElements, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import { DataElement } from '../../core/api.service';
@@ -22,16 +23,20 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
   constructor(private store: Store) {}
 
   ngOnInit(): void {
+    this.store
+      .select(selectCurrentDomainId)
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((domainId) => {
+        if (domainId != null) this.store.dispatch(AppActions.loadDataElements({ domainId }));
+      });
     combineLatest([
-      this.store.select(selectCurrentDomainId),
       this.store.select(selectDataElements),
       this.store.select(selectLoading('dataElements')),
     ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([domainId, list, loading]) => {
+      .subscribe(([list, loading]) => {
         this.dataElements = list;
         this.loading = loading;
-        if (domainId != null) this.store.dispatch(AppActions.loadDataElements({ domainId }));
       });
   }
 

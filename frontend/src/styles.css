@@ -2,29 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Dark theme base — applied via class="dark" on html */
+/* Aurora-style dark theme: deep charcoal, teal accent, minimal borders */
 :root {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: #334155;
-  --text-primary: #f1f5f9;
-  --text-muted: #94a3b8;
-  --border: #475569;
-  --accent: #38bdf8;
-}
-
-.dark {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: #334155;
-  --text-primary: #f1f5f9;
-  --text-muted: #94a3b8;
-  --border: #475569;
-  --accent: #38bdf8;
+  --bg-primary: #1A1E24;
+  --bg-card: #22262E;
+  --text-primary: #f3f4f6;
+  --text-muted: #9ca3af;
+  --border: rgba(255, 255, 255, 0.06);
+  --accent: #14b8a6;
 }
 
 body {
-  @apply bg-slate-900 text-slate-100 antialiased;
+  font-family: 'Inter', system-ui, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  @apply antialiased;
+}
+
+/* Card style: soft elevation, rounded, no strong borders */
+.card-aurora {
+  background-color: var(--bg-card);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Table inside card: clean lines, muted headers */
+.table-aurora thead th {
+  @apply text-left text-xs font-medium uppercase tracking-wider text-gray-500;
+}
+.table-aurora tbody tr {
+  @apply border-t border-white/[0.06] transition-colors;
+}
+.table-aurora tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.03);
 }

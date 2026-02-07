@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { selectEndpoints, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import { Endpoint } from '../../core/api.service';
@@ -22,16 +23,20 @@ export class EndpointsPageComponent implements OnInit, OnDestroy {
   constructor(private store: Store) {}
 
   ngOnInit(): void {
+    this.store
+      .select(selectCurrentDomainId)
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((domainId) => {
+        if (domainId != null) this.store.dispatch(AppActions.loadEndpoints({ domainId }));
+      });
     combineLatest([
-      this.store.select(selectCurrentDomainId),
       this.store.select(selectEndpoints),
       this.store.select(selectLoading('endpoints')),
     ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([domainId, list, loading]) => {
+      .subscribe(([list, loading]) => {
         this.endpoints = list;
         this.loading = loading;
-        if (domainId != null) this.store.dispatch(AppActions.loadEndpoints({ domainId }));
       });
   }
 

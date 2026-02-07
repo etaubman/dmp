@@ -1,40 +1,40 @@
 <div class="space-y-6">
-  <h2 class="text-xl font-semibold text-slate-100">Metrics</h2>
-  <p class="text-slate-400 text-sm" *ngIf="domainId">Summary for selected domain.</p>
-  <p class="text-slate-400 text-sm" *ngIf="!domainId">Select a domain for domain-scoped metrics, or view global counts below.</p>
-  <div *ngIf="loading" class="text-sky-400">Loading…</div>
+  <h2 class="text-xl font-semibold text-gray-100">Metrics</h2>
+  <p class="text-gray-500 text-sm" *ngIf="domainId">Summary for selected domain.</p>
+  <p class="text-gray-500 text-sm" *ngIf="!domainId">Select a domain for domain-scoped metrics, or view global counts below.</p>
+  <div *ngIf="loading" class="text-accent">Loading…</div>
   <div *ngIf="!loading && metrics" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    <div class="rounded-lg border border-slate-700 bg-slate-800 p-4">
-      <div class="text-slate-400 text-sm">Data Elements</div>
-      <div class="text-2xl font-semibold text-sky-400">{{ metrics.data_elements_count }}</div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Data Elements</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ metrics.data_elements_count }}</div>
     </div>
-    <div class="rounded-lg border border-slate-700 bg-slate-800 p-4">
-      <div class="text-slate-400 text-sm">Applications</div>
-      <div class="text-2xl font-semibold text-sky-400">{{ metrics.applications_count }}</div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Applications</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ metrics.applications_count }}</div>
     </div>
-    <div class="rounded-lg border border-slate-700 bg-slate-800 p-4">
-      <div class="text-slate-400 text-sm">EUCs</div>
-      <div class="text-2xl font-semibold text-sky-400">{{ metrics.eucs_count }}</div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">EUCs</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ metrics.eucs_count }}</div>
     </div>
-    <div class="rounded-lg border border-slate-700 bg-slate-800 p-4">
-      <div class="text-slate-400 text-sm">Endpoints</div>
-      <div class="text-2xl font-semibold text-sky-400">{{ metrics.endpoints_count }}</div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Endpoints</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ metrics.endpoints_count }}</div>
     </div>
-    <div class="rounded-lg border border-slate-700 bg-slate-800 p-4">
-      <div class="text-slate-400 text-sm">Data Quality Rules</div>
-      <div class="text-2xl font-semibold text-sky-400">{{ metrics.data_quality_rules_count }}</div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Data Quality Rules</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ metrics.data_quality_rules_count }}</div>
     </div>
-    <div class="rounded-lg border border-slate-700 bg-slate-800 p-4">
-      <div class="text-slate-400 text-sm">DQ Exceptions</div>
-      <div class="text-2xl font-semibold text-sky-400">{{ metrics.data_quality_exceptions_count }}</div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">DQ Exceptions</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ metrics.data_quality_exceptions_count }}</div>
     </div>
-    <div class="rounded-lg border border-slate-700 bg-slate-800 p-4">
-      <div class="text-slate-400 text-sm">Data Concerns</div>
-      <div class="text-2xl font-semibold text-sky-400">{{ metrics.data_concerns_count }}</div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Data Concerns</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ metrics.data_concerns_count }}</div>
     </div>
-    <div class="rounded-lg border border-slate-700 bg-slate-800 p-4" *ngIf="metrics.domains_count !== undefined">
-      <div class="text-slate-400 text-sm">Domains</div>
-      <div class="text-2xl font-semibold text-sky-400">{{ metrics.domains_count }}</div>
+    <div class="card-aurora p-5" *ngIf="metrics.domains_count !== undefined">
+      <div class="text-gray-500 text-sm">Domains</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ metrics.domains_count }}</div>
     </div>
   </div>
 </div>

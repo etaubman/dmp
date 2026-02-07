@@ -1,31 +1,33 @@
-<div class="flex h-screen bg-slate-900 text-slate-100">
-  <!-- Sidebar -->
-  <aside class="w-64 flex-shrink-0 bg-slate-800 border-r border-slate-700 flex flex-col">
-    <div class="p-4 border-b border-slate-700">
-      <h1 class="text-lg font-semibold text-sky-400">Data Manager Portal</h1>
+<div class="flex h-screen bg-aurora-bg text-gray-100">
+  <!-- Sidebar: full-width active highlight, minimal border -->
+  <aside class="w-64 flex-shrink-0 bg-aurora-bg flex flex-col" style="border-right: 1px solid rgba(255,255,255,0.06);">
+    <div class="p-5" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+      <h1 class="text-lg font-semibold tracking-tight">
+        <span class="text-accent">Data</span> Manager Portal
+      </h1>
     </div>
     <app-domain-selector></app-domain-selector>
-    <nav class="flex-1 p-2 space-y-0.5 overflow-y-auto">
-      <a routerLink="/data-elements" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Critical Data Elements</a>
-      <a routerLink="/applications" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Applications</a>
-      <a routerLink="/eucs" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">EUCs</a>
-      <a routerLink="/endpoints" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Endpoints</a>
-      <a routerLink="/data-quality-rules" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Data Quality Rules</a>
-      <a routerLink="/data-quality-exceptions" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">DQ Exceptions</a>
-      <a routerLink="/data-concerns" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Data Concerns</a>
-      <a routerLink="/metrics" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Metrics</a>
-      <a routerLink="/bulk" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Bulk Upload / Download</a>
+    <nav class="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
+      <a routerLink="/data-elements" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Critical Data Elements</a>
+      <a routerLink="/applications" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Applications</a>
+      <a routerLink="/eucs" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">EUCs</a>
+      <a routerLink="/endpoints" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Endpoints</a>
+      <a routerLink="/data-quality-rules" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Data Quality Rules</a>
+      <a routerLink="/data-quality-exceptions" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">DQ Exceptions</a>
+      <a routerLink="/data-concerns" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Data Concerns</a>
+      <a routerLink="/metrics" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Metrics</a>
+      <a routerLink="/bulk" routerLinkActive="!bg-accent/20 !text-accent" class="block px-3 py-2.5 rounded-input text-gray-400 hover:bg-white/[0.04] hover:text-gray-200 transition-colors">Bulk Upload / Download</a>
     </nav>
   </aside>
   <!-- Main area -->
-  <div class="flex-1 flex flex-col min-w-0">
-    <header class="h-12 flex-shrink-0 bg-slate-800 border-b border-slate-700 flex items-center px-4">
-      <span class="text-slate-400 text-sm">Data Governance</span>
+  <div class="flex-1 flex flex-col min-w-0 bg-aurora-bg">
+    <header class="h-14 flex-shrink-0 flex items-center px-6 gap-4" style="border-bottom: 1px solid rgba(255,255,255,0.06); background: #1e2329;">
+      <span class="text-gray-500 text-sm font-medium">Data Governance</span>
     </header>
-    <main class="flex-1 overflow-auto p-6">
+    <main class="flex-1 overflow-auto p-6 bg-aurora-bg">
       <router-outlet></router-outlet>
     </main>
-    <footer class="h-8 flex-shrink-0 bg-slate-800 border-t border-slate-700 flex items-center px-4 text-slate-500 text-xs">
+    <footer class="h-9 flex-shrink-0 flex items-center px-6 text-gray-500 text-xs" style="border-top: 1px solid rgba(255,255,255,0.06);">
       Data Manager Portal — Prototype
     </footer>
   </div>

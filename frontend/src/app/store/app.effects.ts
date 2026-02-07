@@ -1,14 +1,17 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { catchError, map, mergeMap, withLatestFrom } from 'rxjs/operators';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import { ApiService } from '../core/api.service';
 import * as AppActions from './app.actions';
 import { Store } from '@ngrx/store';
-import { selectCurrentDomainId } from './app.selectors';
 
 @Injectable()
 export class AppEffects {
+  private actions$ = inject(Actions);
+  private api = inject(ApiService);
+  private store = inject(Store);
+
   loadDomains$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AppActions.loadDomains),
@@ -180,10 +183,4 @@ export class AppEffects {
       }),
     ),
   );
-
-  constructor(
-    private actions$: Actions,
-    private api: ApiService,
-    private store: Store,
-  ) {}
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { selectMetrics, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
 import { Metrics } from '../../core/api.service';
@@ -19,10 +20,13 @@ export class MetricsPageComponent implements OnInit, OnDestroy {
   constructor(private store: Store) {}
 
   ngOnInit(): void {
-    this.store.select(selectCurrentDomainId).pipe(takeUntil(this.destroy$)).subscribe((id) => {
-      this.domainId = id;
-      this.store.dispatch(AppActions.loadMetrics({ domainId: id ?? undefined }));
-    });
+    this.store
+      .select(selectCurrentDomainId)
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((id) => {
+        this.domainId = id;
+        this.store.dispatch(AppActions.loadMetrics({ domainId: id ?? undefined }));
+      });
     combineLatest([
       this.store.select(selectMetrics),
       this.store.select(selectLoading('metrics')),
