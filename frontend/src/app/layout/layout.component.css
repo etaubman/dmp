@@ -1,4 +1,4 @@
-/* Logo section (title + domain) and header same height */
+/* Sidebar top block (logo + domain selector) keeps fixed height */
 .layout-brand {
   height: 8rem;
   min-height: 8rem;

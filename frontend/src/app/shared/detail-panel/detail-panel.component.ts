@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { DetailRow } from '../detail-modal/detail-modal.component';
 
 @Component({
@@ -11,6 +11,10 @@ export class DetailPanelComponent {
   @Input() rows: DetailRow[] = [];
   @Input() open = false;
   @Output() openChange = new EventEmitter<boolean>();
+
+  @HostBinding('class.detail-panel-open') get isPanelOpen(): boolean {
+    return this.open;
+  }
 
   close(): void {
     this.open = false;
