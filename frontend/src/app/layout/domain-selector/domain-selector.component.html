@@ -1,12 +1,18 @@
 <div class="p-3" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
   <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Domain</label>
+  <div *ngIf="loading" class="text-sm text-gray-400 py-2">Loading domains…</div>
+  <div *ngIf="error" class="text-sm text-amber-400 mb-2">
+    {{ error }}
+    <button type="button" (click)="refreshDomains()" class="ml-2 underline focus:outline-none focus:ring-2 focus:ring-accent rounded">Retry</button>
+  </div>
   <select
     [ngModel]="currentDomainId"
     (ngModelChange)="selectDomain($event)"
-    class="w-full rounded-input px-3 py-2 text-sm text-gray-200 bg-aurora-card focus:ring-1 focus:ring-accent focus:outline-none"
+    [disabled]="domains.length === 0"
+    class="w-full rounded-input px-3 py-2 text-sm text-gray-200 bg-aurora-card focus:ring-1 focus:ring-accent focus:outline-none disabled:opacity-60"
     style="border: 1px solid rgba(255,255,255,0.08);"
   >
     <option [ngValue]="null">Select domain</option>
-    <option *ngFor="let d of domains$ | async" [ngValue]="d.id">{{ d.name }}</option>
+    <option *ngFor="let d of domains" [ngValue]="d.id">{{ d.name }}</option>
   </select>
 </div>

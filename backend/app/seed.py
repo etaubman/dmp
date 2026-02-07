@@ -371,5 +371,46 @@ def run_seed():
         db.close()
 
 
+def reset_and_reseed():
+    """
+    Delete all domain-related data and the seed flag, then re-run the seed.
+    Use this to replace old/imported domains with the current seed hierarchy (e.g. L0 Markets, L0 Banking).
+    """
+    _, SessionLocal = get_engine_and_session()
+    db = SessionLocal()
+    try:
+        # Delete in dependency order (children before parents)
+        db.query(DataConcern).delete()
+        db.query(DataQualityException).delete()
+        db.query(DataQualityRule).delete()
+        db.query(Endpoint).delete()
+        db.query(EUC).delete()
+        db.query(Application).delete()
+        db.query(DataElement).delete()
+        # Domains: clear parent_id to avoid self-FK, then delete all
+        db.query(Domain).update({Domain.parent_id: None})
+        db.query(Domain).delete()
+        db.query(SeedFlag).delete()
+        db.flush()
+
+        name_to_id = _add_domains(db)
+        _add_users(db)
+        for l1_name, seeder in L1_SEEDERS.items():
+            if l1_name in name_to_id:
+                seeder(db, name_to_id[l1_name])
+        db.add(SeedFlag())
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
 if __name__ == "__main__":
-    run_seed()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "reset":
+        reset_and_reseed()
+        print("Database reset and re-seeded with current domain hierarchy.")
+    else:
+        run_seed()
