@@ -1,3 +1,12 @@
+/* Aurora-style active nav: blue left border + subtle blue-gray background */
+.nav-link-active {
+  background-color: #12161A !important;
+  color: #E8ECF0 !important;
+  border-left: 3px solid #5B9CFE;
+  margin-left: 0;
+  padding-left: calc(0.75rem - 3px);
+}
+
 /* Sidebar top block (logo + domain selector) keeps fixed height */
 .layout-brand {
   height: 8rem;
@@ -46,16 +55,16 @@
   padding: 0.35rem 0.5rem;
   background: transparent;
   border: none;
-  border-radius: 4px;
-  color: rgba(255, 255, 255, 0.75);
+  border-radius: 0.5rem;
+  color: #B8BEC6;
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.12s ease, color 0.12s ease;
 }
 .header-dropdown-trigger:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.03);
+  color: #E8ECF0;
 }
 .header-dropdown-chevron {
   font-size: 0.5rem;
@@ -69,10 +78,10 @@
   margin-top: 0.2rem;
   width: 10rem;
   padding: 0.2rem 0;
-  background: var(--aurora-bg, #0f1419);
-  border: none;
-  border-radius: 4px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  background: #0A0C0E;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
   z-index: 50;
 }
 .header-dropdown:hover .header-dropdown-panel {
@@ -81,20 +90,20 @@
 .header-dropdown-item {
   display: block;
   padding: 0.35rem 0.5rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: #E2E8F0;
   font-size: 0.8125rem;
   text-decoration: none;
   transition: background-color 0.12s ease;
 }
 .header-dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 /* Profile section */
 .header-profile-name {
   font-weight: 500;
   font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.75);
+  color: #B8BEC6;
 }
 .header-profile-avatar {
   width: 1.75rem;
@@ -108,7 +117,7 @@
 
 /* Sidebar sticky footer */
 .sidebar-footer {
-  background: var(--aurora-bg, #0f1419);
+  background: #060809;
 }
 .sidebar-footer-link {
   text-decoration: none;

@@ -5,21 +5,27 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Darker black-gray aesthetic; keep teal accents
+        // Aurora dark, darker + desaturated; bright pops for selected/sparklines
         aurora: {
-          bg: '#0f1114',
-          header: '#12151a',
-          card: '#181b20',
-          cardHover: '#1e2228',
+          bg: '#060809',
+          header: '#060809',
+          card: '#0A0C0E',
+          cardHover: '#0E1114',
           muted: '#6B7280',
-          border: 'rgba(255,255,255,0.06)',
-          navInactive: '#3f4349',
+          border: 'rgba(255,255,255,0.04)',
+          navInactive: '#A8B0BB',
+          navActiveBg: '#12161A',
         },
         accent: {
-          DEFAULT: '#14b8a6',
-          hover: '#0d9488',
-          dim: '#0f766e',
+          DEFAULT: '#5C6B7A',
+          hover: '#6B7886',
+          dim: '#4A5663',
+          pop: '#5B9CFE',
+          popHover: '#7AB0FF',
         },
+        auroraPositive: '#4A5F52',
+        auroraNegative: '#7A5A5A',
+        auroraWarning: '#7A6B4A',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -29,7 +35,7 @@ module.exports = {
         input: '0.5rem',
       },
       boxShadow: {
-        card: '0 1px 3px 0 rgba(0,0,0,0.2)',
+        card: '0 1px 3px 0 rgba(0,0,0,0.25)',
       },
     },
   },

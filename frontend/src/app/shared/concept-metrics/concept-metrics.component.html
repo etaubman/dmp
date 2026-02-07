@@ -3,7 +3,7 @@
     <div *ngFor="let m of metrics" class="card-aurora p-4 flex flex-col">
       <div class="text-gray-500 text-sm">{{ m.label }}</div>
       <div class="flex items-baseline gap-2 mt-1 flex-wrap">
-        <span class="text-xl font-semibold text-accent">{{ m.value }}</span>
+        <span class="text-xl font-semibold text-accent-pop">{{ m.value }}</span>
         <span *ngIf="m.change !== undefined && m.change !== null" class="text-xs font-medium px-1.5 py-0.5 rounded" [ngClass]="getChangeClass(m)">
           {{ getChangeLabel(m) }}
         </span>
@@ -11,7 +11,7 @@
       </div>
       <div class="mt-2 h-8 flex-shrink-0" *ngIf="hasSparkline(m)">
         <svg class="w-full h-full" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
-          <polyline [attr.points]="getSparklinePoints(m)" fill="none" stroke="var(--accent, #14b8a6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline [attr.points]="getSparklinePoints(m)" fill="none" stroke="var(--accent-pop, #5B9CFE)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
     </div>

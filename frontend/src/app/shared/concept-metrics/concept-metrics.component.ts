@@ -43,13 +43,13 @@ export class ConceptMetricsComponent implements OnChanges {
       return;
     }
     this.chartOptions = {
-      theme: { overrides: { common: { background: { fill: '#181b20' } } } },
+      theme: { overrides: { common: { background: { fill: '#0A0C0E' } } } },
       data,
       axes: {
         x: { type: 'category', position: 'bottom', label: { color: '#9ca3af', fontSize: 10 } },
         y: { type: 'number', position: 'left', title: { text: 'Count', color: '#9ca3af' }, label: { color: '#9ca3af' } },
       },
-      series: [{ type: 'bar', xKey: 'category', yKey: 'value', fill: '#14b8a6', stroke: '#0d9488' }],
+      series: [{ type: 'bar', xKey: 'category', yKey: 'value', fill: '#5B9CFE', stroke: '#7AB0FF' }],
       height: 180,
       padding: { top: 12, right: 16, bottom: 40, left: 44 },
     };

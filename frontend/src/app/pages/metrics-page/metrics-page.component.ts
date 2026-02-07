@@ -56,13 +56,13 @@ export class MetricsPageComponent implements OnInit, OnDestroy {
       { category: 'Data Concerns', value: metrics.data_concerns_count },
     ];
     this.chartOptions = {
-      theme: { overrides: { common: { background: { fill: '#181b20' } } } },
+      theme: { overrides: { common: { background: { fill: '#0A0C0E' } } } },
       data: barData,
       axes: {
         x: { type: 'category', position: 'bottom', label: { color: '#9ca3af', fontSize: 11 } },
         y: { type: 'number', position: 'left', title: { text: 'Count', color: '#9ca3af' }, label: { color: '#9ca3af' } },
       },
-      series: [{ type: 'bar', xKey: 'category', yKey: 'value', fill: '#14b8a6', stroke: '#0d9488' }],
+      series: [{ type: 'bar', xKey: 'category', yKey: 'value', fill: '#5B9CFE', stroke: '#7AB0FF' }],
       height: 300,
       padding: { top: 16, right: 20, bottom: 48, left: 56 },
     };

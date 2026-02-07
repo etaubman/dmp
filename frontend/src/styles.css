@@ -4,14 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Darker black-gray theme; teal accents kept */
+/* Aurora dark theme, darker + desaturated; bright pops for selected/sparklines */
 :root {
-  --bg-primary: #0f1114;
-  --bg-card: #181b20;
-  --text-primary: #f3f4f6;
-  --text-muted: #9ca3af;
-  --border: rgba(255, 255, 255, 0.06);
-  --accent: #14b8a6;
+  --bg-primary: #060809;
+  --bg-card: #0A0C0E;
+  --text-primary: #D8DCE2;
+  --text-muted: #6B7280;
+  --border: rgba(255, 255, 255, 0.04);
+  --accent: #5C6B7A;
+  --accent-pop: #5B9CFE;
+  --accent-pop-hover: #7AB0FF;
+  --aurora-positive: #4A5F52;
+  --aurora-negative: #7A5A5A;
+  --aurora-warning: #7A6B4A;
   --gutter: 24px;
 }
 .gap-gutter { gap: var(--gutter); }
@@ -51,7 +56,8 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  @apply antialiased;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Card style: soft elevation, rounded, no strong borders */
@@ -61,25 +67,28 @@ body {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
 }
 
-/* Table inside card: clean lines, muted headers */
+/* Table inside card: clean lines, brighter text */
 .table-aurora thead th {
-  @apply text-left text-xs font-medium uppercase tracking-wider text-gray-500;
+  @apply text-left text-xs font-medium uppercase tracking-wider text-gray-400;
 }
 .table-aurora tbody tr {
   @apply border-t border-white/[0.06] transition-colors;
+}
+.table-aurora tbody td {
+  color: #E2E8F0;
 }
 .table-aurora tbody tr:hover {
   background-color: rgba(255, 255, 255, 0.03);
 }
 
-/* AG Grid dark theme to match aurora */
+/* AG Grid dark theme to match Aurora; brighter table text */
 .ag-theme-quartz {
-  --ag-background-color: #181b20;
-  --ag-header-background-color: #12151a;
-  --ag-odd-row-background-color: #181b20;
-  --ag-row-hover-color: rgba(255, 255, 255, 0.04);
-  --ag-border-color: rgba(255, 255, 255, 0.06);
-  --ag-foreground-color: #f3f4f6;
-  --ag-header-foreground-color: #9ca3af;
+  --ag-background-color: #0A0C0E;
+  --ag-header-background-color: #060809;
+  --ag-odd-row-background-color: #0A0C0E;
+  --ag-row-hover-color: rgba(255, 255, 255, 0.025);
+  --ag-border-color: rgba(255, 255, 255, 0.04);
+  --ag-foreground-color: #E2E8F0;
+  --ag-header-foreground-color: #9CA3AF;
   --ag-font-family: 'Inter', system-ui, sans-serif;
 }

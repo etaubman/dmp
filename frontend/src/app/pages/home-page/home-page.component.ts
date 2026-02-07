@@ -113,7 +113,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
       this.donutOptions = null;
       return;
     }
-    const themeOverrides = { common: { background: { fill: '#181b20' } } };
+    const themeOverrides = { common: { background: { fill: '#0A0C0E' } } };
     const barData = [
       { category: 'Data Elements', value: metrics.data_elements_count },
       { category: 'Applications', value: metrics.applications_count },
@@ -131,7 +131,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
         x: { type: 'category', position: 'bottom', label: { color: '#9ca3af', fontSize: 11 } },
         y: { type: 'number', position: 'left', title: { text: 'Count', color: '#9ca3af' }, label: { color: '#9ca3af' } },
       },
-      series: [{ type: 'bar', xKey: 'category', yKey: 'value', fill: '#14b8a6', stroke: '#0d9488' }],
+      series: [{ type: 'bar', xKey: 'category', yKey: 'value', fill: '#5B9CFE', stroke: '#7AB0FF' }],
       height: 280,
       padding: { top: 16, right: 20, bottom: 48, left: 56 },
     };
@@ -141,7 +141,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
       this.donutOptions = {
         theme: { overrides: themeOverrides },
         data: donutData,
-        series: [{ type: 'donut', angleKey: 'value', legendItemKey: 'category' }],
+        series: [{ type: 'donut', angleKey: 'value', legendItemKey: 'category', fills: ['#5B9CFE', '#7AB0FF', '#4A8AE8', '#6BA3F5', '#3D7AD9'], strokes: ['#0A0C0E'] }],
         legend: { enabled: true, item: { label: { color: '#e5e7eb', fontSize: 12 } }, spacing: 12 },
         height: 260,
         padding: { top: 16, right: 16, bottom: 16, left: 16 },
