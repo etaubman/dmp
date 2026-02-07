@@ -102,6 +102,8 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
   flex-shrink: 0;
+  object-fit: cover;
+  display: block;
 }
 
 /* Sidebar sticky footer */
