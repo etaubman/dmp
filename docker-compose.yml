@@ -19,10 +19,11 @@ services:
       timeout: 5s
       retries: 5
 
+  # MinIO: S3 API on 9000, built-in Console (S3 admin UI) on 9001 — one container per plan for storage, separate port for admin UI
   minio:
     image: minio/minio:latest
     container_name: dmp-minio
-    command: server /data
+    command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
@@ -30,18 +31,7 @@ services:
       - minio_data:/data
     ports:
       - "9000:9000"
-
-  # S3 admin UI (separate container per plan)
-  s3-admin:
-    image: minio/console:latest
-    container_name: dmp-s3-admin
-    environment:
-      CONSOLE_MINIO_ENDPOINT: http://minio:9000
-    ports:
       - "9001:9001"
-    depends_on:
-      - minio
-    command: server
 
   # Create S3 buckets on first run (bulk-uploads, exports)
   s3-init:
