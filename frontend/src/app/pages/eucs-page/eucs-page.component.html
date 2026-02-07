@@ -20,6 +20,7 @@
     <div class="main-content" [class.main-content--panel-open]="selectedItem">
       <div class="ag-theme-quartz h-full min-h-[200px]">
         <ag-grid-angular
+          theme="legacy"
           [rowData]="eucs"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"

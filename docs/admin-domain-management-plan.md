@@ -10,7 +10,7 @@ This document outlines the changes needed in the frontend and backend to add an 
   - **Domain model** (`app/models/__init__.py`): `id`, `name`, `description`, `parent_id`, `created_at`, `updated_at`. Supports hierarchy via `parent_id`; no `children` relationship defined.
   - **Domain API** (`app/api/domains.py`): Read-only — `GET /api/domains` (list) and `GET /api/domains/{id}` (get by id). No create/update/delete.
   - **Domain schemas** (`app/schemas/domain.py`): `DomainBase`, `DomainCreate`, `DomainUpdate`, `DomainOut` already exist and support `parent_id`.
-  - **Seed** (`app/seed.py`): Creates only **L0 and L1** from `DOMAIN_HIERARCHY`. No L2/L3 in seed today; hierarchy is generic (any depth via `parent_id`).
+  - **Seed** (`app/seed.py`): Creates **L0, L1, and L2** from `DOMAIN_HIERARCHY`. Seed structure: L0 Markets (L1 Equities with L2 Cash/Derivatives/Prime, L1 Commodities with L2 Agriculture/Oil & Gas/Metals), L0 Banking (L1 Commercial Banking, L1 Investment Banking). Rich data and regulatory endpoints (e.g. MIFID II, SNC, FR-Y-14) are seeded under the four L1 domains.
 
 - **Frontend**
   - **Routing**: Single layout with children for Home, Data Elements, Applications, EUCs, Endpoints, DQ Rules, DQ Exceptions, Data Concerns, Metrics, Bulk. No admin routes.
