@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark theme base — applied via class="dark" on html */
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #334155;
+  --text-primary: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: #475569;
+  --accent: #38bdf8;
+}
+
+.dark {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #334155;
+  --text-primary: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: #475569;
+  --accent: #38bdf8;
+}
+
+body {
+  @apply bg-slate-900 text-slate-100 antialiased;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}

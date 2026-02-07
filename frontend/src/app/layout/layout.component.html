@@ -1,0 +1,32 @@
+<div class="flex h-screen bg-slate-900 text-slate-100">
+  <!-- Sidebar -->
+  <aside class="w-64 flex-shrink-0 bg-slate-800 border-r border-slate-700 flex flex-col">
+    <div class="p-4 border-b border-slate-700">
+      <h1 class="text-lg font-semibold text-sky-400">Data Manager Portal</h1>
+    </div>
+    <app-domain-selector></app-domain-selector>
+    <nav class="flex-1 p-2 space-y-0.5 overflow-y-auto">
+      <a routerLink="/data-elements" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Critical Data Elements</a>
+      <a routerLink="/applications" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Applications</a>
+      <a routerLink="/eucs" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">EUCs</a>
+      <a routerLink="/endpoints" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Endpoints</a>
+      <a routerLink="/data-quality-rules" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Data Quality Rules</a>
+      <a routerLink="/data-quality-exceptions" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">DQ Exceptions</a>
+      <a routerLink="/data-concerns" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Data Concerns</a>
+      <a routerLink="/metrics" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Metrics</a>
+      <a routerLink="/bulk" routerLinkActive="bg-slate-700 text-sky-300" class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-700 hover:text-white">Bulk Upload / Download</a>
+    </nav>
+  </aside>
+  <!-- Main area -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <header class="h-12 flex-shrink-0 bg-slate-800 border-b border-slate-700 flex items-center px-4">
+      <span class="text-slate-400 text-sm">Data Governance</span>
+    </header>
+    <main class="flex-1 overflow-auto p-6">
+      <router-outlet></router-outlet>
+    </main>
+    <footer class="h-8 flex-shrink-0 bg-slate-800 border-t border-slate-700 flex items-center px-4 text-slate-500 text-xs">
+      Data Manager Portal — Prototype
+    </footer>
+  </div>
+</div>

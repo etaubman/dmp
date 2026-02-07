@@ -1,0 +1,167 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+
+const API = environment.apiUrl + '/api';
+
+export interface Domain {
+  id: number;
+  name: string;
+  description?: string;
+  parent_id?: number;
+}
+
+export interface DataElement {
+  id: number;
+  domain_id: number;
+  name: string;
+  description?: string;
+  element_type?: string;
+}
+
+export interface Application {
+  id: number;
+  domain_id: number;
+  name: string;
+  description?: string;
+}
+
+export interface EUC {
+  id: number;
+  domain_id: number;
+  name: string;
+  description?: string;
+  euc_type?: string;
+}
+
+export interface Endpoint {
+  id: number;
+  domain_id?: number;
+  application_id?: number;
+  name: string;
+  description?: string;
+}
+
+export interface DataQualityRule {
+  id: number;
+  domain_id?: number;
+  data_element_id?: number;
+  endpoint_id?: number;
+  name: string;
+  description?: string;
+  rule_type?: string;
+}
+
+export interface DataQualityException {
+  id: number;
+  rule_id: number;
+  data_element_id?: number;
+  description?: string;
+  status?: string;
+  identified_at?: string;
+}
+
+export interface DataConcern {
+  id: number;
+  domain_id: number;
+  application_id?: number;
+  euc_id?: number;
+  endpoint_id?: number;
+  data_element_id?: number;
+  title: string;
+  description?: string;
+  status?: string;
+}
+
+export interface Metrics {
+  domain_id?: number;
+  domains_count: number;
+  data_elements_count: number;
+  applications_count: number;
+  eucs_count: number;
+  endpoints_count: number;
+  data_quality_rules_count: number;
+  data_quality_exceptions_count: number;
+  data_concerns_count: number;
+  attestation_count?: number;
+}
+
+@Injectable({ providedIn: 'root' })
+export class ApiService {
+  constructor(private http: HttpClient) {}
+
+  getDomains(): Observable<Domain[]> {
+    return this.http.get<Domain[]>(`${API}/domains`);
+  }
+
+  getDomain(id: number): Observable<Domain> {
+    return this.http.get<Domain>(`${API}/domains/${id}`);
+  }
+
+  getDataElements(domainId: number): Observable<DataElement[]> {
+    return this.http.get<DataElement[]>(`${API}/data-elements`, {
+      params: new HttpParams().set('domain_id', domainId),
+    });
+  }
+
+  getApplications(domainId: number): Observable<Application[]> {
+    return this.http.get<Application[]>(`${API}/applications`, {
+      params: new HttpParams().set('domain_id', domainId),
+    });
+  }
+
+  getEucs(domainId: number): Observable<EUC[]> {
+    return this.http.get<EUC[]>(`${API}/eucs`, {
+      params: new HttpParams().set('domain_id', domainId),
+    });
+  }
+
+  getEndpoints(domainId?: number, applicationId?: number): Observable<Endpoint[]> {
+    let params = new HttpParams();
+    if (domainId != null) params = params.set('domain_id', domainId);
+    if (applicationId != null) params = params.set('application_id', applicationId);
+    return this.http.get<Endpoint[]>(`${API}/endpoints`, { params });
+  }
+
+  getDataQualityRules(domainId?: number, dataElementId?: number): Observable<DataQualityRule[]> {
+    let params = new HttpParams();
+    if (domainId != null) params = params.set('domain_id', domainId);
+    if (dataElementId != null) params = params.set('data_element_id', dataElementId);
+    return this.http.get<DataQualityRule[]>(`${API}/data-quality-rules`, { params });
+  }
+
+  getDataQualityExceptions(domainId?: number, dataElementId?: number): Observable<DataQualityException[]> {
+    let params = new HttpParams();
+    if (domainId != null) params = params.set('domain_id', domainId);
+    if (dataElementId != null) params = params.set('data_element_id', dataElementId);
+    return this.http.get<DataQualityException[]>(`${API}/data-quality-exceptions`, { params });
+  }
+
+  getDataConcerns(domainId: number, filters?: { application_id?: number; euc_id?: number; endpoint_id?: number; data_element_id?: number }): Observable<DataConcern[]> {
+    let params = new HttpParams().set('domain_id', domainId);
+    if (filters?.application_id != null) params = params.set('application_id', filters.application_id);
+    if (filters?.euc_id != null) params = params.set('euc_id', filters.euc_id);
+    if (filters?.endpoint_id != null) params = params.set('endpoint_id', filters.endpoint_id);
+    if (filters?.data_element_id != null) params = params.set('data_element_id', filters.data_element_id);
+    return this.http.get<DataConcern[]>(`${API}/data-concerns`, { params });
+  }
+
+  getMetrics(domainId?: number): Observable<Metrics> {
+    const params = domainId != null ? new HttpParams().set('domain_id', domainId) : undefined;
+    return this.http.get<Metrics>(`${API}/metrics`, { params });
+  }
+
+  uploadBulk(entityType: string, file: File): Observable<{ created: number; updated: number; errors: { row: number; error: string }[] }> {
+    const form = new FormData();
+    form.append('entity_type', entityType);
+    form.append('file', file);
+    return this.http.post<{ created: number; updated: number; errors: { row: number; error: string }[] }>(`${API}/bulk/upload`, form);
+  }
+
+  downloadBulk(entityType: string, domainId?: number): string {
+    let url = `${API}/bulk/download?entity_type=${encodeURIComponent(entityType)}`;
+    if (domainId != null) url += `&domain_id=${domainId}`;
+    return url;
+  }
+}

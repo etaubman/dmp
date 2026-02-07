@@ -41,5 +41,5 @@ Rapid prototype of a user-facing portal for data governance: manage Critical Dat
 
 ## Development
 
-- Backend and frontend can be run locally (e.g. `uvicorn` and `ng serve`) against DB and MinIO from Docker.
-- Use `.env` for `DATABASE_URL`, `MINIO_*`, etc.; see `.env.example`.
+- **Backend:** run locally with `uvicorn` (or use Docker). Use `.env` for `DATABASE_URL`, `MINIO_*`, etc.; see `.env.example`.
+- **Frontend:** from `frontend/` run `npm run start` (or `ng serve`). App is at http://localhost:4200 and uses API at http://localhost:8000 (see `frontend/src/environments/environment.ts`). Select a domain in the sidebar to load data.

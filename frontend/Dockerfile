@@ -9,10 +9,10 @@ COPY package*.json ./
 RUN npm install --legacy-peer-deps 2>/dev/null || true
 
 COPY . .
-# Build step will be added when Angular app is scaffolded (Phase 3)
-# RUN npm run build
+# For local dev: run from host with ng serve (see README).
+# For production: uncomment below and add nginx to serve dist/frontend-app/browser.
+# RUN npm run build -- --configuration=production
 # EXPOSE 80
-# CMD ["npm", "run", "start:container"]
-
-# Placeholder: keep container runnable for compose (sleep so container stays up)
-CMD ["sh", "-c", "echo Frontend: add Angular app in Phase 3; use ng serve locally for now; sleep infinity"]
+# CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 4200
+CMD ["npm", "run", "start:host"]
