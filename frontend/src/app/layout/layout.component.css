@@ -103,3 +103,15 @@
   background: rgba(255, 255, 255, 0.12);
   flex-shrink: 0;
 }
+
+/* Sidebar sticky footer */
+.sidebar-footer {
+  background: var(--aurora-bg, #0f1419);
+}
+.sidebar-footer-link {
+  text-decoration: none;
+}
+.sidebar-footer-link:focus-visible {
+  outline: 2px solid var(--accent, #3b82f6);
+  outline-offset: 2px;
+}
