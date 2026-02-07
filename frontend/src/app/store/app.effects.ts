@@ -35,9 +35,9 @@ export class AppEffects {
   loadDataElements$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AppActions.loadDataElements),
-      mergeMap(({ domainId }) => {
+      mergeMap(({ domainId, scope }) => {
         this.store.dispatch(AppActions.setLoading({ key: 'dataElements', loading: true }));
-        return this.api.getDataElements(domainId).pipe(
+        return this.api.getDataElements(domainId, scope ?? 'owned').pipe(
           map((dataElements) => {
             this.store.dispatch(AppActions.setLoading({ key: 'dataElements', loading: false }));
             return AppActions.setDataElements({ dataElements });
@@ -54,9 +54,9 @@ export class AppEffects {
   loadApplications$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AppActions.loadApplications),
-      mergeMap(({ domainId }) => {
+      mergeMap(({ domainId, scope }) => {
         this.store.dispatch(AppActions.setLoading({ key: 'applications', loading: true }));
-        return this.api.getApplications(domainId).pipe(
+        return this.api.getApplications(domainId, scope ?? 'owned').pipe(
           map((applications) => {
             this.store.dispatch(AppActions.setLoading({ key: 'applications', loading: false }));
             return AppActions.setApplications({ applications });
@@ -73,9 +73,9 @@ export class AppEffects {
   loadEucs$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AppActions.loadEucs),
-      mergeMap(({ domainId }) => {
+      mergeMap(({ domainId, scope }) => {
         this.store.dispatch(AppActions.setLoading({ key: 'eucs', loading: true }));
-        return this.api.getEucs(domainId).pipe(
+        return this.api.getEucs(domainId, scope ?? 'owned').pipe(
           map((eucs) => {
             this.store.dispatch(AppActions.setLoading({ key: 'eucs', loading: false }));
             return AppActions.setEucs({ eucs });
@@ -92,9 +92,9 @@ export class AppEffects {
   loadEndpoints$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AppActions.loadEndpoints),
-      mergeMap(({ domainId, applicationId }) => {
+      mergeMap(({ domainId, applicationId, scope }) => {
         this.store.dispatch(AppActions.setLoading({ key: 'endpoints', loading: true }));
-        return this.api.getEndpoints(domainId ?? undefined, applicationId ?? undefined).pipe(
+        return this.api.getEndpoints(domainId ?? undefined, applicationId ?? undefined, scope ?? 'owned').pipe(
           map((endpoints) => {
             this.store.dispatch(AppActions.setLoading({ key: 'endpoints', loading: false }));
             return AppActions.setEndpoints({ endpoints });

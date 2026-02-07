@@ -1,4 +1,5 @@
 """Critical Data Elements API: list by domain, lineage for an element."""
+from typing import Literal
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db_dep
@@ -7,6 +8,20 @@ from app.schemas.data_element import DataElementOut
 from app.schemas.lineage import LineageResponse, LineageNode, LineageEdge
 
 router = APIRouter(prefix="/data-elements", tags=["data-elements"])
+
+
+def _domain_ids_for_scope(db: Session, domain_id: int, scope: str) -> list[int]:
+    """Resolve domain IDs to filter by: owned (this domain), upstream (parent), downstream (children)."""
+    if scope == "owned":
+        return [domain_id]
+    domain = db.query(Domain).filter(Domain.id == domain_id).first()
+    if not domain:
+        return []
+    if scope == "upstream":
+        return [domain.parent_id] if domain.parent_id else []
+    if scope == "downstream":
+        return [row[0] for row in db.query(Domain.id).filter(Domain.parent_id == domain_id).all()]
+    return [domain_id]
 
 
 def _node_id(prefix: str, pk: int) -> str:
@@ -153,12 +168,16 @@ def get_data_element_lineage(
 @router.get("", response_model=list[DataElementOut])
 def list_data_elements(
     domain_id: int = Query(..., description="Filter by domain"),
+    scope: Literal["owned", "upstream", "downstream"] = Query("owned", description="Owned by domain, upstream of domain, or downstream of domain"),
     db: Session = Depends(get_db_dep),
 ):
-    """List all Critical Data Elements for a domain."""
+    """List Critical Data Elements: owned by domain, or in upstream/downstream domains."""
+    domain_ids = _domain_ids_for_scope(db, domain_id, scope)
+    if not domain_ids:
+        return []
     return (
         db.query(DataElement)
-        .filter(DataElement.domain_id == domain_id)
+        .filter(DataElement.domain_id.in_(domain_ids))
         .order_by(DataElement.name)
         .all()
     )

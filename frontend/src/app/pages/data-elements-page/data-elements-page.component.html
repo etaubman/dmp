@@ -9,6 +9,11 @@
     </div>
   </div>
   <app-concept-metrics *ngIf="!loading && dataElements.length >= 0" [metrics]="metrics"></app-concept-metrics>
+  <div class="flex gap-1 mb-3 flex-shrink-0" *ngIf="currentDomainId != null">
+    <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'owned'" (click)="setDomainScope('owned')">Owned by Domain</button>
+    <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'upstream'" (click)="setDomainScope('upstream')">Upstream of Domain</button>
+    <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'downstream'" (click)="setDomainScope('downstream')">Downstream of Domain</button>
+  </div>
   <div *ngIf="loading" class="text-accent mb-4">Loading…</div>
   <div *ngIf="!loading && dataElements.length === 0" class="text-gray-500 mb-4">No data elements. Select a domain or upload bulk data.</div>
   <div class="flex flex-1 min-h-0 gap-gutter" *ngIf="!loading && dataElements.length > 0">

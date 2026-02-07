@@ -8,6 +8,7 @@ import { LineageButtonCellComponent } from './lineage-button-cell/lineage-button
 import { DataConcernsCountCellComponent } from './data-concerns-count-cell/data-concerns-count-cell.component';
 import { selectDataElements, selectDataConcerns, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
+import type { DomainScope } from '../../store/app.actions';
 import { DataElement, DataConcern } from '../../core/api.service';
 import { DataConcernModalService } from '../../core/data-concern-modal.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
@@ -34,6 +35,8 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
   lineageModalOpen = false;
   lineageElement: DataElement | null = null;
 
+  domainScope: DomainScope = 'owned';
+  currentDomainId: number | null = null;
   metrics: MetricItem[] = [];
 
   columnDefs: ColDef<DataElement>[] = [
@@ -77,8 +80,9 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
       .select(selectCurrentDomainId)
       .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((domainId) => {
+        this.currentDomainId = domainId ?? null;
         if (domainId != null) {
-          this.store.dispatch(AppActions.loadDataElements({ domainId }));
+          this.store.dispatch(AppActions.loadDataElements({ domainId, scope: this.domainScope }));
           this.store.dispatch(AppActions.loadDataConcerns({ domainId }));
         }
       });
@@ -173,4 +177,11 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
   }
 
   getRowId = (params: { data: DataElement }) => String(params.data.id);
+
+  setDomainScope(scope: DomainScope): void {
+    this.domainScope = scope;
+    if (this.currentDomainId != null) {
+      this.store.dispatch(AppActions.loadDataElements({ domainId: this.currentDomainId, scope }));
+    }
+  }
 }

@@ -121,31 +121,34 @@ export class ApiService {
     return this.http.get<Domain>(`${API}/domains/${id}`);
   }
 
-  getDataElements(domainId: number): Observable<DataElement[]> {
-    return this.http.get<DataElement[]>(`${API}/data-elements`, {
-      params: new HttpParams().set('domain_id', domainId),
-    });
+  getDataElements(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<DataElement[]> {
+    let params = new HttpParams().set('domain_id', domainId);
+    if (scope !== 'owned') params = params.set('scope', scope);
+    return this.http.get<DataElement[]>(`${API}/data-elements`, { params });
   }
 
   getDataElementLineage(dataElementId: number): Observable<LineageResponse> {
     return this.http.get<LineageResponse>(`${API}/data-elements/${dataElementId}/lineage`);
   }
 
-  getApplications(domainId: number): Observable<Application[]> {
-    return this.http.get<Application[]>(`${API}/applications`, {
-      params: new HttpParams().set('domain_id', domainId),
-    });
+  getApplications(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<Application[]> {
+    let params = new HttpParams().set('domain_id', domainId);
+    if (scope !== 'owned') params = params.set('scope', scope);
+    return this.http.get<Application[]>(`${API}/applications`, { params });
   }
 
-  getEucs(domainId: number): Observable<EUC[]> {
-    return this.http.get<EUC[]>(`${API}/eucs`, {
-      params: new HttpParams().set('domain_id', domainId),
-    });
+  getEucs(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<EUC[]> {
+    let params = new HttpParams().set('domain_id', domainId);
+    if (scope !== 'owned') params = params.set('scope', scope);
+    return this.http.get<EUC[]>(`${API}/eucs`, { params });
   }
 
-  getEndpoints(domainId?: number, applicationId?: number): Observable<Endpoint[]> {
+  getEndpoints(domainId?: number, applicationId?: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<Endpoint[]> {
     let params = new HttpParams();
-    if (domainId != null) params = params.set('domain_id', domainId);
+    if (domainId != null) {
+      params = params.set('domain_id', domainId);
+      if (scope !== 'owned') params = params.set('scope', scope);
+    }
     if (applicationId != null) params = params.set('application_id', applicationId);
     return this.http.get<Endpoint[]>(`${API}/endpoints`, { params });
   }

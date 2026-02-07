@@ -5,6 +5,7 @@ import { distinctUntilChanged } from 'rxjs/operators';
 import { ColDef } from 'ag-grid-community';
 import { selectEucs, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
+import type { DomainScope } from '../../store/app.actions';
 import { EUC } from '../../core/api.service';
 import { KebabActionsCellComponent } from '../../shared/kebab-actions-cell/kebab-actions-cell.component';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
@@ -21,6 +22,8 @@ export class EucsPageComponent implements OnInit, OnDestroy {
   eucs: EUC[] = [];
   loading = false;
   selectedItem: EUC | null = null;
+  domainScope: DomainScope = 'owned';
+  currentDomainId: number | null = null;
   panelRows: DetailRow[] = [];
   panelTitle = '';
   metrics: MetricItem[] = [];
@@ -45,7 +48,8 @@ export class EucsPageComponent implements OnInit, OnDestroy {
       .select(selectCurrentDomainId)
       .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((domainId) => {
-        if (domainId != null) this.store.dispatch(AppActions.loadEucs({ domainId }));
+        this.currentDomainId = domainId ?? null;
+        if (domainId != null) this.store.dispatch(AppActions.loadEucs({ domainId, scope: this.domainScope }));
       });
     combineLatest([
       this.store.select(selectEucs),
@@ -91,4 +95,11 @@ export class EucsPageComponent implements OnInit, OnDestroy {
   }
 
   getRowId = (params: { data: EUC }) => String(params.data.id);
+
+  setDomainScope(scope: DomainScope): void {
+    this.domainScope = scope;
+    if (this.currentDomainId != null) {
+      this.store.dispatch(AppActions.loadEucs({ domainId: this.currentDomainId, scope }));
+    }
+  }
 }

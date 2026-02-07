@@ -5,6 +5,7 @@ import { distinctUntilChanged } from 'rxjs/operators';
 import { ColDef } from 'ag-grid-community';
 import { selectApplications, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
+import type { DomainScope } from '../../store/app.actions';
 import { Application } from '../../core/api.service';
 import { KebabActionsCellComponent } from '../../shared/kebab-actions-cell/kebab-actions-cell.component';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
@@ -21,6 +22,8 @@ export class ApplicationsPageComponent implements OnInit, OnDestroy {
   applications: Application[] = [];
   loading = false;
   selectedItem: Application | null = null;
+  domainScope: DomainScope = 'owned';
+  currentDomainId: number | null = null;
   panelRows: DetailRow[] = [];
   panelTitle = '';
   metrics: MetricItem[] = [];
@@ -44,7 +47,8 @@ export class ApplicationsPageComponent implements OnInit, OnDestroy {
       .select(selectCurrentDomainId)
       .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((domainId) => {
-        if (domainId != null) this.store.dispatch(AppActions.loadApplications({ domainId }));
+        this.currentDomainId = domainId ?? null;
+        if (domainId != null) this.store.dispatch(AppActions.loadApplications({ domainId, scope: this.domainScope }));
       });
     combineLatest([
       this.store.select(selectApplications),
@@ -86,4 +90,11 @@ export class ApplicationsPageComponent implements OnInit, OnDestroy {
   }
 
   getRowId = (params: { data: Application }) => String(params.data.id);
+
+  setDomainScope(scope: DomainScope): void {
+    this.domainScope = scope;
+    if (this.currentDomainId != null) {
+      this.store.dispatch(AppActions.loadApplications({ domainId: this.currentDomainId, scope }));
+    }
+  }
 }

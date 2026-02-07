@@ -14,11 +14,13 @@ export const setMetrics = createAction('[App] Set Metrics', props<{ metrics: Met
 export const setLoading = createAction('[App] Set Loading', props<{ key: string; loading: boolean }>());
 export const setError = createAction('[App] Set Error', props<{ error: string | null }>());
 
+export type DomainScope = 'owned' | 'upstream' | 'downstream';
+
 export const loadDomains = createAction('[App] Load Domains');
-export const loadDataElements = createAction('[App] Load Data Elements', props<{ domainId: number }>());
-export const loadApplications = createAction('[App] Load Applications', props<{ domainId: number }>());
-export const loadEucs = createAction('[App] Load EUCs', props<{ domainId: number }>());
-export const loadEndpoints = createAction('[App] Load Endpoints', props<{ domainId?: number; applicationId?: number }>());
+export const loadDataElements = createAction('[App] Load Data Elements', props<{ domainId: number; scope?: DomainScope }>());
+export const loadApplications = createAction('[App] Load Applications', props<{ domainId: number; scope?: DomainScope }>());
+export const loadEucs = createAction('[App] Load EUCs', props<{ domainId: number; scope?: DomainScope }>());
+export const loadEndpoints = createAction('[App] Load Endpoints', props<{ domainId?: number; applicationId?: number; scope?: DomainScope }>());
 export const loadDataQualityRules = createAction('[App] Load Data Quality Rules', props<{ domainId?: number; dataElementId?: number }>());
 export const loadDataQualityExceptions = createAction('[App] Load Data Quality Exceptions', props<{ domainId?: number; dataElementId?: number }>());
 export const loadDataConcerns = createAction('[App] Load Data Concerns', props<{ domainId: number }>());
