@@ -130,6 +130,26 @@ body {
   align-items: center;
 }
 
+/* Data Feeds (and similar) count badges in grid cells */
+.ag-theme-quartz .ag-cell .count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.35rem;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+.ag-theme-quartz .ag-cell .count-badge--elements {
+  background: #8b5cf6;
+}
+.ag-theme-quartz .ag-cell .count-badge--controls {
+  background: #0ea5e9;
+}
+
 /* Themed scrollbar (Aurora dark): add class scrollbar-aurora to any overflow-auto element */
 .scrollbar-aurora::-webkit-scrollbar {
   width: 10px;

@@ -73,6 +73,8 @@ import { AdminUsersPageComponent } from './pages/admin-users-page/admin-users-pa
 import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-settings-page.component';
 import { ProcessModelsPageComponent } from './pages/process-models-page/process-models-page.component';
 import { DataFeedsPageComponent } from './pages/data-feeds-page/data-feeds-page.component';
+import { ElementsCountCellComponent } from './pages/data-feeds-page/elements-count-cell/elements-count-cell.component';
+import { ControlsCountCellComponent } from './pages/data-feeds-page/controls-count-cell/controls-count-cell.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { AuthInterceptor } from './core/auth-interceptor';
 
@@ -115,6 +117,8 @@ import { AuthInterceptor } from './core/auth-interceptor';
     ExceptionMonitoringPageComponent,
     ProcessModelsPageComponent,
     DataFeedsPageComponent,
+    ElementsCountCellComponent,
+    ControlsCountCellComponent,
     BulkPageComponent,
     HomePageComponent,
     InboxPageComponent,

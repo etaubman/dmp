@@ -2,7 +2,7 @@
  * Data Feeds page: list data feeds for the current domain (scope: owned/upstream/downstream),
  * with detail panel showing format, transmission, producer/consumer, data elements, and controls.
  */
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import { selectDataFeeds, selectCurrentDomainId, selectLoading } from '../../sto
 import * as AppActions from '../../store/app.actions';
 import type { DomainScope } from '../../store/app.actions';
 import type { DataFeed, DataFeedDetail, DataFeedDataElementRef, DataFeedControl } from '../../core/models';
+import type { DataElement } from '../../core/models';
 import { ApiService } from '../../core/api.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
@@ -36,6 +37,12 @@ export class DataFeedsPageComponent implements OnInit, OnDestroy {
   panelFeedControls: DataFeedControl[] = [];
   metrics: MetricItem[] = [];
 
+  dataElementModalOpen = false;
+  dataElementForModal: DataElement | null = null;
+  controlModalOpen = false;
+  controlModalTitle = '';
+  controlModalRows: DetailRow[] = [];
+
   columnDefs: ColDef<DataFeed>[] = [
     { field: 'name', headerName: 'Name', flex: 1 },
     { field: 'source_type', headerName: 'Source', flex: 0 },
@@ -44,16 +51,32 @@ export class DataFeedsPageComponent implements OnInit, OnDestroy {
     { field: 'producer_application_name', headerName: 'Producer', flex: 1 },
     { field: 'consumer_application_name', headerName: 'Consumer', flex: 1 },
     {
-      headerName: 'Elements',
-      flex: 0,
-      valueGetter: (params) => params.data?.data_element_count ?? 0,
-      filter: 'agNumberColumnFilter',
+      headerName: '# Elements',
+      width: 100,
+      sortable: false,
+      filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
+      cellStyle: { textAlign: 'center' },
+      cellRenderer: (params: { data?: DataFeed }) => {
+        const count = params.data?.data_element_count ?? 0;
+        if (count <= 0) return '';
+        return `<span class="count-badge count-badge--elements" title="${count} data element(s)">${count}</span>`;
+      },
     },
     {
-      headerName: 'Controls',
-      flex: 0,
-      valueGetter: (params) => params.data?.control_count ?? 0,
-      filter: 'agNumberColumnFilter',
+      headerName: '# Controls',
+      width: 100,
+      sortable: false,
+      filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
+      cellStyle: { textAlign: 'center' },
+      cellRenderer: (params: { data?: DataFeed }) => {
+        const count = params.data?.control_count ?? 0;
+        if (count <= 0) return '';
+        return `<span class="count-badge count-badge--controls" title="${count} control(s)">${count}</span>`;
+      },
     },
   ];
   defaultColDef: ColDef = { sortable: true, filter: true };
@@ -61,6 +84,7 @@ export class DataFeedsPageComponent implements OnInit, OnDestroy {
   constructor(
     private store: Store,
     private api: ApiService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -142,6 +166,42 @@ export class DataFeedsPageComponent implements OnInit, OnDestroy {
     this.domainScope = scope;
     if (this.currentDomainId != null) {
       this.store.dispatch(AppActions.loadDataFeeds({ domainId: this.currentDomainId, scope }));
+    }
+  }
+
+  openDataElementModal(de: { id: number; name: string; description?: string }): void {
+    this.dataElementForModal = {
+      id: de.id,
+      name: de.name,
+      description: de.description,
+      domain_id: this.selectedItem?.domain_id ?? 0,
+    };
+    this.dataElementModalOpen = true;
+    setTimeout(() => this.cdr.detectChanges(), 0);
+  }
+
+  onDataElementModalOpenChange(open: boolean): void {
+    this.dataElementModalOpen = open;
+    if (!open) this.dataElementForModal = null;
+  }
+
+  openControlModal(c: { id: number; control_type?: string; name: string; description?: string }): void {
+    this.controlModalTitle = 'Control: ' + (c.name || '—');
+    this.controlModalRows = [
+      { label: 'ID', value: c.id },
+      { label: 'Name', value: c.name },
+      { label: 'Type', value: c.control_type },
+      { label: 'Description', value: c.description },
+    ];
+    this.controlModalOpen = true;
+    setTimeout(() => this.cdr.detectChanges(), 0);
+  }
+
+  onControlModalOpenChange(open: boolean): void {
+    this.controlModalOpen = open;
+    if (!open) {
+      this.controlModalTitle = '';
+      this.controlModalRows = [];
     }
   }
 }

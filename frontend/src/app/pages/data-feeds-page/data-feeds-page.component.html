@@ -24,7 +24,7 @@
           [rowData]="dataFeeds"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
-          [rowSelection]="{ enableClickSelection: false }"
+          [rowSelection]="{ mode: 'multiRow', enableClickSelection: false }"
           (rowClicked)="onRowClicked($event.data)"
           [getRowId]="getRowId"
           class="ag-grid-full-height"
@@ -38,6 +38,19 @@
       [feedControls]="panelFeedControls"
       [open]="!!selectedItem"
       (openChange)="closePanel()"
+      (feedDataElementClick)="openDataElementModal($event)"
+      (feedControlClick)="openControlModal($event)"
     ></app-detail-panel>
   </div>
+  <app-data-element-detail-modal
+    [dataElement]="dataElementForModal"
+    [open]="dataElementModalOpen"
+    (openChange)="onDataElementModalOpenChange($event)"
+  ></app-data-element-detail-modal>
+  <app-detail-modal
+    [title]="controlModalTitle"
+    [rows]="controlModalRows"
+    [open]="controlModalOpen"
+    (openChange)="onControlModalOpenChange($event)"
+  ></app-detail-modal>
 </div>

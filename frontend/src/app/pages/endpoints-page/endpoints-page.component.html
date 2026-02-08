@@ -24,7 +24,7 @@
           [rowData]="enrichedEndpoints"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
-          [rowSelection]="{ enableClickSelection: false }"
+          [rowSelection]="{ mode: 'multiRow', enableClickSelection: false }"
           (rowClicked)="onRowClicked($event.data)"
           [getRowId]="getRowId"
           class="ag-grid-full-height"

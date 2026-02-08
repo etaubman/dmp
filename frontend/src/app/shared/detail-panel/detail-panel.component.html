@@ -105,22 +105,26 @@
       <div *ngIf="feedDataElements && feedDataElements.length > 0" class="detail-panel__section">
         <h4 class="detail-panel__section-title">Data elements</h4>
         <div class="detail-panel__concerns-list">
-          <div *ngFor="let de of feedDataElements" class="sor-card">
+          <button *ngFor="let de of feedDataElements" type="button" class="concern-card" (click)="onFeedDataElementCardClick(de); $event.stopPropagation()">
             <div class="concern-card__title">{{ de.name }}</div>
+            <div class="concern-card__meta">
+              <span *ngIf="de.id" class="concern-card__id">ID {{ de.id }}</span>
+            </div>
             <div *ngIf="de.description" class="concern-card__description">{{ de.description }}</div>
-          </div>
+          </button>
         </div>
       </div>
       <div *ngIf="feedControls && feedControls.length > 0" class="detail-panel__section">
         <h4 class="detail-panel__section-title">Controls</h4>
         <div class="detail-panel__concerns-list">
-          <div *ngFor="let c of feedControls" class="sor-card">
+          <button *ngFor="let c of feedControls" type="button" class="concern-card" (click)="onFeedControlCardClick(c); $event.stopPropagation()">
             <div class="concern-card__title">{{ c.name }}</div>
             <div class="concern-card__meta">
               <span *ngIf="c.control_type" class="concern-card__status">{{ c.control_type }}</span>
+              <span *ngIf="c.id" class="concern-card__id">ID {{ c.id }}</span>
             </div>
             <div *ngIf="c.description" class="concern-card__description">{{ c.description }}</div>
-          </div>
+          </button>
         </div>
       </div>
       <div *ngIf="(!rows || rows.length === 0) && (!dataElements || dataElements.length === 0) && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0) && (dqRuleInstances === null || dqRuleInstances.length === 0) && (!sors || sors.length === 0) && (!feedDataElements || feedDataElements.length === 0) && (!feedControls || feedControls.length === 0)" class="detail-panel__empty">

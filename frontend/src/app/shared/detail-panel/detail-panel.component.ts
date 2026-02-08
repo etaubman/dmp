@@ -44,6 +44,10 @@ export class DetailPanelComponent {
   @Output() endpointClick = new EventEmitter<Endpoint>();
   @Output() dqRuleClick = new EventEmitter<DataQualityRule>();
   @Output() instanceCardClick = new EventEmitter<DataQualityRuleInstance>();
+  /** Data feed data element card clicked (payload: { id, name, description? }). */
+  @Output() feedDataElementClick = new EventEmitter<{ id: number; name: string; description?: string }>();
+  /** Data feed control card clicked (payload: { id, control_type?, name, description? }). */
+  @Output() feedControlClick = new EventEmitter<{ id: number; control_type?: string; name: string; description?: string }>();
 
   @HostBinding('class.detail-panel-open') get isPanelOpen(): boolean {
     return this.open;
@@ -78,4 +82,11 @@ export class DetailPanelComponent {
     this.instanceCardClick.emit(inst);
   }
 
+  onFeedDataElementCardClick(de: { id: number; name: string; description?: string }): void {
+    this.feedDataElementClick.emit(de);
+  }
+
+  onFeedControlCardClick(c: { id: number; control_type?: string; name: string; description?: string }): void {
+    this.feedControlClick.emit(c);
+  }
 }

@@ -1,4 +1,4 @@
-<div *ngIf="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60" (click)="close()">
+<div *ngIf="open" class="fixed inset-0 flex items-center justify-center bg-black/60" style="z-index: 9999;" (click)="close()">
   <div class="bg-aurora-card rounded-card shadow-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col" style="border: 1px solid rgba(255,255,255,0.06);" (click)="$event.stopPropagation()">
     <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
       <h3 class="text-lg font-medium text-gray-100">{{ title }}</h3>

@@ -3,3 +3,23 @@
 .main-content--panel-open { flex: 0 0 66.667%; }
 .ag-grid-full-height { width: 100%; height: 100%; }
 ::ng-deep .ag-theme-quartz .ag-root-wrapper { border-radius: 0.75rem; overflow: hidden; }
+
+/* Badge styling for Elements/Controls count cells (pierce grid cell encapsulation like CDE page) */
+::ng-deep .ag-theme-quartz .ag-cell .count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.35rem;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+::ng-deep .ag-theme-quartz .ag-cell .count-badge--elements {
+  background: #8b5cf6;
+}
+::ng-deep .ag-theme-quartz .ag-cell .count-badge--controls {
+  background: #0ea5e9;
+}
