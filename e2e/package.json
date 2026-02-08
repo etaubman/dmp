@@ -1,0 +1,18 @@
+{
+  "name": "dmp-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cucumber E2E tests for Data Manager Portal",
+  "scripts": {
+    "test": "cucumber-js --tags \"not @skip\" --require-module ts-node/register --require src/support/world.ts --require src/support/hooks.ts --require src/steps/login.steps.ts --require src/steps/navigation.steps.ts",
+    "test:headed": "cross-env HEADED=1 cucumber-js --require-module ts-node/register --require src/support/world.ts --require src/support/hooks.ts --require src/steps/login.steps.ts --require src/steps/navigation.steps.ts"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.0.0",
+    "@playwright/test": "^1.49.0",
+    "cross-env": "^7.0.2",
+    "playwright": "^1.49.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.5.2"
+  }
+}

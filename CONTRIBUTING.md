@@ -38,8 +38,15 @@ Optional: read [docs/architecture.md](docs/architecture.md) for the high-level d
   npm run test
   ```
   Uses Karma/Jasmine. Add specs for new components and services as you go.
+- **E2E (Cucumber):** From `e2e/` (with the app and backend already running):
+  ```powershell
+  npm install
+  npx playwright install chromium
+  npm test
+  ```
+  See [e2e/README.md](e2e/README.md). Cucumber tests cover login and navigation in a real browser.
 
-**Before submitting a PR:** Run both backend and frontend tests and fix any failures. Manually run the app to confirm nothing is broken.
+**Before submitting a PR:** Run backend and frontend tests and fix any failures. Optionally run the Cucumber E2E suite with the app running. Manually run the app to confirm nothing is broken.
 
 ---
 
@@ -88,7 +95,8 @@ Optional: read [docs/architecture.md](docs/architecture.md) for the high-level d
 - Before submitting a PR:
   1. Run backend tests: `cd backend && pytest tests/ -v`
   2. Run frontend tests: `cd frontend && npm run test`
-  3. Run the app locally and smoke-test your changes
+  3. (Optional) Run E2E tests: start the app, then `cd e2e && npm test`
+  4. Run the app locally and smoke-test your changes
 
 ---
 

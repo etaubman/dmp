@@ -17,7 +17,7 @@ This README helps **new team members** get the app running, understand the repo,
 - **Tech stack** — Frameworks and tools
 - **API overview** — Main endpoints and bulk operations
 - **Troubleshooting** — Common issues and fixes
-- **Contributing** — Tests, code style, and PRs
+- **Contributing** — Tests (backend, frontend, Cucumber E2E), code style, and PRs
 
 ---
 
@@ -123,6 +123,7 @@ For architecture and product requirements, see the **Repo layout** section below
 |------|-------------|
 | **`backend/`** | FastAPI app, SQLAlchemy, S3 client. See [backend/README.md](backend/README.md). |
 | **`frontend/`** | Angular 18, NgRx, Tailwind. See [frontend/README.md](frontend/README.md). |
+| **`e2e/`** | Cucumber E2E tests (Playwright). See [e2e/README.md](e2e/README.md). |
 | **`docker/`** | Postgres init scripts, S3 bucket setup. See [docker/README.md](docker/README.md). |
 | **`requirements/`** | Product/feature requirements and planning (e.g. `initial_braindump.txt`). **Not** Python dependencies; those are in `backend/requirements.txt`. |
 | **`docs/`** | Architecture and planning (e.g. `architecture.md`, `admin-domain-management-plan.md`, `onboarding-and-cleanup-plan.md`). |
