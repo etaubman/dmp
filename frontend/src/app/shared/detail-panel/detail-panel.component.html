@@ -5,23 +5,45 @@
       <button type="button" class="text-gray-500 hover:text-gray-200 transition-colors" (click)="close()">✕</button>
     </div>
     <div class="detail-panel__content p-4 flex-1">
-      <div *ngIf="concerns && concerns.length > 0" class="detail-panel__concerns-list">
-        <button *ngFor="let c of concerns" type="button" class="concern-card" (click)="onConcernCardClick(c)">
-          <div class="concern-card__title">{{ c.title }}</div>
-          <div class="concern-card__meta">
-            <span *ngIf="c.status" class="concern-card__status" [class.concern-card__status--critical]="c.status === 'critical'">{{ c.status }}</span>
-            <span *ngIf="c.id" class="concern-card__id">ID {{ c.id }}</span>
-          </div>
-          <div *ngIf="c.description" class="concern-card__description">{{ c.description }}</div>
-          <div class="concern-card__refs">
-            <span *ngIf="c.application_id != null" class="concern-card__ref">App {{ c.application_id }}</span>
-            <span *ngIf="c.euc_id != null" class="concern-card__ref">EUC {{ c.euc_id }}</span>
-            <span *ngIf="c.endpoint_id != null" class="concern-card__ref">Endpoint {{ c.endpoint_id }}</span>
-            <span *ngIf="c.data_element_id != null" class="concern-card__ref">Element {{ c.data_element_id }}</span>
-          </div>
-        </button>
+      <dl *ngIf="rows && rows.length > 0" class="space-y-2 detail-panel__rows">
+        <div *ngFor="let row of rows" class="flex">
+          <dt class="w-36 flex-shrink-0 text-gray-500 text-sm">{{ row.label }}</dt>
+          <dd class="text-gray-200 text-sm break-words">{{ row.value ?? '—' }}</dd>
+        </div>
+      </dl>
+      <div *ngIf="dataElements && dataElements.length > 0" class="detail-panel__section">
+        <h4 class="detail-panel__section-title">Consumed CDEs</h4>
+        <div class="detail-panel__concerns-list">
+          <button *ngFor="let de of dataElements" type="button" class="concern-card" (click)="onDataElementCardClick(de)">
+            <div class="concern-card__title">{{ de.name }}</div>
+            <div class="concern-card__meta">
+              <span *ngIf="de.element_type" class="concern-card__status">{{ de.element_type }}</span>
+              <span *ngIf="de.id" class="concern-card__id">ID {{ de.id }}</span>
+            </div>
+            <div *ngIf="de.description" class="concern-card__description">{{ de.description }}</div>
+          </button>
+        </div>
       </div>
-      <div *ngIf="endpoints && endpoints.length > 0 && (!concerns || concerns.length === 0) && (!sors || sors.length === 0)" class="detail-panel__concerns-list">
+      <div *ngIf="concerns && concerns.length > 0" class="detail-panel__section">
+        <h4 *ngIf="(dataElements && dataElements.length > 0) || (rows && rows.length > 0)" class="detail-panel__section-title">Data Concerns</h4>
+        <div class="detail-panel__concerns-list">
+          <button *ngFor="let c of concerns" type="button" class="concern-card" (click)="onConcernCardClick(c)">
+            <div class="concern-card__title">{{ c.title }}</div>
+            <div class="concern-card__meta">
+              <span *ngIf="c.status" class="concern-card__status" [class.concern-card__status--critical]="c.status === 'critical'">{{ c.status }}</span>
+              <span *ngIf="c.id" class="concern-card__id">ID {{ c.id }}</span>
+            </div>
+            <div *ngIf="c.description" class="concern-card__description">{{ c.description }}</div>
+            <div class="concern-card__refs">
+              <span *ngIf="c.application_id != null" class="concern-card__ref">App {{ c.application_id }}</span>
+              <span *ngIf="c.euc_id != null" class="concern-card__ref">EUC {{ c.euc_id }}</span>
+              <span *ngIf="c.endpoint_id != null" class="concern-card__ref">Endpoint {{ c.endpoint_id }}</span>
+              <span *ngIf="c.data_element_id != null" class="concern-card__ref">Element {{ c.data_element_id }}</span>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div *ngIf="endpoints && endpoints.length > 0 && (!concerns || concerns.length === 0) && (!dataElements || dataElements.length === 0) && (!dqRules || dqRules.length === 0) && (!sors || sors.length === 0)" class="detail-panel__concerns-list">
         <button *ngFor="let ep of endpoints" type="button" class="concern-card" (click)="onEndpointCardClick(ep)">
           <div class="concern-card__title">{{ ep.name }}</div>
           <div class="concern-card__meta">
@@ -33,21 +55,24 @@
           </div>
         </button>
       </div>
-      <div *ngIf="dqRules && dqRules.length > 0 && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!sors || sors.length === 0)" class="detail-panel__concerns-list">
-        <button *ngFor="let r of dqRules" type="button" class="concern-card" (click)="onDqRuleCardClick(r)">
-          <div class="concern-card__title">{{ r.name }}</div>
-          <div class="concern-card__meta">
-            <span *ngIf="r.rule_type" class="concern-card__status">{{ r.rule_type }}</span>
-            <span *ngIf="r.id" class="concern-card__id">ID {{ r.id }}</span>
-          </div>
-          <div *ngIf="r.description" class="concern-card__description">{{ r.description }}</div>
-          <div class="concern-card__refs">
-            <span *ngIf="r.data_element_id != null" class="concern-card__ref">Element {{ r.data_element_id }}</span>
-            <span *ngIf="r.endpoint_id != null" class="concern-card__ref">Endpoint {{ r.endpoint_id }}</span>
-          </div>
-        </button>
+      <div *ngIf="dqRules && dqRules.length > 0" class="detail-panel__section">
+        <h4 *ngIf="(dataElements && dataElements.length > 0) || (concerns && concerns.length > 0) || (rows && rows.length > 0)" class="detail-panel__section-title">DQ Rules</h4>
+        <div class="detail-panel__concerns-list" [class.detail-panel__concerns-list--standalone]="(!endpoints || endpoints.length === 0) && (!dataElements || dataElements.length === 0) && (!concerns || concerns.length === 0) && (!sors || sors.length === 0)">
+          <button *ngFor="let r of dqRules" type="button" class="concern-card" (click)="onDqRuleCardClick(r)">
+            <div class="concern-card__title">{{ r.name }}</div>
+            <div class="concern-card__meta">
+              <span *ngIf="r.rule_type" class="concern-card__status">{{ r.rule_type }}</span>
+              <span *ngIf="r.id" class="concern-card__id">ID {{ r.id }}</span>
+            </div>
+            <div *ngIf="r.description" class="concern-card__description">{{ r.description }}</div>
+            <div class="concern-card__refs">
+              <span *ngIf="r.data_element_id != null" class="concern-card__ref">Element {{ r.data_element_id }}</span>
+              <span *ngIf="r.endpoint_id != null" class="concern-card__ref">Endpoint {{ r.endpoint_id }}</span>
+            </div>
+          </button>
+        </div>
       </div>
-      <div *ngIf="sors && sors.length > 0 && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0)" class="detail-panel__concerns-list">
+      <div *ngIf="sors && sors.length > 0 && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0) && (!dataElements || dataElements.length === 0)" class="detail-panel__concerns-list">
         <div *ngFor="let s of sors" class="sor-card">
           <div class="concern-card__title">{{ s.application_name }}</div>
           <div class="concern-card__meta">
@@ -56,12 +81,9 @@
           </div>
         </div>
       </div>
-      <dl *ngIf="(!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0) && (!sors || sors.length === 0)" class="space-y-2">
-        <div *ngFor="let row of rows" class="flex">
-          <dt class="w-36 flex-shrink-0 text-gray-500 text-sm">{{ row.label }}</dt>
-          <dd class="text-gray-200 text-sm break-words">{{ row.value ?? '—' }}</dd>
-        </div>
-      </dl>
+      <div *ngIf="(!rows || rows.length === 0) && (!dataElements || dataElements.length === 0) && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0) && (!sors || sors.length === 0)" class="detail-panel__empty">
+        <p class="text-gray-500 text-sm">No details to show.</p>
+      </div>
     </div>
   </div>
 </div>

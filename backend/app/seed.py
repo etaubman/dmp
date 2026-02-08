@@ -143,6 +143,9 @@ def _seed_equities(db, domain_id):
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[6], endpoint_id=ep_ids[0], name="Execution Venue MIC valid", rule_type="validity", description="MIC must be valid for transaction report"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[7], endpoint_id=ep_ids[0], name="Client ID present", rule_type="validity", description="Client identifier required for report"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[8], endpoint_id=ep_ids[0], name="Decision time populated", rule_type="timeliness", description="Decision time required for MIFID II"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[1], endpoint_id=ep_ids[1], name="RTS 27 fill price valid", rule_type="validity", description="Execution price required for RTS 27"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[6], endpoint_id=ep_ids[2], name="RTS 28 venue MIC valid", rule_type="validity", description="Venue MIC for top-five disclosure"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[2], endpoint_id=ep_ids[5], name="Fill qty present", rule_type="validity", description="Fill quantity required for execution report"),
     ]
     db.add_all(dqrs)
     db.flush()
@@ -154,6 +157,7 @@ def _seed_equities(db, domain_id):
         DataConcern(domain_id=domain_id, data_element_id=de_ids[3], title="SEDOL vs ISIN mapping", description="Mapping table out of date for new listings", status="open"),
         DataConcern(domain_id=domain_id, application_id=app_ids[0], endpoint_id=ep_ids[0], title="MIFID II report timeliness", description="Late submission risk for T+1 report", status="open"),
         DataConcern(domain_id=domain_id, application_id=app_ids[0], endpoint_id=ep_ids[4], title="CAT clock sync", description="Clock synchronization variance across OMS and venues", status="open"),
+        DataConcern(domain_id=domain_id, application_id=app_ids[4], endpoint_id=ep_ids[3], title="Best execution disclosure", description="Quarterly disclosure data completeness", status="open"),
     ])
     db.add_all([
         DataElementSOR(data_element_id=de_ids[0], application_id=app_ids[0], physical_data_attribute="order_id"),
@@ -214,6 +218,7 @@ def _seed_commodities(db, domain_id):
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[3], endpoint_id=ep_ids[2], name="Trade date within period", rule_type="timeliness", description="Trade date in reporting period"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[6], endpoint_id=ep_ids[0], name="UTI unique", rule_type="validity", description="UTI must be unique for EMIR"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[5], endpoint_id=ep_ids[0], name="Counterparty LEI valid", rule_type="validity", description="LEI required for EMIR"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[8], endpoint_id=ep_ids[1], name="Position limit within threshold", rule_type="validity", description="Dodd-Frank 722 limit check"),
     ]
     db.add_all(dqrs)
     db.flush()
@@ -223,6 +228,7 @@ def _seed_commodities(db, domain_id):
     db.add_all([
         DataConcern(domain_id=domain_id, application_id=app_ids[1], data_element_id=de_ids[4], title="Delivery location codes", description="Multiple code schemes across regions", status="open"),
         DataConcern(domain_id=domain_id, application_id=app_ids[0], endpoint_id=ep_ids[0], title="EMIR timeliness", description="T+1 reporting occasionally delayed", status="open"),
+        DataConcern(domain_id=domain_id, application_id=app_ids[2], endpoint_id=ep_ids[1], title="Dodd-Frank 722 data quality", description="Position limit data alignment with trading system", status="open"),
     ])
     db.add_all([
         DataElementSOR(data_element_id=de_ids[1], application_id=app_ids[0], physical_data_attribute="position_qty"),
@@ -285,6 +291,8 @@ def _seed_commercial_banking(db, domain_id):
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[4], name="Outstanding <= commitment", rule_type="validity", description="Outstanding must not exceed commitment"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[8], endpoint_id=ep_ids[0], name="SNC shared amount consistency", rule_type="accuracy", description="SNC participation sums to total"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[7], endpoint_id=ep_ids[4], name="CECL timeliness", rule_type="timeliness", description="CECL as of quarter end"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[3], endpoint_id=ep_ids[1], name="Schedule L CRE data complete", rule_type="validity", description="FR-Y-14Q L fields populated"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], endpoint_id=ep_ids[5], name="Origination customer ID present", rule_type="validity", description="Customer ID required for origination report"),
     ]
     db.add_all(dqrs)
     db.flush()
@@ -295,6 +303,7 @@ def _seed_commercial_banking(db, domain_id):
     db.add_all([
         DataConcern(domain_id=domain_id, data_element_id=de_ids[5], title="NAICS code accuracy", description="NAICS codes not updated after reclassification", status="open"),
         DataConcern(domain_id=domain_id, application_id=app_ids[4], endpoint_id=ep_ids[0], title="SNC submission timeliness", description="SNC data cut-off vs submission deadline", status="open"),
+        DataConcern(domain_id=domain_id, application_id=app_ids[4], endpoint_id=ep_ids[2], title="Schedule H mortgage data", description="Mortgage segment alignment with source", status="open"),
     ])
     db.add_all([
         DataElementSOR(data_element_id=de_ids[0], application_id=app_ids[0], physical_data_attribute="customer_id"),
@@ -348,12 +357,16 @@ def _seed_investment_banking(db, domain_id):
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], name="Deal ID unique", rule_type="validity", description="Deal ID must be unique"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[1], name="Deal value non-negative", rule_type="validity", description="Deal value >= 0"),
         DataQualityRule(domain_id=domain_id, data_element_id=de_ids[5], endpoint_id=ep_ids[0], name="Tier 1 capital consistency", rule_type="accuracy", description="Tier 1 aligns with FR-Y-14A"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[4], endpoint_id=ep_ids[1], name="FR-Y-14Q fee consistency", rule_type="accuracy", description="Fee amounts align across schedules"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[7], endpoint_id=ep_ids[2], name="Stress loss non-negative", rule_type="validity", description="CCAR stress loss >= 0"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[0], endpoint_id=ep_ids[3], name="Pipeline deal ID unique", rule_type="validity", description="Deal ID unique in pipeline report"),
     ]
     db.add_all(dqrs)
     db.flush()
     db.add_all([
         DataConcern(domain_id=domain_id, application_id=app_ids[0], data_element_id=de_ids[2], title="Client ID cross-reference", description="Client ID not aligned with KYC system", status="open"),
         DataConcern(domain_id=domain_id, application_id=app_ids[2], endpoint_id=ep_ids[0], title="FR-Y-14A data lineage", description="Capital plan data from multiple source systems", status="open"),
+        DataConcern(domain_id=domain_id, application_id=app_ids[1], endpoint_id=ep_ids[4], title="Book run allocation accuracy", description="Allocation vs order book consistency", status="open"),
     ])
     db.add_all([
         DataElementSOR(data_element_id=de_ids[0], application_id=app_ids[0], physical_data_attribute="deal_id"),

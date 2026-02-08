@@ -2,7 +2,7 @@
   <div class="flex flex-wrap items-center justify-between gap-4 mb-4 flex-shrink-0">
     <div class="min-w-0">
       <h2 class="text-xl font-semibold text-gray-100 mb-1">Endpoints</h2>
-      <p class="text-gray-500 text-sm">Select a domain to load endpoints.</p>
+      <p class="text-gray-500 text-sm">Select a domain to load endpoints. Endpoints consume CDEs, have Data Concerns, and aligned DQ rules.</p>
     </div>
     <div class="flex-shrink-0">
       <app-time-period-switch></app-time-period-switch>
@@ -21,7 +21,7 @@
       <div class="ag-theme-quartz h-full min-h-[200px]">
         <ag-grid-angular
           theme="legacy"
-          [rowData]="endpoints"
+          [rowData]="enrichedEndpoints"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
           [suppressRowClickSelection]="true"
@@ -31,6 +31,32 @@
         ></ag-grid-angular>
       </div>
     </div>
-    <app-detail-panel [title]="panelTitle" [rows]="panelRows" [open]="!!selectedItem" (openChange)="closePanel()"></app-detail-panel>
+    <app-detail-panel
+      [title]="panelTitle"
+      [rows]="panelRows"
+      [dataElements]="panelDataElements"
+      [concerns]="panelConcerns"
+      [dqRules]="panelDqRules"
+      [open]="!!selectedItem"
+      (openChange)="closePanel()"
+      (dataElementClick)="openDataElementModal($event)"
+      (concernClick)="openConcernModal($event)"
+      (dqRuleClick)="openDqRuleModal($event)"
+    ></app-detail-panel>
   </div>
+  <app-endpoint-detail-modal
+    [endpoint]="endpointForModal"
+    [open]="endpointModalOpen"
+    (openChange)="onEndpointModalOpenChange($event)"
+  ></app-endpoint-detail-modal>
+  <app-dq-rule-detail-modal
+    [rule]="dqRuleForModal"
+    [open]="dqRuleModalOpen"
+    (openChange)="onDqRuleModalOpenChange($event)"
+  ></app-dq-rule-detail-modal>
+  <app-data-element-detail-modal
+    [dataElement]="dataElementForModal"
+    [open]="dataElementModalOpen"
+    (openChange)="onDataElementModalOpenChange($event)"
+  ></app-data-element-detail-modal>
 </div>

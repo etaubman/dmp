@@ -51,6 +51,31 @@
   min-height: 0;
 }
 
+.detail-panel__section {
+  margin-top: 1rem;
+}
+
+.detail-panel__section:first-child {
+  margin-top: 0;
+}
+
+.detail-panel__section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.detail-panel__rows {
+  margin-bottom: 0;
+}
+
+.detail-panel__empty {
+  padding: 0.5rem 0;
+}
+
 .detail-panel__concerns-list {
   display: flex;
   flex-direction: column;

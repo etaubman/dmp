@@ -35,6 +35,10 @@ import { DqRulesCountCellComponent } from './pages/data-elements-page/dq-rules-c
 import { SorCountCellComponent } from './pages/data-elements-page/sor-count-cell/sor-count-cell.component';
 import { EndpointDetailModalComponent } from './shared/endpoint-detail-modal/endpoint-detail-modal.component';
 import { DqRuleDetailModalComponent } from './shared/dq-rule-detail-modal/dq-rule-detail-modal.component';
+import { DataElementDetailModalComponent } from './shared/data-element-detail-modal/data-element-detail-modal.component';
+import { CdeCountCellComponent } from './pages/endpoints-page/cde-count-cell/cde-count-cell.component';
+import { EndpointConcernsCountCellComponent } from './pages/endpoints-page/endpoint-concerns-count-cell/endpoint-concerns-count-cell.component';
+import { EndpointDqRulesCountCellComponent } from './pages/endpoints-page/endpoint-dq-rules-count-cell/endpoint-dq-rules-count-cell.component';
 import { ApplicationsPageComponent } from './pages/applications-page/applications-page.component';
 import { EucsPageComponent } from './pages/eucs-page/eucs-page.component';
 import { EndpointsPageComponent } from './pages/endpoints-page/endpoints-page.component';
@@ -68,6 +72,10 @@ import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-se
     SorCountCellComponent,
     EndpointDetailModalComponent,
     DqRuleDetailModalComponent,
+    DataElementDetailModalComponent,
+    CdeCountCellComponent,
+    EndpointConcernsCountCellComponent,
+    EndpointDqRulesCountCellComponent,
     DataElementsPageComponent,
     ApplicationsPageComponent,
     EucsPageComponent,

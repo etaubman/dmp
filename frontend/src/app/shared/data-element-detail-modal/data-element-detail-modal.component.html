@@ -1,0 +1,33 @@
+<div *ngIf="open" class="data-element-modal-overlay" (click)="onOverlayClick($event)">
+  <div class="data-element-modal" (click)="$event.stopPropagation()">
+    <div class="data-element-modal__header">
+      <h3 class="data-element-modal__title">CDE: {{ dataElement?.name ?? '—' }}</h3>
+      <button type="button" class="data-element-modal__close" (click)="close()" aria-label="Close">✕</button>
+    </div>
+    <div class="data-element-modal__body">
+      <dl *ngIf="dataElement" class="data-element-modal__detail-list">
+        <div class="data-element-modal__row">
+          <dt class="data-element-modal__dt">ID</dt>
+          <dd class="data-element-modal__dd">{{ dataElement.id }}</dd>
+        </div>
+        <div class="data-element-modal__row">
+          <dt class="data-element-modal__dt">Name</dt>
+          <dd class="data-element-modal__dd">{{ dataElement.name }}</dd>
+        </div>
+        <div class="data-element-modal__row" *ngIf="dataElement.element_type">
+          <dt class="data-element-modal__dt">Type</dt>
+          <dd class="data-element-modal__dd">{{ dataElement.element_type }}</dd>
+        </div>
+        <div class="data-element-modal__row" *ngIf="dataElement.domain_id != null">
+          <dt class="data-element-modal__dt">Domain ID</dt>
+          <dd class="data-element-modal__dd">{{ dataElement.domain_id }}</dd>
+        </div>
+        <div class="data-element-modal__row">
+          <dt class="data-element-modal__dt">Description</dt>
+          <dd class="data-element-modal__dd">{{ dataElement.description ?? '—' }}</dd>
+        </div>
+      </dl>
+      <p *ngIf="open && !dataElement" class="data-element-modal__empty">No data element selected.</p>
+    </div>
+  </div>
+</div>
