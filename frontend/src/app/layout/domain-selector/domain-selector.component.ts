@@ -1,20 +1,29 @@
 /**
- * Sidebar domain dropdown: loads domains from API, syncs selection with NgRx store and localStorage.
+ * Sidebar domain dropdown: loads domain tree from API, syncs selection with NgRx store and localStorage.
  *
- * - On init: loads domains via ApiService, syncs store currentDomainId to local state, and
- *   restores selection from localStorage (dmp_selected_domain_id) when no domain is selected.
- * - On select: dispatches setCurrentDomainId and persists id to localStorage so the choice
- *   survives refresh. Other components and effects use the store's currentDomainId for
- *   domain-scoped data.
+ * - On init: loads domain tree via getDomainsTree(), flattens to list for store, syncs store
+ *   currentDomainId to local state, and restores selection from localStorage when none set.
+ * - Displays a hierarchical dropdown (L0→L1→L2→L3) with indentation and level badges.
  */
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
 import { selectCurrentDomainId } from '../../store/app.selectors';
 import * as AppActions from '../../store/app.actions';
-import { ApiService, Domain } from '../../core/api.service';
+import { ApiService } from '../../core/api.service';
+import type { Domain, DomainTreeNode } from '../../core/models';
 
 const DOMAIN_STORAGE_KEY = 'dmp_selected_domain_id';
+
+function flattenTree(nodes: DomainTreeNode[]): Domain[] {
+  const out: Domain[] = [];
+  function visit(n: DomainTreeNode) {
+    out.push({ id: n.id, name: n.name, description: n.description, parent_id: n.parent_id });
+    (n.children || []).forEach(visit);
+  }
+  nodes.forEach(visit);
+  return out;
+}
 
 @Component({
   selector: 'app-domain-selector',
@@ -23,10 +32,12 @@ const DOMAIN_STORAGE_KEY = 'dmp_selected_domain_id';
 })
 export class DomainSelectorComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  domainsTree: DomainTreeNode[] = [];
   domains: Domain[] = [];
   loading = false;
   error: string | null = null;
   currentDomainId: number | null = null;
+  dropdownOpen = false;
 
   constructor(private store: Store, private api: ApiService) {}
 
@@ -40,19 +51,31 @@ export class DomainSelectorComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /** Fetches domains, updates store and local list; on success restores selection from localStorage if none set. */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const el = (event.target as HTMLElement).closest('.domain-selector');
+    if (!el) this.dropdownOpen = false;
+  }
+
+  get currentDomainName(): string {
+    if (this.currentDomainId == null) return 'Select domain';
+    const d = this.domains.find((x) => x.id === this.currentDomainId);
+    return d?.name ?? 'Select domain';
+  }
+
+  /** Fetches domain tree, flattens for store; on success restores selection from localStorage if none set. */
   loadDomains(): void {
     this.loading = true;
     this.error = null;
     this.api
-      .getDomains()
+      .getDomainsTree()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (list) => {
-          this.domains = list;
+        next: (tree) => {
+          this.domainsTree = tree ?? [];
+          this.domains = flattenTree(this.domainsTree);
           this.loading = false;
-          this.store.dispatch(AppActions.setDomains({ domains: list }));
-          // Restore saved selection if we now have domains and none selected
+          this.store.dispatch(AppActions.setDomains({ domains: this.domains }));
           if (this.currentDomainId == null && this.domains.length > 0) {
             const saved = localStorage.getItem(DOMAIN_STORAGE_KEY);
             if (saved != null) {
@@ -66,6 +89,7 @@ export class DomainSelectorComponent implements OnInit, OnDestroy {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Failed to load domains';
+          this.domainsTree = [];
           this.domains = [];
           this.store.dispatch(AppActions.setDomains({ domains: [] }));
         },
@@ -76,9 +100,12 @@ export class DomainSelectorComponent implements OnInit, OnDestroy {
     this.loadDomains();
   }
 
-  /** Updates store and localStorage with the selected domain id (or null for "Select domain"). */
-  selectDomain(value: number | string | null): void {
-    const id = value === null || value === undefined ? null : Number(value);
+  toggleDropdown(): void {
+    if (this.domains.length === 0 && !this.loading && !this.error) return;
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  selectDomain(id: number | null): void {
     const toStore = id === null || !Number.isInteger(id) ? null : id;
     this.store.dispatch(AppActions.setCurrentDomainId({ id: toStore }));
     if (toStore != null) {
@@ -86,5 +113,6 @@ export class DomainSelectorComponent implements OnInit, OnDestroy {
     } else {
       localStorage.removeItem(DOMAIN_STORAGE_KEY);
     }
+    this.dropdownOpen = false;
   }
 }
