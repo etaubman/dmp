@@ -1,3 +1,10 @@
+/**
+ * HTTP interceptor: attaches the JWT to outgoing requests and handles 401 responses.
+ *
+ * - Outgoing: if AuthService has a token, adds header "Authorization: Bearer <token>".
+ * - Incoming 401: when not in devAlwaysLoggedIn mode, clears token, dispatches clearAuth,
+ *   and redirects to /login so the user can re-authenticate.
+ */
 import {
   HttpInterceptor,
   HttpRequest,

@@ -1,6 +1,8 @@
 /**
  * API DTOs (request/response types) for the Data Manager Portal backend.
- * Shared between ApiService and store/components.
+ *
+ * Shared between ApiService (method signatures), store (AppState, actions), and components.
+ * Naming follows backend API; optional fields (e.g. description) may be omitted in responses.
  */
 
 // ——— Domain ———

@@ -1,3 +1,9 @@
+/**
+ * Login page: email/password form; dispatches loginRequest; redirects to / when user becomes set.
+ *
+ * Shown at /login (no authGuard). On init, if authUser$ emits a user (e.g. already logged in
+ * or after successful login), navigates to /. authError$ is bound in template for error message.
+ */
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -26,6 +32,7 @@ export class LoginPageComponent implements OnInit {
     this.authUser$ = this.store.select(selectAuthUser);
   }
 
+  /** When user becomes non-null (e.g. after login success), redirect to home. */
   ngOnInit(): void {
     this.authUser$.pipe(filter((u) => u != null), take(1)).subscribe(() => {
       this.router.navigate(['/']);

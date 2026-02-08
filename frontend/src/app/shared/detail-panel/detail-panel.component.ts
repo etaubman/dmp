@@ -1,3 +1,8 @@
+/**
+ * Side detail panel: shows title, optional rows (label/value), and optional lists of data elements,
+ * concerns, endpoints, DQ rules, SORs as clickable cards. Emits concernClick, endpointClick,
+ * dqRuleClick, dataElementClick so the parent can open modals. open/openChange control visibility.
+ */
 import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { DetailRow } from '../detail-modal/detail-modal.component';
 import { DataConcern, Endpoint, DataQualityRule, DataElementSORSummary, DataElement } from '../../core/api.service';

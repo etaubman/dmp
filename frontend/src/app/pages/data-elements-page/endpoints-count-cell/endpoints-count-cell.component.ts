@@ -1,3 +1,7 @@
+/**
+ * AG Grid cell renderer: shows endpoint count for a data element as a clickable badge; invokes onOpenEndpoints(data) on click.
+ * Row data must include endpointCount (enriched by data-elements-page).
+ */
 import { Component } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';

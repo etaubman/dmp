@@ -1,3 +1,17 @@
+/**
+ * Root Angular module (AppModule).
+ *
+ * Declares all app components (no standalone components per project convention).
+ * Configures:
+ * - NgRx store with app reducer and effects
+ * - HTTP client with AuthInterceptor for attaching tokens
+ * - AG Grid / AG Charts for tables and charts
+ * - NgDiagram for process model diagrams
+ * - App routing
+ *
+ * Layout: LayoutComponent wraps main routes; AdminLayoutComponent wraps admin child routes.
+ */
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
@@ -98,6 +112,7 @@ import { AuthInterceptor } from './core/auth-interceptor';
     LoginPageComponent,
   ],
   providers: [
+    // Attach auth token to outgoing HTTP requests
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ],
   imports: [

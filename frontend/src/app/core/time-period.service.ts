@@ -1,4 +1,9 @@
-/** Current time period for metrics/KPIs (YTD, MTD, etc.). Used by time-period switch and metrics views. */
+/**
+ * Current time period for metrics/KPIs (YTD, MTD, QTD, etc.).
+ *
+ * Used by the time-period switch component and metrics/concept views to filter or label
+ * data by period. Subscribers to currentPeriod$ react when the user changes the period.
+ */
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 

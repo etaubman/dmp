@@ -1,6 +1,12 @@
 /**
  * Central API client for the Data Manager Portal backend.
- * All HTTP calls live here; DTOs are in core/models. Components and effects use ApiService.
+ *
+ * All HTTP calls to the backend live here. DTOs (Domain, User, DataElement, etc.) are
+ * defined in core/models and re-exported from this file. Components and NgRx effects
+ * use ApiService for data; AuthInterceptor attaches the JWT from AuthService to requests.
+ *
+ * Base URL: environment.apiUrl + '/api'. Scope parameters (owned/upstream/downstream)
+ * filter domain-scoped lists where the backend supports them.
  */
 export * from './models';
 
@@ -37,7 +43,7 @@ const API = environment.apiUrl + '/api';
 export class ApiService {
   constructor(private http: HttpClient) {}
 
-  // ——— Domains ———
+  // ——— Domains (flat list + tree for admin) ———
   getDomains(): Observable<Domain[]> {
     return this.http.get<Domain[]>(`${API}/domains`);
   }
@@ -97,6 +103,7 @@ export class ApiService {
   }
 
   // ——— Data Elements ———
+  /** domain_id required; scope filters by owned / upstream / downstream. */
   getDataElements(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<DataElement[]> {
     let params = new HttpParams().set('domain_id', domainId);
     if (scope !== 'owned') params = params.set('scope', scope);
@@ -154,6 +161,7 @@ export class ApiService {
   }
 
   // ——— Data Concerns ———
+  /** domain_id required; optional filters narrow by application, EUC, endpoint, or data element. */
   getDataConcerns(domainId: number, filters?: { application_id?: number; euc_id?: number; endpoint_id?: number; data_element_id?: number }): Observable<DataConcern[]> {
     let params = new HttpParams().set('domain_id', domainId);
     if (filters?.application_id != null) params = params.set('application_id', filters.application_id);
@@ -169,7 +177,8 @@ export class ApiService {
     return this.http.get<Metrics>(`${API}/metrics`, { params });
   }
 
-  // ——— Bulk upload/download ———
+  // ——— Bulk upload/download (admin) ———
+  /** entityType identifies the entity (e.g. data_elements, applications). Returns counts and per-row errors. */
   uploadBulk(entityType: string, file: File): Observable<{ created: number; updated: number; errors: { row: number; error: string }[] }> {
     const form = new FormData();
     form.append('entity_type', entityType);

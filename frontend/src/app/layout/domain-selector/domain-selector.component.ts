@@ -1,4 +1,12 @@
-/** Sidebar domain dropdown: loads domains, persists selected id, dispatches setCurrentDomainId for store. */
+/**
+ * Sidebar domain dropdown: loads domains from API, syncs selection with NgRx store and localStorage.
+ *
+ * - On init: loads domains via ApiService, syncs store currentDomainId to local state, and
+ *   restores selection from localStorage (dmp_selected_domain_id) when no domain is selected.
+ * - On select: dispatches setCurrentDomainId and persists id to localStorage so the choice
+ *   survives refresh. Other components and effects use the store's currentDomainId for
+ *   domain-scoped data.
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
@@ -32,6 +40,7 @@ export class DomainSelectorComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /** Fetches domains, updates store and local list; on success restores selection from localStorage if none set. */
   loadDomains(): void {
     this.loading = true;
     this.error = null;
@@ -67,6 +76,7 @@ export class DomainSelectorComponent implements OnInit, OnDestroy {
     this.loadDomains();
   }
 
+  /** Updates store and localStorage with the selected domain id (or null for "Select domain"). */
   selectDomain(value: number | string | null): void {
     const id = value === null || value === undefined ? null : Number(value);
     const toStore = id === null || !Number.isInteger(id) ? null : id;

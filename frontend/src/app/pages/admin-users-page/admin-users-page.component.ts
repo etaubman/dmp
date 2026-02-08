@@ -1,3 +1,8 @@
+/**
+ * Admin User Management page: loads users, displays list with search (email/name/role), and
+ * supports add/edit/delete via createUserRequest, updateUserRequest, deleteUserRequest.
+ * Errors shown from adminUsersError.
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
@@ -28,6 +33,7 @@ export class AdminUsersPageComponent implements OnInit, OnDestroy {
 
   constructor(private store: Store) {}
 
+  /** Users filtered by search (email, name, role, case-insensitive). */
   get filteredList(): User[] {
     const q = this.searchFilter?.trim().toLowerCase();
     if (!q) return this.users;

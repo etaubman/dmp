@@ -1,6 +1,9 @@
 /**
- * App reducer: handles set and admin actions; updates state immutably.
- * Load actions are handled in effects (which then dispatch set actions).
+ * App reducer: pure function that updates app state in response to actions.
+ *
+ * Handles only "set" and auth/admin "set" actions. Load/create/update/delete
+ * actions are not handled here—they are handled in AppEffects, which call the
+ * API and then dispatch the corresponding set action (e.g. setDomains, setUsers).
  */
 import { createReducer, on } from '@ngrx/store';
 import { initialAppState } from 'app/store/app.state';

@@ -1,3 +1,7 @@
+/**
+ * Applications page: AG Grid of applications for the current domain (scope: owned/upstream/downstream),
+ * concept metrics (total, with description), and a detail panel for the selected row.
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';

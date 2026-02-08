@@ -1,3 +1,8 @@
+/**
+ * Admin Domain Management page: loads domain tree, flattens for list view with search, and
+ * supports add/edit/delete via store actions (createDomainRequest, updateDomainRequest,
+ * deleteDomainRequest). Errors shown from adminDomainsError.
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
@@ -9,6 +14,7 @@ import {
 import * as AppActions from '../../store/app.actions';
 import type { DomainTreeNode } from '../../core/api.service';
 
+/** Flattened node for list display (id, name, description, parent_id, level). */
 export interface FlatDomainNode {
   id: number;
   name: string;

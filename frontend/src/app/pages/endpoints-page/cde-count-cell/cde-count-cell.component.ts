@@ -1,3 +1,7 @@
+/**
+ * AG Grid cell renderer: shows consumed CDE count for an endpoint as a clickable badge; invokes onOpenCdes(data) on click.
+ * Row data must include cdeCount (enriched by endpoints-page).
+ */
 import { Component } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';

@@ -1,3 +1,7 @@
+/**
+ * AG Grid cell renderer: shows DQ rules count for a data element as a clickable badge; invokes onOpenDqRules(data) on click.
+ * Row data must include dqRulesCount (enriched by data-elements-page).
+ */
 import { Component } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';

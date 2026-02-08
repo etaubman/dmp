@@ -1,3 +1,7 @@
+/**
+ * AG Grid cell renderer: shows data concerns count as a clickable badge (amber or red if critical).
+ * Row data must include concernCount and hasCriticalConcern; cellRendererParams must provide onOpenConcerns(data).
+ */
 import { Component } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';

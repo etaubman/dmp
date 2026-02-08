@@ -1,3 +1,7 @@
+/**
+ * Modal that displays a single data quality rule's details (name, type, description, ids, etc.).
+ * Used from data-elements-page and endpoints-page detail panels when user clicks a DQ rule. close() and overlay emit openChange(false).
+ */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DataQualityRule } from '../../core/api.service';
 

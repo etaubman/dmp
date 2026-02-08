@@ -1,3 +1,7 @@
+/**
+ * Modal that displays a single data element's details (name, description, type, domain, etc.).
+ * Used from endpoints-page detail panel when user clicks a CDE. close() and overlay click emit openChange(false).
+ */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DataElement } from '../../core/api.service';
 

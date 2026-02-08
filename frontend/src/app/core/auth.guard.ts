@@ -1,3 +1,10 @@
+/**
+ * Route guard: allows activation only when the user is authenticated.
+ *
+ * Used on the root '' path (LayoutComponent and all its children). If not authenticated,
+ * redirects to /login. When environment.devAlwaysLoggedIn is true, always allows access
+ * (for local dev without real login).
+ */
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { Store } from '@ngrx/store';

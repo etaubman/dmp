@@ -1,3 +1,7 @@
+/**
+ * AG Grid cell renderer: shows system-of-record count as a clickable badge; invokes onOpenSor(data) on click.
+ * Row data must include sorCount (enriched by data-elements-page).
+ */
 import { Component } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';

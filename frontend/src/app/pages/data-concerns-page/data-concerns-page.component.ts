@@ -1,3 +1,7 @@
+/**
+ * Data Concerns page: AG Grid of data concerns for the current domain, concept metrics
+ * (total, open, with description), and detail panel for selected row.
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';

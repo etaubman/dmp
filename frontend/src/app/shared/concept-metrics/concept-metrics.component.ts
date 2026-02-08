@@ -1,3 +1,7 @@
+/**
+ * Displays a grid of KPI-style metric cards (label, value, optional sparkline, optional change).
+ * Optional bar chart when showChart is true. Used on data-elements, applications, endpoints, etc.
+ */
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import type { AgCartesianChartOptions } from 'ag-charts-community';
 

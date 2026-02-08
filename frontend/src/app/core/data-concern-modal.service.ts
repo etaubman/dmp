@@ -1,4 +1,10 @@
-/** Shared state for the data concern detail modal: open/close and which concern is shown. */
+/**
+ * Shared state for the data concern detail modal.
+ *
+ * Components that want to show a data concern call open(concern); the modal component
+ * subscribes to state$ and shows/hides based on open and renders the current concern.
+ * close() clears the concern and closes the modal.
+ */
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { DataConcern } from './api.service';

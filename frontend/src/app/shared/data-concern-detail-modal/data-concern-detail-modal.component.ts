@@ -1,3 +1,8 @@
+/**
+ * Modal that displays a single data concern's details (title, status, description, dates, etc.).
+ * Used globally from layout (DataConcernModalService) and from detail panels. close() and
+ * overlay click emit openChange(false).
+ */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DataConcern } from '../../core/api.service';
 

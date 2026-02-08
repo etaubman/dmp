@@ -1,3 +1,8 @@
+/**
+ * Admin bulk upload/download page: select entity type, upload a file (calls ApiService.uploadBulk),
+ * or get download URL (optionally with domain_id for domain-scoped entities). Displays upload
+ * result (created/updated counts and per-row errors).
+ */
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';

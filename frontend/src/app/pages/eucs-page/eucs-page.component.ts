@@ -1,3 +1,7 @@
+/**
+ * EUCs (End User Computing) page: AG Grid of EUCs for the current domain (scope: owned/upstream/downstream),
+ * concept metrics (total, EUC type, ITESS), and detail panel for selected row.
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';

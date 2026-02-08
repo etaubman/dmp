@@ -1,3 +1,7 @@
+/**
+ * UI to switch the current time period (YTD, MTD, QTD, etc.) via TimePeriodService.
+ * Used on metrics/concept views that filter or label data by period.
+ */
 import { Component } from '@angular/core';
 import { TimePeriodService, TimePeriodId, TIME_PERIOD_OPTIONS } from '../../core/time-period.service';
 

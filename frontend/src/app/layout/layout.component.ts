@@ -1,4 +1,10 @@
-/** Main app shell: sidebar nav, header, domain selector, and router-outlet for main routes. */
+/**
+ * Main app shell shown after login (wrapped by authGuard).
+ *
+ * Provides: sidebar with nav links and domain selector, header with governance dropdowns
+ * and user menu (logout), main content area with router-outlet, and the global data concern
+ * detail modal. User menu closes on document click via HostListener.
+ */
 import { Component, HostListener } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -24,6 +30,7 @@ export class LayoutComponent {
     this.authUser$ = this.store.select(selectAuthUser);
   }
 
+  /** Close user dropdown when clicking outside (avoids needing to track panel ref). */
   @HostListener('document:click')
   onDocumentClick(): void {
     this.userMenuOpen = false;
@@ -39,6 +46,7 @@ export class LayoutComponent {
     this.store.dispatch(AppActions.clearAuth());
   }
 
+  /** Sync modal close from template (e.g. overlay click) with DataConcernModalService. */
   onConcernModalOpenChange(open: boolean): void {
     if (!open) this.concernModal.close();
   }

@@ -1,3 +1,10 @@
+/**
+ * AG Grid cell renderer: three-dot kebab button that toggles a floating menu.
+ *
+ * Menu is currently a placeholder ("Actions" title only). Listens for document click and
+ * kebab-actions-close-others so only one kebab menu is open at a time. Menu is appended to
+ * body and positioned under the button.
+ */
 import {
   Component,
   ElementRef,

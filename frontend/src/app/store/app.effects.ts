@@ -1,6 +1,13 @@
 /**
- * NgRx effects: react to load/create/update/delete actions by calling ApiService,
- * then dispatch set actions (or error actions) to update the store. List loads use effect-helpers.
+ * NgRx effects: side-effect handlers for load/create/update/delete actions.
+ *
+ * - List loads (domains, dataElements, applications, etc.) use createLoadListEffect from
+ *   effect-helpers: set loading true → call API → on success set data and loading false;
+ *   on error set loading false and set empty list (and optionally set error).
+ * - Metrics and domains tree have custom logic (single object or error handling).
+ * - Admin domain/user CRUD: call API, then reload tree/users on success or set admin error on failure.
+ * - Auth: login → set token + getMe → setAuthSession; clearAuth → clear token + navigate to login;
+ *   checkAuth → getMe with stored token to restore session.
  */
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
@@ -22,6 +29,7 @@ export class AppEffects {
   private store = inject(Store);
   private router = inject(Router);
 
+  // --- Domain-scoped list loads (use effect-helpers) ---
   loadDomains$ = createEffect(() =>
     createLoadListEffect(this.actions$, this.store, {
       loadAction: AppActions.loadDomains,
@@ -137,6 +145,7 @@ export class AppEffects {
     })
   );
 
+  // --- Metrics (single object; custom loading/fallback) ---
   loadMetrics$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AppActions.loadMetrics),
@@ -156,6 +165,7 @@ export class AppEffects {
     ),
   );
 
+  // --- Admin: domains tree and CRUD ---
   loadDomainsTree$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AppActions.loadDomainsTree),
@@ -240,6 +250,7 @@ export class AppEffects {
     { dispatch: false },
   );
 
+  // --- Admin: users list and CRUD ---
   loadUsers$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AppActions.loadUsers),
@@ -321,6 +332,7 @@ export class AppEffects {
     { dispatch: false },
   );
 
+  // --- Auth: login, session, clear, check ---
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AppActions.loginRequest),

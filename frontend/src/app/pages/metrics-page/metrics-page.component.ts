@@ -1,3 +1,7 @@
+/**
+ * Metrics page: loads aggregate counts for the current domain (or global if no domain) and
+ * displays them in a bar chart. Re-loads when currentDomainId changes.
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, takeUntil, Subject } from 'rxjs';
@@ -41,6 +45,7 @@ export class MetricsPageComponent implements OnInit, OnDestroy {
       });
   }
 
+  /** Builds AG Charts bar chart from metrics counts; dark theme. */
   private buildChart(metrics: Metrics | null): void {
     if (!metrics) {
       this.chartOptions = null;

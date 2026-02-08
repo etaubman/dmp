@@ -1,3 +1,8 @@
+/**
+ * Modal that fetches and displays data element lineage as a diagram (ng-diagram).
+ * When dataElement and open are set, loads lineage from API and builds nodes/edges; selecting
+ * a node or edge shows detail rows in the side panel. Read-only diagram (no drag/link).
+ */
 import {
   Component,
   EventEmitter,

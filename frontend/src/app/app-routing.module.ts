@@ -1,3 +1,15 @@
+/**
+ * Application routing configuration.
+ *
+ * Structure:
+ * - /login: public login page (no guard).
+ * - '' (root): LayoutComponent with authGuard; children are main app pages.
+ * - /admin/*: AdminLayoutComponent with nested admin pages (domains, users, settings, bulk).
+ * - ** (wildcard): redirect to root.
+ *
+ * authGuard ensures unauthenticated users are redirected to /login for protected routes.
+ */
+
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';

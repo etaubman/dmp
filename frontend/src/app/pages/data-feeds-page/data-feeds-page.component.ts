@@ -1,3 +1,7 @@
+/**
+ * Data Feeds page: placeholder for data feed listing or configuration.
+ * Add store/API integration and table or list UI as needed.
+ */
 import { Component } from '@angular/core';
 
 @Component({

@@ -1,3 +1,9 @@
+/**
+ * Critical Data Elements page: AG Grid of data elements for the current domain (with scope
+ * owned/upstream/downstream). Enriches rows with SOR count, data concerns count, endpoints count,
+ * DQ rules count; detail panel and modals for lineage, concerns, endpoints, DQ rules, SOR.
+ * Uses store for list/concerns/endpoints/rules; fetches SOR by domain separately via ApiService.
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil, combineLatest } from 'rxjs';

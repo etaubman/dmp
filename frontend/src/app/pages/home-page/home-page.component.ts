@@ -1,3 +1,8 @@
+/**
+ * Home/dashboard page: shows metrics for the current domain, attention items (open DQ exceptions
+ * and data concerns), and bar + donut charts. When currentDomainId changes, loads metrics,
+ * exceptions, and concerns for that domain.
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -15,6 +20,7 @@ import {
 import * as AppActions from '../../store/app.actions';
 import { Metrics } from '../../core/api.service';
 
+/** Card shown in "Requires attention" section: title, count, description, link route, severity. */
 export interface AttentionItem {
   title: string;
   count: number;
@@ -76,6 +82,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
       });
   }
 
+  /** Builds attention cards for open DQ exceptions and open data concerns (non-resolved/closed). */
   private buildAttentionItems(
     exceptions: { id: number; status?: string }[],
     concerns: { id: number; status?: string }[],
@@ -107,6 +114,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Builds AG Charts bar and donut options from metrics counts; dark theme. */
   private buildCharts(metrics: Metrics | null): void {
     if (!metrics) {
       this.chartOptions = null;

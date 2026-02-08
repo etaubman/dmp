@@ -1,3 +1,7 @@
+/**
+ * AG Grid cell renderer: button that opens the lineage modal for the row's data element.
+ * Expects cellRendererParams with onOpenLineage(data).
+ */
 import { Component } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';

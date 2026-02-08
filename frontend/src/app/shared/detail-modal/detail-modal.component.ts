@@ -1,3 +1,7 @@
+/**
+ * Reusable modal that displays a title and a list of label/value rows.
+ * Used for simple entity details; close() sets open to false and emits openChange(false).
+ */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 export interface DetailRow {

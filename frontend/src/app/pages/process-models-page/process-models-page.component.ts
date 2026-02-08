@@ -1,3 +1,7 @@
+/**
+ * Process Models page: placeholder for process model / diagram views (e.g. ng-diagram).
+ * Template can host diagram components; add data loading and diagram config here.
+ */
 import { Component } from '@angular/core';
 
 @Component({

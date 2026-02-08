@@ -1,3 +1,8 @@
+/**
+ * Endpoints page: AG Grid of endpoints for the current domain with enriched columns (# CDE, # DC, # DQR).
+ * Detail panel shows endpoint details plus consumed CDEs, data concerns, and DQ rules; modals for
+ * endpoint, DQ rule, and data element detail. Builds lookup maps from rules/concerns for counts.
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, Subject, takeUntil } from 'rxjs';
@@ -23,6 +28,7 @@ import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
 import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
 
+/** Endpoint row with computed counts for CDEs, concerns, DQ rules (used by cell renderers). */
 type EnrichedEndpoint = Endpoint & {
   cdeCount?: number;
   concernCount?: number;
