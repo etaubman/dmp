@@ -28,7 +28,7 @@ module.exports = {
         auroraWarning: '#7A6B4A',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Quicksand', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         card: '0.75rem',

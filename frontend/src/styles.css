@@ -86,7 +86,7 @@
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Quicksand', system-ui, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -143,7 +143,7 @@ body {
   --ag-border-color: rgba(255, 255, 255, 0.04);
   --ag-foreground-color: #E2E8F0;
   --ag-header-foreground-color: #9CA3AF;
-  --ag-font-family: 'Inter', system-ui, sans-serif;
+  --ag-font-family: 'Quicksand', system-ui, sans-serif;
 }
 
 /* Centered columns: badges and action icons */
