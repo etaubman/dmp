@@ -52,6 +52,7 @@ export class EndpointsPageComponent implements OnInit, OnDestroy {
   selectedItem: Endpoint | null = null;
   domainScope: DomainScope = 'owned';
   currentDomainId: number | null = null;
+  searchTerm = '';
   panelRows: DetailRow[] = [];
   panelTitle = '';
   panelDataElements: DataElement[] = [];

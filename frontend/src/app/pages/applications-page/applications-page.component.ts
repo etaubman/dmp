@@ -28,6 +28,7 @@ export class ApplicationsPageComponent implements OnInit, OnDestroy {
   selectedItem: Application | null = null;
   domainScope: DomainScope = 'owned';
   currentDomainId: number | null = null;
+  searchTerm = '';
   panelRows: DetailRow[] = [];
   panelTitle = '';
   metrics: MetricItem[] = [];

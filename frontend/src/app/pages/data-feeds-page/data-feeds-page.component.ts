@@ -31,6 +31,7 @@ export class DataFeedsPageComponent implements OnInit, OnDestroy {
   detailLoading = false;
   domainScope: DomainScope = 'owned';
   currentDomainId: number | null = null;
+  searchTerm = '';
   panelTitle = '';
   panelRows: DetailRow[] = [];
   panelFeedDataElements: DataFeedDataElementRef[] = [];

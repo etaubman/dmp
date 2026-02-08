@@ -37,6 +37,7 @@ import { DetailModalComponent } from './shared/detail-modal/detail-modal.compone
 import { DetailPanelComponent } from './shared/detail-panel/detail-panel.component';
 import { ConceptMetricsComponent } from './shared/concept-metrics/concept-metrics.component';
 import { TimePeriodSwitchComponent } from './shared/time-period-switch/time-period-switch.component';
+import { TableSearchFilterComponent } from './shared/table-search-filter/table-search-filter.component';
 import { LineageModalComponent } from './shared/lineage-modal/lineage-modal.component';
 import { DataConcernDetailModalComponent } from './shared/data-concern-detail-modal/data-concern-detail-modal.component';
 import { NgDiagramComponent } from 'ng-diagram';
@@ -89,6 +90,7 @@ import { AuthInterceptor } from './core/auth-interceptor';
     DetailPanelComponent,
     ConceptMetricsComponent,
     TimePeriodSwitchComponent,
+    TableSearchFilterComponent,
     LineageModalComponent,
     DataConcernDetailModalComponent,
     KebabActionsCellComponent,

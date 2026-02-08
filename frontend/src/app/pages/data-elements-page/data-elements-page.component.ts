@@ -60,6 +60,7 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
 
   domainScope: DomainScope = 'owned';
   currentDomainId: number | null = null;
+  searchTerm = '';
   metrics: MetricItem[] = [];
 
   columnDefs: ColDef<DataElement>[] = [

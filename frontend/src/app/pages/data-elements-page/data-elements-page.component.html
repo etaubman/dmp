@@ -9,10 +9,13 @@
     </div>
   </div>
   <app-concept-metrics *ngIf="!loading && dataElements.length >= 0" [metrics]="metrics"></app-concept-metrics>
-  <div class="flex gap-1 mb-3 flex-shrink-0" *ngIf="currentDomainId != null">
-    <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'owned'" (click)="setDomainScope('owned')">Owned by Domain</button>
-    <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'upstream'" (click)="setDomainScope('upstream')">Upstream of Domain</button>
-    <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'downstream'" (click)="setDomainScope('downstream')">Downstream of Domain</button>
+  <div class="flex items-center gap-4 mb-3 flex-shrink-0" *ngIf="currentDomainId != null">
+    <app-table-search-filter [(value)]="searchTerm" placeholder="Search…"></app-table-search-filter>
+    <div class="flex gap-1">
+      <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'owned'" (click)="setDomainScope('owned')">Owned by Domain</button>
+      <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'upstream'" (click)="setDomainScope('upstream')">Upstream of Domain</button>
+      <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'downstream'" (click)="setDomainScope('downstream')">Downstream of Domain</button>
+    </div>
   </div>
   <div *ngIf="loading" class="text-accent mb-4">Loading…</div>
   <div *ngIf="!loading && dataElements.length === 0" class="text-gray-500 mb-4">No data elements. Select a domain or upload bulk data.</div>
@@ -22,6 +25,7 @@
         <ag-grid-angular
           theme="legacy"
           [rowData]="enrichedElements"
+          [quickFilterText]="searchTerm"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
           [rowSelection]="{ mode: 'multiRow', enableClickSelection: false }"

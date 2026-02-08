@@ -28,6 +28,7 @@ export class EucsPageComponent implements OnInit, OnDestroy {
   selectedItem: EUC | null = null;
   domainScope: DomainScope = 'owned';
   currentDomainId: number | null = null;
+  searchTerm = '';
   panelRows: DetailRow[] = [];
   panelTitle = '';
   metrics: MetricItem[] = [];
