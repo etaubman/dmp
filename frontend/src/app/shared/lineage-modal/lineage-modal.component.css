@@ -32,6 +32,36 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.lineage-modal__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lineage-modal__refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.375rem;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.lineage-modal__refresh:hover:not(:disabled) {
+  color: var(--text-primary, #f3f4f6);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+.lineage-modal__refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .lineage-modal__title {
   margin: 0;
   font-size: 1.125rem;
@@ -61,12 +91,15 @@
   flex-direction: column;
 }
 
-/* Top half: diagram – explicit min-height so viewport gets valid size for zoomToFit/recenter */
+/* Top ~60%: diagram – flex so host can fill and get real dimensions */
 .lineage-modal__diagram-wrap {
-  flex: 0 0 50%;
-  min-height: 280px;
+  flex: 0 0 60%;
+  min-height: 320px;
   position: relative;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .lineage-modal__loading,
@@ -84,19 +117,31 @@
   color: #f87171;
 }
 
+/* Host must fill wrap so diagram container has real size (fixes black empty diagram) */
+.lineage-modal__diagram-wrap app-lineage-diagram-host {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
 .lineage-modal__diagram {
   width: 100%;
   height: 100%;
-  min-height: 280px;
+  min-height: 0;
+  flex: 1;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ng-diagram requires an explicit size on its host */
+/* ng-diagram requires an explicit size on its host; flex so it fills the wrapper */
 .lineage-modal__diagram ng-diagram {
   display: block !important;
+  flex: 1 !important;
+  min-height: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  min-height: 280px !important;
 }
 
 /* Dark theme for diagram to match app (override ng-diagram light defaults) */
@@ -108,12 +153,35 @@
   --ngd-node-bg-primary-default: #27282b;
   --ngd-node-stroke-primary-default: #4d5059;
   --ngd-node-stroke-primary-hover: #14b8a6;
-  --ngd-default-edge-stroke: #4d5059;
-  --ngd-default-edge-stroke-hover: #6f7480;
+  --ngd-default-edge-stroke: #6b7280;
+  --ngd-default-edge-stroke-hover: #9ca3af;
   --ngd-default-edge-stroke-selected: #14b8a6;
   --ngd-default-edge-label-bg-primary-default: #27282b;
   --ngd-default-edge-label-color: #f3f4f6;
   --ngd-default-edge-label-border-color: #4d5059;
+}
+
+/* Type-based node styling (custom template adds lineage-node--type classes) */
+.lineage-modal__diagram ::ng-deep app-lineage-node-template.lineage-node--data_element {
+  --lineage-node-bg: #1e293b;
+  --lineage-node-border: var(--accent-pop, #5b9cfe);
+  border-width: 2px !important;
+}
+.lineage-modal__diagram ::ng-deep app-lineage-node-template.lineage-node--domain {
+  --lineage-node-bg: #1c2a1f;
+  --lineage-node-border: #4a7c59;
+}
+.lineage-modal__diagram ::ng-deep app-lineage-node-template.lineage-node--dq_rule {
+  --lineage-node-bg: #2a2535;
+  --lineage-node-border: #7c6aa8;
+}
+.lineage-modal__diagram ::ng-deep app-lineage-node-template.lineage-node--endpoint {
+  --lineage-node-bg: #252535;
+  --lineage-node-border: #6a7ca8;
+}
+.lineage-modal__diagram ::ng-deep app-lineage-node-template.lineage-node--data_concern {
+  --lineage-node-bg: #2a2520;
+  --lineage-node-border: #a87c6a;
 }
 
 /* Recenter button over diagram */
@@ -151,15 +219,35 @@
   font-size: 0.875rem;
 }
 
-/* Bottom half: details */
+/* Bottom ~40%: details panel */
 .lineage-modal__details-wrap {
-  flex: 0 0 50%;
+  flex: 0 0 40%;
   min-height: 0;
   overflow: auto;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.lineage-modal__flow-legend {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: center;
+  letter-spacing: 0.02em;
 }
 
 .lineage-modal__details-inner {
+  padding: 1rem;
+  flex: 1;
+}
+
+.lineage-modal__details-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.5rem;
   padding: 1rem;
 }
 
@@ -170,10 +258,13 @@
 }
 
 .lineage-modal__details-title {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.75rem 0;
   font-size: 1rem;
   font-weight: 600;
   color: #e5e7eb;
+}
+.lineage-modal__details-card .lineage-modal__details-title {
+  margin-top: 0;
 }
 
 .lineage-modal__details-list {

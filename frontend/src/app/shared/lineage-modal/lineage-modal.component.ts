@@ -13,40 +13,31 @@ import {
   signal,
   computed,
   inject,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  OnDestroy,
 } from '@angular/core';
-import { initializeModel, provideNgDiagram, NgDiagramViewportService } from 'ng-diagram';
-import type { ModelAdapter } from 'ng-diagram';
+import { NgDiagramNodeTemplateMap } from 'ng-diagram';
 import { ApiService, LineageResponse, LineageNode, LineageEdge, DataElement } from '../../core/api.service';
 import { DetailRow } from '../detail-modal/detail-modal.component';
-
+import { LineageNodeTemplateComponent } from './lineage-node-template.component';
 
 @Component({
   selector: 'app-lineage-modal',
   templateUrl: './lineage-modal.component.html',
   styleUrls: ['./lineage-modal.component.css'],
-  providers: [provideNgDiagram()],
 })
-export class LineageModalComponent implements OnChanges, AfterViewInit, OnDestroy {
+export class LineageModalComponent implements OnChanges {
   @Input() dataElement: DataElement | null = null;
   @Input() open = false;
   @Output() openChange = new EventEmitter<boolean>();
 
-  @ViewChild('diagramWrap') diagramWrapRef?: ElementRef<HTMLElement>;
-
   private api = inject(ApiService);
-  private viewportService = inject(NgDiagramViewportService);
-  private resizeObserver: ResizeObserver | null = null;
 
   loading = signal(false);
   error = signal<string | null>(null);
-  /** True after lineage has been loaded and model built (so diagram is never shown empty). */
+  /** True after lineage has been loaded and diagram data built (so diagram host is never shown empty). */
   lineageLoaded = signal(false);
-  /** Diagram model created once in injection context; we only update nodes/edges, never call initializeModel again. */
-  model = signal<ModelAdapter>(initializeModel({ nodes: [], edges: [] }));
+  /** Built diagram nodes/edges passed to host so it creates its own model in its injector (fixes reopen). */
+  diagramNodes = signal<Array<Record<string, unknown>>>([]);
+  diagramEdges = signal<Array<Record<string, unknown>>>([]);
   nodeMap = new Map<string, LineageNode>();
   edgeMap = new Map<string, LineageEdge>();
 
@@ -64,8 +55,15 @@ export class LineageModalComponent implements OnChanges, AfterViewInit, OnDestro
     },
   };
 
-  /** Run zoomToFit when viewport has valid size (top-half of modal). */
-  private hasCentered = false;
+  /** Custom node templates by lineage type for styling (domain, data_element, dq_rule, endpoint, data_concern) */
+  nodeTemplateMap = new NgDiagramNodeTemplateMap([
+    ['domain', LineageNodeTemplateComponent],
+    ['data_element', LineageNodeTemplateComponent],
+    ['dq_rule', LineageNodeTemplateComponent],
+    ['endpoint', LineageNodeTemplateComponent],
+    ['data_concern', LineageNodeTemplateComponent],
+  ]);
+
   /** True if the pointer was pressed down on the overlay (not on modal content). Used to avoid closing when user releases after dragging. */
   private pointerDownOnOverlay = false;
 
@@ -83,98 +81,14 @@ export class LineageModalComponent implements OnChanges, AfterViewInit, OnDestro
     if (event.target === event.currentTarget && this.pointerDownOnOverlay) this.close();
   }
 
-  onDiagramInit(): void {
-    this.hasCentered = false;
-    this.scheduleRecenter();
-  }
-
-  /** Schedule zoomToFit so it runs after the diagram viewport has its final size (top-half of modal). */
-  private scheduleRecenter(): void {
-    const run = (): void => {
-      if (!this.hasCentered && this.lineageLoaded() && this.hasNodes()) {
-        this.recenter();
-        this.hasCentered = true;
-      }
-    };
-    setTimeout(run, 100);
-    setTimeout(run, 350);
-    setTimeout(run, 600);
-  }
-
-  onViewportChanged(event: { viewport: { width?: number; height?: number } }): void {
-    const vp = event?.viewport;
-    if (this.hasCentered || !vp || vp.width == null || vp.height == null || vp.width <= 0 || vp.height <= 0) return;
-    this.hasCentered = true;
-    this.recenter();
-  }
-
-  recenter(): void {
-    this.viewportService.zoomToFit({ padding: 48 });
-    // Defer so viewport is updated; then shift view up so graph is centered in the visible top-half
-    setTimeout(() => this.correctViewportVerticalOffset(), 0);
-  }
-
-  /**
-   * Shift the view up so the graph is centered in the diagram area (top half of modal).
-   * The library may center for a larger area; we always apply an upward correction using
-   * the actual container height.
-   */
-  private correctViewportVerticalOffset(): void {
-    const el = this.diagramWrapRef?.nativeElement;
-    if (!el) return;
-    const vp = this.viewportService.viewport();
-    const rect = el.getBoundingClientRect();
-    const actualHeight = rect.height;
-    const scale = vp?.scale ?? 1;
-    if (actualHeight <= 0 || scale <= 0) return;
-    let shiftPx: number;
-    const vpHeight = vp?.height ?? 0;
-    if (vpHeight > actualHeight) {
-      shiftPx = (vpHeight - actualHeight) / 2 + actualHeight * 0.75;
-    } else {
-      // Library may report same as container; apply upward shift so content centers in top half
-      shiftPx = actualHeight * 1.25;
-    }
-    const dyFlow = shiftPx / scale;
-    this.viewportService.moveViewportBy(0, -dyFlow);
-  }
-
-  ngAfterViewInit(): void {
-    this.observeDiagramSize();
-  }
-
-  ngOnDestroy(): void {
-    this.resizeObserver?.disconnect();
-    this.resizeObserver = null;
-  }
-
-  private observeDiagramSize(): void {
-    if (typeof ResizeObserver === 'undefined') return;
-    const el = this.diagramWrapRef?.nativeElement;
-    if (!el) return;
-    this.resizeObserver?.disconnect();
-    this.resizeObserver = new ResizeObserver(() => {
-      if (!this.open || !this.lineageLoaded() || !this.hasNodes() || this.hasCentered) return;
-      const rect = el.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        this.recenter();
-        this.hasCentered = true;
-      }
-    });
-    this.resizeObserver.observe(el);
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open']?.currentValue && this.dataElement) {
-      this.hasCentered = false;
       this.lineageLoaded.set(false);
+      this.diagramNodes.set([]);
+      this.diagramEdges.set([]);
       this.loadLineage();
     }
-    if (changes['open']?.currentValue) {
-      setTimeout(() => this.observeDiagramSize(), 100);
-    }
     if (!changes['open']?.currentValue) {
-      this.resizeObserver?.disconnect();
       this.selectedDetailTitle.set('');
       this.selectedDetailRows.set([]);
     }
@@ -185,14 +99,15 @@ export class LineageModalComponent implements OnChanges, AfterViewInit, OnDestro
     this.error.set(null);
     this.nodeMap.clear();
     this.edgeMap.clear();
-    this.model().updateNodes([]);
-    this.model().updateEdges([]);
     this.api.getDataElementLineage(this.dataElement.id).subscribe({
       next: (res) => {
         this.buildModel(res);
         this.loading.set(false);
-        // Defer so the diagram is shown after the model update is committed and change detection has run
-        setTimeout(() => this.lineageLoaded.set(true), 0);
+        // Defer so overlay has layout and diagram host gets a container with size (fixes reopen)
+        setTimeout(() => {
+          this.lineageLoaded.set(true);
+          this.selectCenterNode(res);
+        }, 80);
       },
       error: (err) => {
         this.error.set(err?.message || 'Failed to load lineage');
@@ -201,14 +116,25 @@ export class LineageModalComponent implements OnChanges, AfterViewInit, OnDestro
     });
   }
 
+  /** Select the center (data element) node so details show by default */
+  private selectCenterNode(res: LineageResponse): void {
+    const center = res.nodes.find((n) => n.type === 'data_element');
+    if (center) {
+      this.selectedDetailTitle.set(center.label);
+      this.selectedDetailRows.set(this.nodeToRows(center));
+    }
+  }
+
   private buildModel(res: LineageResponse): void {
-    const NODE_WIDTH = 140;
-    const NODE_HEIGHT = 50;
-    const CENTER_X = 380;
-    const CENTER_Y = 220;
-    const LEFT_X = 120;
-    const RIGHT_X = 640;
-    const VERTICAL_STEP = 70;
+    const NODE_WIDTH = 160;
+    const NODE_HEIGHT = 44;
+    const CENTER_NODE_WIDTH = 180;
+    const CENTER_NODE_HEIGHT = 52;
+    const CENTER_X = 400;
+    const CENTER_Y = 240;
+    const LEFT_X = 100;
+    const RIGHT_X = 660;
+    const VERTICAL_STEP = 64;
 
     const upstream: LineageNode[] = res.nodes.filter((n) => n.type === 'domain');
     const center = res.nodes.find((n) => n.type === 'data_element');
@@ -216,7 +142,7 @@ export class LineageModalComponent implements OnChanges, AfterViewInit, OnDestro
       (n) => n.type !== 'domain' && n.type !== 'data_element'
     );
 
-    const nodes: { id: string; position: { x: number; y: number }; data: { label: string; [k: string]: unknown }; size?: { width: number; height: number } }[] = [];
+    const nodes: { id: string; type?: string; position: { x: number; y: number }; data: { label: string; [k: string]: unknown }; size?: { width: number; height: number } }[] = [];
     const edges: { id: string; source: string; target: string; sourcePort: string; targetPort: string; data: Record<string, unknown> }[] = [];
 
     res.nodes.forEach((n) => this.nodeMap.set(n.id, n));
@@ -225,15 +151,17 @@ export class LineageModalComponent implements OnChanges, AfterViewInit, OnDestro
     if (center) {
       nodes.push({
         id: center.id,
-        position: { x: CENTER_X - NODE_WIDTH / 2, y: CENTER_Y - NODE_HEIGHT / 2 },
+        type: 'data_element',
+        position: { x: CENTER_X - CENTER_NODE_WIDTH / 2, y: CENTER_Y - CENTER_NODE_HEIGHT / 2 },
         data: { label: center.label, ...center.data },
-        size: { width: NODE_WIDTH, height: NODE_HEIGHT },
+        size: { width: CENTER_NODE_WIDTH, height: CENTER_NODE_HEIGHT },
       });
     }
 
     upstream.forEach((n, i) => {
       nodes.push({
         id: n.id,
+        type: n.type,
         position: { x: LEFT_X - NODE_WIDTH / 2, y: CENTER_Y - NODE_HEIGHT / 2 + i * VERTICAL_STEP },
         data: { label: n.label, ...n.data },
         size: { width: NODE_WIDTH, height: NODE_HEIGHT },
@@ -245,9 +173,10 @@ export class LineageModalComponent implements OnChanges, AfterViewInit, OnDestro
       const col = i % 3;
       nodes.push({
         id: n.id,
+        type: n.type,
         position: {
-          x: RIGHT_X - NODE_WIDTH / 2 + col * (NODE_WIDTH + 20),
-          y: 80 + row * VERTICAL_STEP + (i % 3) * (VERTICAL_STEP / 2),
+          x: RIGHT_X - NODE_WIDTH / 2 + col * (NODE_WIDTH + 24),
+          y: 72 + row * VERTICAL_STEP + (col === 1 ? VERTICAL_STEP / 3 : 0),
         },
         data: { label: n.label, ...n.data },
         size: { width: NODE_WIDTH, height: NODE_HEIGHT },
@@ -267,15 +196,15 @@ export class LineageModalComponent implements OnChanges, AfterViewInit, OnDestro
 
     const nodePayload = nodes.map((n) => ({
       id: n.id,
+      type: n.type,
       position: n.position,
       data: n.data,
       size: n.size ?? { width: NODE_WIDTH, height: NODE_HEIGHT },
       draggable: false,
       resizable: false,
     }));
-    // Update existing model (no inject()); never call initializeModel from async code
-    this.model().updateNodes(nodePayload);
-    this.model().updateEdges(edges);
+    this.diagramNodes.set(nodePayload);
+    this.diagramEdges.set(edges);
   }
 
   onSelectionChanged(event: { selectedNodes?: { id: string }[]; selectedEdges?: { id: string; source: string; target: string }[] }): void {

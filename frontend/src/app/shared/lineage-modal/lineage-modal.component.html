@@ -2,32 +2,34 @@
   <div class="lineage-modal" (click)="$event.stopPropagation()">
     <div class="lineage-modal__header">
       <h3 class="lineage-modal__title">Lineage: {{ dataElement?.name ?? '—' }}</h3>
-      <button type="button" class="lineage-modal__close" (click)="close()">✕</button>
+      <div class="lineage-modal__header-actions">
+        <button type="button" class="lineage-modal__refresh" title="Refresh lineage" (click)="loadLineage()" aria-label="Refresh lineage" [disabled]="loading()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg>
+        </button>
+        <button type="button" class="lineage-modal__close" (click)="close()">✕</button>
+      </div>
     </div>
     <div class="lineage-modal__body">
       <!-- Top half: diagram -->
       <div #diagramWrap class="lineage-modal__diagram-wrap">
         <div *ngIf="loading()" class="lineage-modal__loading">Loading lineage…</div>
         <p *ngIf="error()" class="lineage-modal__error">{{ error() }}</p>
-        <div *ngIf="lineageLoaded() && !loading() && !error() && hasNodes()" class="lineage-modal__diagram">
-          <ng-diagram
-            [model]="model()"
-            [config]="diagramConfig"
-            (diagramInit)="onDiagramInit()"
-            (viewportChanged)="onViewportChanged($event)"
-            (selectionChanged)="onSelectionChanged($event)"
-          ></ng-diagram>
-          <button type="button" class="lineage-modal__recenter" title="Recenter diagram" (click)="recenter()" aria-label="Recenter diagram">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          </button>
-        </div>
+        <app-lineage-diagram-host
+          *ngIf="lineageLoaded() && !loading() && !error() && hasNodes()"
+          [nodes]="diagramNodes()"
+          [edges]="diagramEdges()"
+          [config]="diagramConfig"
+          [nodeTemplateMap]="nodeTemplateMap"
+          (selectionChanged)="onSelectionChanged($event)"
+        ></app-lineage-diagram-host>
         <p *ngIf="lineageLoaded() && !loading() && !error() && !hasNodes()" class="lineage-modal__empty">No lineage data for this element.</p>
       </div>
-      <!-- Bottom half: details when a node or edge is selected -->
+      <!-- Bottom ~40%: details when a node or edge is selected -->
       <div class="lineage-modal__details-wrap">
+        <p class="lineage-modal__flow-legend">Upstream ← • → Downstream</p>
         <div class="lineage-modal__details-inner">
           <p *ngIf="!hasSelection()" class="lineage-modal__details-placeholder">Click a node or edge to view details.</p>
-          <div *ngIf="hasSelection()">
+          <div *ngIf="hasSelection()" class="lineage-modal__details-card">
             <h4 class="lineage-modal__details-title">{{ selectedDetailTitle() }}</h4>
             <dl class="lineage-modal__details-list">
               <div *ngFor="let row of selectedDetailRows()" class="lineage-modal__details-row">

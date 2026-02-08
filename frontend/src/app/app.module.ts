@@ -39,8 +39,10 @@ import { ConceptMetricsComponent } from './shared/concept-metrics/concept-metric
 import { TimePeriodSwitchComponent } from './shared/time-period-switch/time-period-switch.component';
 import { TableSearchFilterComponent } from './shared/table-search-filter/table-search-filter.component';
 import { LineageModalComponent } from './shared/lineage-modal/lineage-modal.component';
+import { LineageNodeTemplateComponent } from './shared/lineage-modal/lineage-node-template.component';
+import { LineageDiagramHostComponent } from './shared/lineage-modal/lineage-diagram-host.component';
 import { DataConcernDetailModalComponent } from './shared/data-concern-detail-modal/data-concern-detail-modal.component';
-import { NgDiagramComponent } from 'ng-diagram';
+import { NgDiagramComponent, NgDiagramPortComponent } from 'ng-diagram';
 
 import { DataElementsPageComponent } from './pages/data-elements-page/data-elements-page.component';
 import { KebabActionsCellComponent } from './shared/kebab-actions-cell/kebab-actions-cell.component';
@@ -92,6 +94,8 @@ import { AuthInterceptor } from './core/auth-interceptor';
     TimePeriodSwitchComponent,
     TableSearchFilterComponent,
     LineageModalComponent,
+    LineageNodeTemplateComponent,
+    LineageDiagramHostComponent,
     DataConcernDetailModalComponent,
     KebabActionsCellComponent,
     LineageButtonCellComponent,
@@ -141,6 +145,7 @@ import { AuthInterceptor } from './core/auth-interceptor';
     AgGridModule,
     AgChartsModule,
     NgDiagramComponent,
+    NgDiagramPortComponent,
     AppRoutingModule,
     StoreModule.forRoot({ app: appReducer }),
     EffectsModule.forRoot([AppEffects]),
