@@ -33,12 +33,17 @@ _SessionLocal = None
 
 
 def get_engine_and_session():
-    """Lazy init of engine and SessionLocal so config is loaded first."""
+    """Lazy init of engine and SessionLocal so config is loaded first. On connection failure, leaves state unset so callers can retry."""
     global _engine, _SessionLocal
     if _engine is None:
-        _engine = get_engine()
-        Base.metadata.create_all(_engine)
-        _SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=_engine)
+        try:
+            _engine = get_engine()
+            Base.metadata.create_all(_engine)
+            _SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=_engine)
+        except Exception:
+            _engine = None
+            _SessionLocal = None
+            raise
     return _engine, _SessionLocal
 
 

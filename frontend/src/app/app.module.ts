@@ -51,6 +51,8 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { AdminDomainsPageComponent } from './pages/admin-domains-page/admin-domains-page.component';
 import { AdminUsersPageComponent } from './pages/admin-users-page/admin-users-page.component';
 import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-settings-page.component';
+import { ProcessModelsPageComponent } from './pages/process-models-page/process-models-page.component';
+import { DataFeedsPageComponent } from './pages/data-feeds-page/data-feeds-page.component';
 
 @NgModule({
   declarations: [
@@ -84,6 +86,8 @@ import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-se
     DqExceptionsPageComponent,
     DataConcernsPageComponent,
     MetricsPageComponent,
+    ProcessModelsPageComponent,
+    DataFeedsPageComponent,
     BulkPageComponent,
     HomePageComponent,
     AdminDomainsPageComponent,

@@ -2,16 +2,19 @@
 Data Manager Portal — FastAPI app entrypoint.
 Phase 2: config, DB, S3, routers, seed on startup, health/readiness.
 """
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.database import get_engine_and_session, get_db_dep
 from app.seed import run_seed
+from typing import Literal
 from app.api import domains, users, data_elements, applications, eucs, endpoints, data_quality, data_concerns, metrics, bulk
 from app.api.domains import get_domains_tree_list
+from app.api.data_elements import list_data_element_sor_by_domain
 from app.schemas.domain import DomainTreeOut
+from app.schemas.data_element_sor import DataElementSORSummaryOut
 
 app = FastAPI(
     title="Data Manager Portal API",
@@ -34,6 +37,18 @@ def api_domain_tree(db: Session = Depends(get_db_dep)):
     """Return domain hierarchy as a tree (L0→L1→L2→L3)."""
     return get_domains_tree_list(db)
 
+
+# Explicit route so GET /api/data-elements/sor is always available (avoids 404 when router path ordering varies)
+@app.get("/api/data-elements/sor", response_model=list[DataElementSORSummaryOut])
+def api_data_elements_sor(
+    domain_id: int = Query(..., description="Filter by domain"),
+    scope: Literal["owned", "upstream", "downstream"] = Query("owned", description="Scope for data elements"),
+    db: Session = Depends(get_db_dep),
+):
+    """List all SOR records for data elements in the given domain (and scope)."""
+    return list_data_element_sor_by_domain(domain_id=domain_id, scope=scope, db=db)
+
+
 # Include routers
 app.include_router(domains.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
@@ -49,9 +64,16 @@ app.include_router(bulk.router, prefix="/api")
 
 @app.on_event("startup")
 def startup():
-    """Create tables, run seed if needed."""
-    get_engine_and_session()  # create tables
-    run_seed()
+    """Create tables, run seed if needed. If DB is unavailable, log and continue so the server stays up."""
+    import logging
+    try:
+        get_engine_and_session()  # create tables
+        run_seed()
+    except Exception as e:
+        logging.getLogger("uvicorn.error").warning(
+            "Startup: DB unavailable (%s). Server will run; /ready will be 503 and API calls will fail until Postgres is up.",
+            e,
+        )
 
 
 @app.get("/health")

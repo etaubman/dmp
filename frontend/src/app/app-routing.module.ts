@@ -15,6 +15,8 @@ import { AdminDomainsPageComponent } from './pages/admin-domains-page/admin-doma
 import { AdminUsersPageComponent } from './pages/admin-users-page/admin-users-page.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-settings-page.component';
+import { ProcessModelsPageComponent } from './pages/process-models-page/process-models-page.component';
+import { DataFeedsPageComponent } from './pages/data-feeds-page/data-feeds-page.component';
 
 const routes: Routes = [
   {
@@ -30,7 +32,8 @@ const routes: Routes = [
       { path: 'data-quality-exceptions', component: DqExceptionsPageComponent },
       { path: 'data-concerns', component: DataConcernsPageComponent },
       { path: 'metrics', component: MetricsPageComponent },
-      { path: 'bulk', component: BulkPageComponent },
+      { path: 'process-models', component: ProcessModelsPageComponent },
+      { path: 'data-feeds', component: DataFeedsPageComponent },
       {
         path: 'admin',
         component: AdminLayoutComponent,
@@ -40,6 +43,7 @@ const routes: Routes = [
           { path: 'user-management', component: AdminUsersPageComponent },
           { path: 'users', redirectTo: 'user-management', pathMatch: 'full' },
           { path: 'settings', component: AdminSettingsPageComponent },
+          { path: 'bulk', component: BulkPageComponent },
         ],
       },
     ],
