@@ -9,7 +9,8 @@
   --bg-primary: #060809;
   --bg-card: #0A0C0E;
   --text-primary: #D8DCE2;
-  --text-muted: #6B7280;
+  --text-secondary: #B0B8C2;
+  --text-muted: #8B92A0;
   --border: rgba(255, 255, 255, 0.04);
   --accent: #5C6B7A;
   --accent-pop: #5B9CFE;
@@ -18,8 +19,21 @@
   --aurora-negative: #7A5A5A;
   --aurora-warning: #7A6B4A;
   --gutter: 24px;
+  --radius-card: 0.75rem;
+  --radius-input: 0.5rem;
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
 }
 .gap-gutter { gap: var(--gutter); }
+
+/* Page intro subtitle: brighter and slightly heavier for readability */
+.page-subtitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #B0B8C2);
+}
 
 /* Routed content fills height so table + panel stretch; content starts from top */
 .outlet-wrapper {
@@ -96,28 +110,36 @@ body {
 /* Card style: soft elevation, rounded, no strong borders */
 .card-aurora {
   background-color: var(--bg-card);
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+}
+.card-aurora:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
 /* Domain scope tabs above CDEs / Applications / EUCs / Endpoints tables */
 .domain-scope-tab {
   padding: 0.375rem 0.75rem;
   font-size: 0.875rem;
-  border-radius: 0.375rem;
-  background: rgba(255, 255, 255, 0.04);
-  color: #9CA3AF;
+  border-radius: var(--radius-input);
+  background: rgba(255, 255, 255, 0.06);
+  color: #C4C9D0;
   border: 1px solid transparent;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 .domain-scope-tab:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   color: #E5E7EB;
 }
+.domain-scope-tab:focus-visible {
+  outline: 2px solid var(--accent-pop);
+  outline-offset: 2px;
+}
 .domain-scope-tab--active {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(91, 156, 254, 0.12);
   color: var(--accent-pop);
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(91, 156, 254, 0.25);
 }
 
 /* Table inside card: clean lines, brighter text */
@@ -202,4 +224,52 @@ body {
 .scrollbar-aurora {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) rgba(0, 0, 0, 0.2);
+}
+
+/* Loading spinner: use class .loading-spinner on an element */
+.loading-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary, #9CA3AF);
+  font-size: 0.875rem;
+}
+.loading-spinner::before {
+  content: '';
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--accent-pop, #5B9CFE);
+  border-radius: 50%;
+  animation: loading-spin 0.7s linear infinite;
+}
+@keyframes loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty state: icon + message block */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  color: var(--text-muted, #6B7280);
+  font-size: 0.875rem;
+  text-align: center;
+}
+.empty-state__icon {
+  font-size: 2rem;
+  width: 1em;
+  height: 1em;
+  color: rgba(255, 255, 255, 0.2);
+}
+.empty-state__title {
+  font-weight: 500;
+  color: var(--text-secondary, #9CA3AF);
+}
+.empty-state__hint {
+  font-size: 0.8125rem;
+  max-width: 20rem;
 }

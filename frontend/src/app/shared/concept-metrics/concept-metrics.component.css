@@ -39,7 +39,7 @@
 .kpi-tile__label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-secondary, #B0B8C2);
   letter-spacing: 0.03em;
   text-transform: uppercase;
   margin: 0;

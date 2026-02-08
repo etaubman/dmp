@@ -1,7 +1,7 @@
 <div class="space-y-6">
   <h2 class="text-xl font-semibold text-gray-100">Metrics</h2>
-  <p class="text-gray-500 text-sm" *ngIf="domainId">Summary for selected domain.</p>
-  <p class="text-gray-500 text-sm" *ngIf="!domainId">Select a domain for domain-scoped metrics, or view global counts below.</p>
+  <p class="page-subtitle" *ngIf="domainId">Summary for selected domain.</p>
+  <p class="page-subtitle" *ngIf="!domainId">Select a domain for domain-scoped metrics, or view global counts below.</p>
   <div *ngIf="loading" class="text-accent">Loading…</div>
   <div *ngIf="!loading && metrics" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
     <div class="card-aurora p-5">

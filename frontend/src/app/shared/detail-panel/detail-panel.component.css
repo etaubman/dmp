@@ -49,6 +49,35 @@
   overflow: hidden;
 }
 
+/* Close button: icon-only, matches nav style */
+.detail-panel__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-input, 0.5rem);
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: color var(--transition-fast, 0.15s ease), background var(--transition-fast, 0.15s ease);
+}
+.detail-panel__close:hover {
+  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.06);
+}
+.detail-panel__close:focus-visible {
+  outline: 2px solid var(--accent-pop, #5B9CFE);
+  outline-offset: 2px;
+}
+.detail-panel__close-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
 /* Content scrolls vertically only; no horizontal scroll. */
 .detail-panel__content {
   overflow-x: hidden;

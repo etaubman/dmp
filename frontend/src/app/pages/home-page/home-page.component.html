@@ -1,10 +1,10 @@
 <div class="home-scroll flex flex-col space-y-8 pb-4">
   <header class="flex-shrink-0">
     <h1 class="text-2xl font-semibold text-gray-100">Home</h1>
-    <p class="text-gray-500 text-sm mt-1" *ngIf="domainName">
+    <p class="page-subtitle mt-1" *ngIf="domainName">
       Key metrics for <span class="text-accent font-medium">{{ domainName }}</span>
     </p>
-    <p class="text-gray-500 text-sm mt-1" *ngIf="!domainId && !loading">
+    <p class="page-subtitle mt-1" *ngIf="!domainId && !loading">
       Select a domain in the sidebar to see domain-specific metrics and attention items.
     </p>
   </header>

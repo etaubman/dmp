@@ -11,9 +11,9 @@ module.exports = {
           header: '#060809',
           card: '#0A0C0E',
           cardHover: '#0E1114',
-          muted: '#6B7280',
+          muted: '#8B92A0',
           border: 'rgba(255,255,255,0.04)',
-          navInactive: '#A8B0BB',
+          navInactive: '#B0B8C2',
           navActiveBg: '#12161A',
         },
         accent: {

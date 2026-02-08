@@ -1,3 +1,9 @@
+/* Sidebar: slightly darker than main area for separation */
+.layout-sidebar {
+  background-color: #050708;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 /* Side nav: Iconoir icons (iconoir.css uses 1em × 1em for ::before) */
 .nav-link-icon {
   font-size: 1.25rem;
@@ -35,6 +41,12 @@
 }
 .nav-link-active::before {
   opacity: 1;
+}
+
+.nav-link:focus-visible,
+.sidebar-footer-link:focus-visible {
+  outline: 2px solid var(--accent-pop, #5B9CFE);
+  outline-offset: 2px;
 }
 
 /* Sidebar top block (logo + domain selector) keeps fixed height */
@@ -213,6 +225,16 @@
   text-decoration: none;
 }
 .sidebar-footer-link:focus-visible {
-  outline: 2px solid var(--accent, #3b82f6);
+  outline: 2px solid var(--accent-pop, #5B9CFE);
+  outline-offset: 2px;
+}
+
+.header-dropdown-trigger:focus-visible {
+  outline: 2px solid var(--accent-pop, #5B9CFE);
+  outline-offset: 2px;
+}
+
+.header-user-trigger:focus-visible {
+  outline: 2px solid var(--accent-pop, #5B9CFE);
   outline-offset: 2px;
 }
