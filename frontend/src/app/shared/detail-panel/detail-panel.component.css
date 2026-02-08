@@ -31,9 +31,9 @@
 }
 
 .detail-panel--open {
-  width: 100%;
+  width: 95%;
   min-width: 0;
-  max-width: 100%;
+  max-width: 95%;
 }
 
 .detail-panel__inner {
