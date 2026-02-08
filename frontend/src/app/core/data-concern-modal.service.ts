@@ -1,3 +1,4 @@
+/** Shared state for the data concern detail modal: open/close and which concern is shown. */
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { DataConcern } from './api.service';

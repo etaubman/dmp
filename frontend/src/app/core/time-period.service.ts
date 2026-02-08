@@ -1,3 +1,4 @@
+/** Current time period for metrics/KPIs (YTD, MTD, etc.). Used by time-period switch and metrics views. */
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 

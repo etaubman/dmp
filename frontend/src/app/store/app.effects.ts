@@ -1,3 +1,9 @@
+/**
+ * NgRx effects: react to load/create/update/delete actions by calling ApiService,
+ * then dispatch set actions (or error actions) to update the store. Main flows:
+ * loadDomains on init; loadDataElements/Applications/Eucs/Endpoints/DQ/DataConcerns/Metrics
+ * when domain or params change; admin domain and user CRUD.
+ */
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';

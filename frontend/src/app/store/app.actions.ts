@@ -1,3 +1,7 @@
+/**
+ * NgRx actions: setters for state slices, and load/create/update/delete requests that effects handle.
+ * Load actions (e.g. loadDomains, loadDataElements) trigger API calls; set actions update the store.
+ */
 import { createAction, props } from '@ngrx/store';
 import { Domain, DomainTreeNode, DomainCreate, DomainUpdate, User, UserCreate, UserUpdate, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
 

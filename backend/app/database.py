@@ -1,6 +1,13 @@
 """
 Database session and engine for SQLAlchemy.
-Creates tables on first use; use get_db() in route dependencies.
+Creates tables on first use when get_engine_and_session() is called.
+
+Which function to use:
+- get_db_dep — Use in FastAPI routes: db: Session = Depends(get_db_dep). Injected session is
+  committed on success, rolled back on error, and always closed. Prefer this for all route handlers.
+- get_db — Context manager for non-FastAPI code: with get_db() as db: ... Same commit/rollback/close behavior.
+- get_db_session — Returns a raw session; caller must commit/rollback and close. Use only when
+  you need full control (e.g. long-lived or multi-step scripts); avoid in routes.
 """
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session

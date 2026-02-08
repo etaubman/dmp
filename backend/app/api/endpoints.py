@@ -10,6 +10,7 @@ router = APIRouter(prefix="/endpoints", tags=["endpoints"])
 
 
 def _domain_ids_for_scope(db: Session, domain_id: int, scope: str) -> list[int]:
+    """Resolve domain IDs to filter by: owned (this domain), upstream (parent), downstream (children)."""
     if scope == "owned":
         return [domain_id]
     domain = db.query(Domain).filter(Domain.id == domain_id).first()

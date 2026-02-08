@@ -1,3 +1,7 @@
+/**
+ * Central API client and DTOs for the Data Manager Portal backend.
+ * All HTTP calls and shared request/response types live here; components and effects use ApiService.
+ */
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -5,6 +9,7 @@ import { environment } from '../../environments/environment';
 
 const API = environment.apiUrl + '/api';
 
+// ——— Domain DTOs and API ———
 export interface Domain {
   id: number;
   name: string;
@@ -34,6 +39,7 @@ export interface DomainUpdate {
   parent_id?: number | null;
 }
 
+// ——— User DTOs and API ———
 export interface User {
   id: number;
   email: string;
@@ -55,6 +61,7 @@ export interface UserUpdate {
   role?: string;
 }
 
+// ——— Data Element DTOs and API ———
 export interface DataElement {
   id: number;
   domain_id: number;
@@ -63,6 +70,7 @@ export interface DataElement {
   element_type?: string;
 }
 
+// ——— Application DTOs and API ———
 export interface Application {
   id: number;
   domain_id: number;
@@ -70,6 +78,7 @@ export interface Application {
   description?: string;
 }
 
+// ——— EUC DTOs and API ———
 export interface EUC {
   id: number;
   domain_id: number;
@@ -78,6 +87,7 @@ export interface EUC {
   euc_type?: string;
 }
 
+// ——— Endpoint DTOs and API ———
 export interface Endpoint {
   id: number;
   domain_id?: number;
@@ -86,6 +96,7 @@ export interface Endpoint {
   description?: string;
 }
 
+// ——— Data Quality DTOs and API ———
 export interface DataQualityRule {
   id: number;
   domain_id?: number;
@@ -113,6 +124,7 @@ export interface DataQualityException {
   identified_at?: string;
 }
 
+// ——— Data Concern DTOs and API ———
 export interface DataConcern {
   id: number;
   domain_id: number;
@@ -127,6 +139,7 @@ export interface DataConcern {
   updated_at?: string;
 }
 
+// ——— Metrics and Lineage DTOs and API ———
 export interface Metrics {
   domain_id?: number;
   domains_count: number;
@@ -164,6 +177,7 @@ export interface LineageResponse {
 export class ApiService {
   constructor(private http: HttpClient) {}
 
+  // ——— Domains ———
   getDomains(): Observable<Domain[]> {
     return this.http.get<Domain[]>(`${API}/domains`);
   }
@@ -188,6 +202,7 @@ export class ApiService {
     return this.http.delete<void>(`${API}/domains/${id}`);
   }
 
+  // ——— Users ———
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${API}/users`);
   }
@@ -208,6 +223,7 @@ export class ApiService {
     return this.http.delete<void>(`${API}/users/${id}`);
   }
 
+  // ——— Data Elements ———
   getDataElements(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<DataElement[]> {
     let params = new HttpParams().set('domain_id', domainId);
     if (scope !== 'owned') params = params.set('scope', scope);
@@ -224,18 +240,21 @@ export class ApiService {
     return this.http.get<LineageResponse>(`${API}/data-elements/${dataElementId}/lineage`);
   }
 
+  // ——— Applications ———
   getApplications(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<Application[]> {
     let params = new HttpParams().set('domain_id', domainId);
     if (scope !== 'owned') params = params.set('scope', scope);
     return this.http.get<Application[]>(`${API}/applications`, { params });
   }
 
+  // ——— EUCs ———
   getEucs(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<EUC[]> {
     let params = new HttpParams().set('domain_id', domainId);
     if (scope !== 'owned') params = params.set('scope', scope);
     return this.http.get<EUC[]>(`${API}/eucs`, { params });
   }
 
+  // ——— Endpoints ———
   getEndpoints(domainId?: number, applicationId?: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<Endpoint[]> {
     let params = new HttpParams();
     if (domainId != null) {
@@ -246,6 +265,7 @@ export class ApiService {
     return this.http.get<Endpoint[]>(`${API}/endpoints`, { params });
   }
 
+  // ——— Data Quality ———
   getDataQualityRules(domainId?: number, dataElementId?: number): Observable<DataQualityRule[]> {
     let params = new HttpParams();
     if (domainId != null) params = params.set('domain_id', domainId);
@@ -260,6 +280,7 @@ export class ApiService {
     return this.http.get<DataQualityException[]>(`${API}/data-quality-exceptions`, { params });
   }
 
+  // ——— Data Concerns ———
   getDataConcerns(domainId: number, filters?: { application_id?: number; euc_id?: number; endpoint_id?: number; data_element_id?: number }): Observable<DataConcern[]> {
     let params = new HttpParams().set('domain_id', domainId);
     if (filters?.application_id != null) params = params.set('application_id', filters.application_id);
@@ -269,11 +290,13 @@ export class ApiService {
     return this.http.get<DataConcern[]>(`${API}/data-concerns`, { params });
   }
 
+  // ——— Metrics ———
   getMetrics(domainId?: number): Observable<Metrics> {
     const params = domainId != null ? new HttpParams().set('domain_id', domainId) : undefined;
     return this.http.get<Metrics>(`${API}/metrics`, { params });
   }
 
+  // ——— Bulk upload/download ———
   uploadBulk(entityType: string, file: File): Observable<{ created: number; updated: number; errors: { row: number; error: string }[] }> {
     const form = new FormData();
     form.append('entity_type', entityType);

@@ -3,6 +3,9 @@ Seed the database with sample data on first run.
 Checks SeedFlag table; if no row exists, creates L0/L1/L2 domain hierarchy and rich
 applications, data elements, EUCs, endpoints (including regulatory e.g. MIFID II, SNC, FR-Y-14),
 DQ rules, DQ exceptions, and data concerns.
+
+CLI: python -m app.seed (idempotent). python -m app.seed reset — wipes domain-related data
+and re-seeds with current DOMAIN_HIERARCHY (see reset_and_reseed()).
 """
 from app.database import get_engine_and_session
 from app.models import (

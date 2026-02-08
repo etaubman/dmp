@@ -1,3 +1,4 @@
+/** Main app shell: sidebar nav, header, domain selector, and router-outlet for main routes. */
 import { Component } from '@angular/core';
 import { DataConcernModalService } from '../core/data-concern-modal.service';
 

@@ -1,3 +1,7 @@
+/**
+ * App reducer: handles set and admin actions; updates state immutably.
+ * Load actions are handled in effects (which then dispatch set actions).
+ */
 import { createReducer, on } from '@ngrx/store';
 import { initialAppState } from 'app/store/app.state';
 import {

@@ -1,3 +1,4 @@
+/** Admin section shell: sidebar for Admin (domains, user management, settings) and router-outlet for admin child routes. */
 import { Component } from '@angular/core';
 
 @Component({

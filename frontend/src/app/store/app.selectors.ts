@@ -1,3 +1,7 @@
+/**
+ * Selectors for app state: domains, current domain, entity lists, loading flags, errors,
+ * and admin tree/users. Components and other code use these to read from the store.
+ */
 import { createSelector, createFeatureSelector } from '@ngrx/store';
 import { AppState } from './app.state';
 

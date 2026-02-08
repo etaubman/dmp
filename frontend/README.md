@@ -1,27 +1,52 @@
-# FrontendApp
+# Data Manager Portal — Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.0.
+Angular 18 app for the Data Manager Portal: data governance UI (Critical Data Elements, applications, EUCs, endpoints, DQ rules/exceptions, data concerns, metrics, bulk upload/download). Uses NgRx for state and Tailwind for styling.
 
-## Development server
+## Prerequisites
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- **Node.js** 18+ and **npm**
+- Angular CLI is optional (use `npx ng` or scripts below)
 
-## Code scaffolding
+## Setup and run
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+```powershell
+npm install
+npm run start
+```
+
+- App: http://localhost:4200  
+- The app talks to the API at the URL in `src/environments/environment.ts` (default `http://localhost:8000`). For production builds, use `environment.prod.ts`.
+
+## Project structure (`src/app/`)
+
+- **`core/`** — Shared services: `api.service.ts` (HTTP client and DTOs for all API calls), `data-concern-modal.service.ts`, `time-period.service.ts`
+- **`layout/`** — Main app shell: `LayoutComponent` (sidebar + header + router-outlet), `AdminLayoutComponent`, `DomainSelectorComponent`
+- **`pages/`** — Route targets: Home, Data Elements, Applications, EUCs, Endpoints, DQ Rules, DQ Exceptions, Data Concerns, Metrics, Bulk; Admin (Domains, User Management, Settings)
+- **`shared/`** — Reusable UI: detail modals, detail panel, concept metrics, time-period switch, lineage modal, AG Grid cell components (kebab actions, counts, etc.)
+- **`store/`** — NgRx: `app.state.ts`, `app.actions.ts`, `app.reducer.ts`, `app.effects.ts`, `app.selectors.ts` (global state: selected domain, domain list, loading, etc.)
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```powershell
+npm run build
+```
 
-## Running unit tests
+Artifacts go to `dist/`. For production, the build uses `environment.prod.ts` (set `apiUrl` there for your API host).
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Tests
 
-## Running end-to-end tests
+```powershell
+npm run test
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Runs unit tests with Karma/Jasmine. Add specs for new components and services as needed.
+
+## Conventions
+
+- **Angular modules:** This project uses NgModule-based components (no standalone components).
+- **Styling:** Tailwind CSS; component-specific styles in `.component.css` where needed.
+- **EditorConfig:** Repo root and frontend use `.editorconfig` (indent 2, single quotes for TS, etc.).
 
 ## Further help
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+For Angular CLI: `npx ng help` or [Angular CLI Overview](https://angular.dev/tools/cli).

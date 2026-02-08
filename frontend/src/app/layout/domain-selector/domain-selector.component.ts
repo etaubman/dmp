@@ -1,3 +1,4 @@
+/** Sidebar domain dropdown: loads domains, persists selected id, dispatches setCurrentDomainId for store. */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
