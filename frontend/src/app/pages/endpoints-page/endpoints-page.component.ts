@@ -69,6 +69,8 @@ export class EndpointsPageComponent implements OnInit, OnDestroy {
       width: 56,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellRenderer: KebabActionsCellComponent,
     },
     { field: 'name', headerName: 'Name', flex: 1 },
@@ -78,6 +80,8 @@ export class EndpointsPageComponent implements OnInit, OnDestroy {
       width: 100,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellStyle: { textAlign: 'center' },
       cellRenderer: CdeCountCellComponent,
       cellRendererParams: {
@@ -89,6 +93,8 @@ export class EndpointsPageComponent implements OnInit, OnDestroy {
       width: 100,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellStyle: { textAlign: 'center' },
       cellRenderer: EndpointConcernsCountCellComponent,
       cellRendererParams: {
@@ -100,6 +106,8 @@ export class EndpointsPageComponent implements OnInit, OnDestroy {
       width: 100,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellStyle: { textAlign: 'center' },
       cellRenderer: EndpointDqRulesCountCellComponent,
       cellRendererParams: {

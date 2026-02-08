@@ -30,6 +30,8 @@ export class DqExceptionsPageComponent implements OnInit, OnDestroy {
       width: 56,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellRenderer: KebabActionsCellComponent,
     },
     { field: 'rule_id', headerName: 'Rule ID', width: 100 },

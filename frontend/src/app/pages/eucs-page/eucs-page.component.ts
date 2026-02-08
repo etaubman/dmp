@@ -33,6 +33,8 @@ export class EucsPageComponent implements OnInit, OnDestroy {
       width: 56,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellRenderer: KebabActionsCellComponent,
     },
     { field: 'name', headerName: 'Name', flex: 1 },

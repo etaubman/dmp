@@ -62,6 +62,8 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
       width: 56,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellRenderer: KebabActionsCellComponent,
     },
     { field: 'name', headerName: 'Name', flex: 1 },
@@ -72,6 +74,8 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
       width: 120,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellStyle: { textAlign: 'center' },
       cellRenderer: SorCountCellComponent,
       cellRendererParams: {
@@ -83,6 +87,8 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
       width: 120,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellStyle: { textAlign: 'center' },
       cellRenderer: DataConcernsCountCellComponent,
       cellRendererParams: {
@@ -94,6 +100,8 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
       width: 120,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellStyle: { textAlign: 'center' },
       cellRenderer: EndpointsCountCellComponent,
       cellRendererParams: {
@@ -105,6 +113,8 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
       width: 120,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellStyle: { textAlign: 'center' },
       cellRenderer: DqRulesCountCellComponent,
       cellRendererParams: {
@@ -116,6 +126,8 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
       width: 100,
       sortable: false,
       filter: false,
+      headerClass: 'ag-header-cell-centered',
+      cellClass: 'ag-cell-centered',
       cellRenderer: LineageButtonCellComponent,
       cellRendererParams: {
         onOpenLineage: (data: DataElement) => this.openLineage(data),

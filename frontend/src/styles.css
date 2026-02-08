@@ -113,6 +113,23 @@ body {
   --ag-font-family: 'Inter', system-ui, sans-serif;
 }
 
+/* Centered columns: badges and action icons */
+.ag-theme-quartz .ag-header-cell.ag-header-cell-centered {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ag-theme-quartz .ag-header-cell.ag-header-cell-centered .ag-header-cell-label {
+  justify-content: center;
+  flex: 1;
+}
+.ag-theme-quartz .ag-cell.ag-cell-centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* Themed scrollbar (Aurora dark): add class scrollbar-aurora to any overflow-auto element */
 .scrollbar-aurora::-webkit-scrollbar {
   width: 10px;
