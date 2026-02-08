@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db_dep
+from app.api.helpers import get_or_404
 from app.models import Domain
 from app.schemas.domain import DomainOut, DomainTreeOut, DomainCreate, DomainUpdate
 
@@ -60,10 +61,7 @@ def list_domains(db: Session = Depends(get_db_dep)):
 @router.get("/{domain_id}", response_model=DomainOut)
 def get_domain(domain_id: int, db: Session = Depends(get_db_dep)):
     """Get a single domain by id (current domain)."""
-    domain = db.query(Domain).filter(Domain.id == domain_id).first()
-    if not domain:
-        raise HTTPException(status_code=404, detail="Domain not found")
-    return domain
+    return get_or_404(db, Domain, domain_id, "Domain not found")
 
 
 @router.post("", response_model=DomainOut, status_code=201)
@@ -93,9 +91,7 @@ def create_domain(body: DomainCreate, db: Session = Depends(get_db_dep)):
 @router.patch("/{domain_id}", response_model=DomainOut)
 def update_domain(domain_id: int, body: DomainUpdate, db: Session = Depends(get_db_dep)):
     """Update a domain. Validates no circular parent and max depth L0–L3."""
-    domain = db.query(Domain).filter(Domain.id == domain_id).first()
-    if not domain:
-        raise HTTPException(status_code=404, detail="Domain not found")
+    domain = get_or_404(db, Domain, domain_id, "Domain not found")
 
     updates = body.model_dump(exclude_unset=True)
     if "name" in updates:
@@ -139,9 +135,7 @@ def update_domain(domain_id: int, body: DomainUpdate, db: Session = Depends(get_
 @router.delete("/{domain_id}", status_code=204)
 def delete_domain(domain_id: int, db: Session = Depends(get_db_dep)):
     """Delete a domain only if it has no children and no related data. Otherwise 409."""
-    domain = db.query(Domain).filter(Domain.id == domain_id).first()
-    if not domain:
-        raise HTTPException(status_code=404, detail="Domain not found")
+    domain = get_or_404(db, Domain, domain_id, "Domain not found")
 
     if domain.children:
         raise HTTPException(

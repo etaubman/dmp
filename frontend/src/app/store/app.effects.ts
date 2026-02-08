@@ -1,8 +1,6 @@
 /**
  * NgRx effects: react to load/create/update/delete actions by calling ApiService,
- * then dispatch set actions (or error actions) to update the store. Main flows:
- * loadDomains on init; loadDataElements/Applications/Eucs/Endpoints/DQ/DataConcerns/Metrics
- * when domain or params change; admin domain and user CRUD.
+ * then dispatch set actions (or error actions) to update the store. List loads use effect-helpers.
  */
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
@@ -11,6 +9,8 @@ import { catchError, map, mergeMap } from 'rxjs/operators';
 import { ApiService } from '../core/api.service';
 import * as AppActions from './app.actions';
 import { Store } from '@ngrx/store';
+import { createLoadListEffect } from './effect-helpers';
+import type { Domain, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern } from '../core/models';
 
 @Injectable()
 export class AppEffects {
@@ -19,156 +19,118 @@ export class AppEffects {
   private store = inject(Store);
 
   loadDomains$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadDomains),
-      mergeMap(() => {
-        this.store.dispatch(AppActions.setLoading({ key: 'domains', loading: true }));
-        return this.api.getDomains().pipe(
-          map((domains) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'domains', loading: false }));
-            return AppActions.setDomains({ domains });
-          }),
-          catchError((err) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'domains', loading: false }));
-            this.store.dispatch(AppActions.setError({ error: err?.message || 'Failed to load domains' }));
-            return of(AppActions.setDomains({ domains: [] }));
-          }),
-        );
-      }),
-    ),
+    createLoadListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadDomains,
+      loadingKey: 'domains',
+      stateKey: 'domains',
+      setAction: AppActions.setDomains as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setDomains>,
+      emptyValue: [] as Domain[],
+      apiCall: () => this.api.getDomains(),
+      onError: (err) =>
+        this.store.dispatch(AppActions.setError({ error: (err as { message?: string })?.message || 'Failed to load domains' })),
+    })
   );
 
   loadDataElements$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadDataElements),
-      mergeMap(({ domainId, scope }) => {
-        this.store.dispatch(AppActions.setLoading({ key: 'dataElements', loading: true }));
-        return this.api.getDataElements(domainId, scope ?? 'owned').pipe(
-          map((dataElements) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'dataElements', loading: false }));
-            return AppActions.setDataElements({ dataElements });
-          }),
-          catchError((err) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'dataElements', loading: false }));
-            return of(AppActions.setDataElements({ dataElements: [] }));
-          }),
-        );
-      }),
-    ),
+    createLoadListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadDataElements,
+      loadingKey: 'dataElements',
+      stateKey: 'dataElements',
+      setAction: AppActions.setDataElements as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setDataElements>,
+      emptyValue: [] as DataElement[],
+      apiCall: (action: unknown) => {
+        const { domainId, scope } = action as { domainId: number; scope?: 'owned' | 'upstream' | 'downstream' };
+        return this.api.getDataElements(domainId, scope ?? 'owned');
+      },
+    })
   );
 
   loadApplications$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadApplications),
-      mergeMap(({ domainId, scope }) => {
-        this.store.dispatch(AppActions.setLoading({ key: 'applications', loading: true }));
-        return this.api.getApplications(domainId, scope ?? 'owned').pipe(
-          map((applications) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'applications', loading: false }));
-            return AppActions.setApplications({ applications });
-          }),
-          catchError(() => {
-            this.store.dispatch(AppActions.setLoading({ key: 'applications', loading: false }));
-            return of(AppActions.setApplications({ applications: [] }));
-          }),
-        );
-      }),
-    ),
+    createLoadListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadApplications,
+      loadingKey: 'applications',
+      stateKey: 'applications',
+      setAction: AppActions.setApplications as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setApplications>,
+      emptyValue: [] as Application[],
+      apiCall: (action: unknown) => {
+        const { domainId, scope } = action as { domainId: number; scope?: 'owned' | 'upstream' | 'downstream' };
+        return this.api.getApplications(domainId, scope ?? 'owned');
+      },
+    })
   );
 
   loadEucs$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadEucs),
-      mergeMap(({ domainId, scope }) => {
-        this.store.dispatch(AppActions.setLoading({ key: 'eucs', loading: true }));
-        return this.api.getEucs(domainId, scope ?? 'owned').pipe(
-          map((eucs) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'eucs', loading: false }));
-            return AppActions.setEucs({ eucs });
-          }),
-          catchError(() => {
-            this.store.dispatch(AppActions.setLoading({ key: 'eucs', loading: false }));
-            return of(AppActions.setEucs({ eucs: [] }));
-          }),
-        );
-      }),
-    ),
+    createLoadListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadEucs,
+      loadingKey: 'eucs',
+      stateKey: 'eucs',
+      setAction: AppActions.setEucs as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setEucs>,
+      emptyValue: [] as EUC[],
+      apiCall: (action: unknown) => {
+        const { domainId, scope } = action as { domainId: number; scope?: 'owned' | 'upstream' | 'downstream' };
+        return this.api.getEucs(domainId, scope ?? 'owned');
+      },
+    })
   );
 
   loadEndpoints$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadEndpoints),
-      mergeMap(({ domainId, applicationId, scope }) => {
-        this.store.dispatch(AppActions.setLoading({ key: 'endpoints', loading: true }));
-        return this.api.getEndpoints(domainId ?? undefined, applicationId ?? undefined, scope ?? 'owned').pipe(
-          map((endpoints) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'endpoints', loading: false }));
-            return AppActions.setEndpoints({ endpoints });
-          }),
-          catchError(() => {
-            this.store.dispatch(AppActions.setLoading({ key: 'endpoints', loading: false }));
-            return of(AppActions.setEndpoints({ endpoints: [] }));
-          }),
-        );
-      }),
-    ),
+    createLoadListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadEndpoints,
+      loadingKey: 'endpoints',
+      stateKey: 'endpoints',
+      setAction: AppActions.setEndpoints as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setEndpoints>,
+      emptyValue: [] as Endpoint[],
+      apiCall: (action: unknown) => {
+        const { domainId, applicationId, scope } = action as {
+          domainId?: number;
+          applicationId?: number;
+          scope?: 'owned' | 'upstream' | 'downstream';
+        };
+        return this.api.getEndpoints(domainId ?? undefined, applicationId ?? undefined, scope ?? 'owned');
+      },
+    })
   );
 
   loadDataQualityRules$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadDataQualityRules),
-      mergeMap(({ domainId, dataElementId }) => {
-        this.store.dispatch(AppActions.setLoading({ key: 'dataQualityRules', loading: true }));
-        return this.api.getDataQualityRules(domainId ?? undefined, dataElementId ?? undefined).pipe(
-          map((dataQualityRules) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'dataQualityRules', loading: false }));
-            return AppActions.setDataQualityRules({ dataQualityRules });
-          }),
-          catchError(() => {
-            this.store.dispatch(AppActions.setLoading({ key: 'dataQualityRules', loading: false }));
-            return of(AppActions.setDataQualityRules({ dataQualityRules: [] }));
-          }),
-        );
-      }),
-    ),
+    createLoadListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadDataQualityRules,
+      loadingKey: 'dataQualityRules',
+      stateKey: 'dataQualityRules',
+      setAction: AppActions.setDataQualityRules as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setDataQualityRules>,
+      emptyValue: [] as DataQualityRule[],
+      apiCall: (action: unknown) => {
+        const { domainId, dataElementId } = action as { domainId?: number; dataElementId?: number };
+        return this.api.getDataQualityRules(domainId ?? undefined, dataElementId ?? undefined);
+      },
+    })
   );
 
   loadDataQualityExceptions$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadDataQualityExceptions),
-      mergeMap(({ domainId, dataElementId }) => {
-        this.store.dispatch(AppActions.setLoading({ key: 'dataQualityExceptions', loading: true }));
-        return this.api.getDataQualityExceptions(domainId ?? undefined, dataElementId ?? undefined).pipe(
-          map((dataQualityExceptions) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'dataQualityExceptions', loading: false }));
-            return AppActions.setDataQualityExceptions({ dataQualityExceptions });
-          }),
-          catchError(() => {
-            this.store.dispatch(AppActions.setLoading({ key: 'dataQualityExceptions', loading: false }));
-            return of(AppActions.setDataQualityExceptions({ dataQualityExceptions: [] }));
-          }),
-        );
-      }),
-    ),
+    createLoadListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadDataQualityExceptions,
+      loadingKey: 'dataQualityExceptions',
+      stateKey: 'dataQualityExceptions',
+      setAction: AppActions.setDataQualityExceptions as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setDataQualityExceptions>,
+      emptyValue: [] as DataQualityException[],
+      apiCall: (action: unknown) => {
+        const { domainId, dataElementId } = action as { domainId?: number; dataElementId?: number };
+        return this.api.getDataQualityExceptions(domainId ?? undefined, dataElementId ?? undefined);
+      },
+    })
   );
 
   loadDataConcerns$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadDataConcerns),
-      mergeMap(({ domainId }) => {
-        this.store.dispatch(AppActions.setLoading({ key: 'dataConcerns', loading: true }));
-        return this.api.getDataConcerns(domainId).pipe(
-          map((dataConcerns) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'dataConcerns', loading: false }));
-            return AppActions.setDataConcerns({ dataConcerns });
-          }),
-          catchError(() => {
-            this.store.dispatch(AppActions.setLoading({ key: 'dataConcerns', loading: false }));
-            return of(AppActions.setDataConcerns({ dataConcerns: [] }));
-          }),
-        );
-      }),
-    ),
+    createLoadListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadDataConcerns,
+      loadingKey: 'dataConcerns',
+      stateKey: 'dataConcerns',
+      setAction: AppActions.setDataConcerns as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setDataConcerns>,
+      emptyValue: [] as DataConcern[],
+      apiCall: (action: unknown) => {
+        const { domainId } = action as { domainId: number };
+        return this.api.getDataConcerns(domainId);
+      },
+    })
   );
 
   loadMetrics$ = createEffect(() =>

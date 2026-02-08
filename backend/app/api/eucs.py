@@ -3,24 +3,11 @@ from typing import Literal
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.database import get_db_dep
-from app.models import EUC, Domain
+from app.api.domain_scope import domain_ids_for_scope
+from app.models import EUC
 from app.schemas.euc import EUCOut
 
 router = APIRouter(prefix="/eucs", tags=["eucs"])
-
-
-def _domain_ids_for_scope(db: Session, domain_id: int, scope: str) -> list[int]:
-    """Resolve domain IDs to filter by: owned (this domain), upstream (parent), downstream (children)."""
-    if scope == "owned":
-        return [domain_id]
-    domain = db.query(Domain).filter(Domain.id == domain_id).first()
-    if not domain:
-        return []
-    if scope == "upstream":
-        return [domain.parent_id] if domain.parent_id else []
-    if scope == "downstream":
-        return [row[0] for row in db.query(Domain.id).filter(Domain.parent_id == domain_id).all()]
-    return [domain_id]
 
 
 @router.get("", response_model=list[EUCOut])
@@ -30,7 +17,7 @@ def list_eucs(
     db: Session = Depends(get_db_dep),
 ):
     """List EUCs: owned by domain, or in upstream/downstream domains."""
-    domain_ids = _domain_ids_for_scope(db, domain_id, scope)
+    domain_ids = domain_ids_for_scope(db, domain_id, scope)
     if not domain_ids:
         return []
     return (

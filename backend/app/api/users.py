@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db_dep
+from app.api.helpers import get_or_404
 from app.models import User
 from app.schemas.user import UserOut, UserCreate, UserUpdate
 
@@ -18,10 +19,7 @@ def list_users(db: Session = Depends(get_db_dep)):
 @router.get("/{user_id}", response_model=UserOut)
 def get_user(user_id: int, db: Session = Depends(get_db_dep)):
     """Get a single user by id."""
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return get_or_404(db, User, user_id, "User not found")
 
 
 @router.post("", response_model=UserOut, status_code=201)
@@ -47,9 +45,7 @@ def create_user(body: UserCreate, db: Session = Depends(get_db_dep)):
 @router.patch("/{user_id}", response_model=UserOut)
 def update_user(user_id: int, body: UserUpdate, db: Session = Depends(get_db_dep)):
     """Update a user."""
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    user = get_or_404(db, User, user_id, "User not found")
 
     updates = body.model_dump(exclude_unset=True)
     if "email" in updates and updates["email"] is not None:
@@ -73,9 +69,7 @@ def update_user(user_id: int, body: UserUpdate, db: Session = Depends(get_db_dep
 @router.delete("/{user_id}", status_code=204)
 def delete_user(user_id: int, db: Session = Depends(get_db_dep)):
     """Delete a user."""
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    user = get_or_404(db, User, user_id, "User not found")
     db.delete(user)
     db.commit()
     return None

@@ -1,28 +1,16 @@
 """Critical Data Elements API: list by domain, lineage for an element, SOR."""
 from typing import Literal
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.database import get_db_dep
+from app.api.domain_scope import domain_ids_for_scope
+from app.api.helpers import get_or_404
 from app.models import DataElement, Domain, DataQualityRule, DataConcern, Endpoint, DataElementSOR, Application
 from app.schemas.data_element import DataElementOut
 from app.schemas.data_element_sor import DataElementSOROut, DataElementSORSummaryOut
 from app.schemas.lineage import LineageResponse, LineageNode, LineageEdge
 
 router = APIRouter(prefix="/data-elements", tags=["data-elements"])
-
-
-def _domain_ids_for_scope(db: Session, domain_id: int, scope: str) -> list[int]:
-    """Resolve domain IDs to filter by: owned (this domain), upstream (parent), downstream (children)."""
-    if scope == "owned":
-        return [domain_id]
-    domain = db.query(Domain).filter(Domain.id == domain_id).first()
-    if not domain:
-        return []
-    if scope == "upstream":
-        return [domain.parent_id] if domain.parent_id else []
-    if scope == "downstream":
-        return [row[0] for row in db.query(Domain.id).filter(Domain.parent_id == domain_id).all()]
-    return [domain_id]
 
 
 def _node_id(prefix: str, pk: int) -> str:
@@ -36,7 +24,7 @@ def list_data_element_sor_by_domain(
     db: Session = Depends(get_db_dep),
 ):
     """List all SOR records for data elements in the given domain (and scope). Used for grid counts and panel."""
-    domain_ids = _domain_ids_for_scope(db, domain_id, scope)
+    domain_ids = domain_ids_for_scope(db, domain_id, scope)
     if not domain_ids:
         return []
     rows = (
@@ -65,9 +53,7 @@ def get_data_element_lineage(
     db: Session = Depends(get_db_dep),
 ):
     """Return 1-hop upstream and downstream lineage for a data element."""
-    de = db.query(DataElement).filter(DataElement.id == data_element_id).first()
-    if not de:
-        raise HTTPException(status_code=404, detail="Data element not found")
+    de = get_or_404(db, DataElement, data_element_id, "Data element not found")
 
     nodes: list[LineageNode] = []
     edges: list[LineageEdge] = []
@@ -201,9 +187,7 @@ def get_data_element_sor(
     db: Session = Depends(get_db_dep),
 ):
     """Return systems of record for a data element: applications and physical data attribute names."""
-    de = db.query(DataElement).filter(DataElement.id == data_element_id).first()
-    if not de:
-        raise HTTPException(status_code=404, detail="Data element not found")
+    get_or_404(db, DataElement, data_element_id, "Data element not found")
     rows = (
         db.query(DataElementSOR, Application.name.label("application_name"))
         .join(Application, DataElementSOR.application_id == Application.id)
@@ -228,7 +212,7 @@ def list_data_elements(
     db: Session = Depends(get_db_dep),
 ):
     """List Critical Data Elements: owned by domain, or in upstream/downstream domains."""
-    domain_ids = _domain_ids_for_scope(db, domain_id, scope)
+    domain_ids = domain_ids_for_scope(db, domain_id, scope)
     if not domain_ids:
         return []
     return (
