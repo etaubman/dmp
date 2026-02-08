@@ -1,34 +1,106 @@
 # Contributing to Data Manager Portal
 
-Thanks for contributing. This document covers how to get set up, run the app and tests, and follow project conventions.
+Thank you for contributing. This document helps **new team members** get set up, run the app and tests, follow project conventions, and submit changes.
 
-## Getting started
+---
 
-1. Clone the repo and read the root [README.md](README.md) for prerequisites and quick start.
-2. Copy `.env.example` to `.env` and start services (Docker and/or local backend + frontend) as described there.
-3. Backend details: [backend/README.md](backend/README.md). Frontend details: [frontend/README.md](frontend/README.md).
+## Before you start
+
+1. **Clone the repo** and read the root [README.md](README.md) for prerequisites and quick start.
+2. **Copy `.env.example` to `.env`** and start services (Docker and/or local backend + frontend) as described in the root README.
+3. **Skim the sub-project READMEs:**
+   - [backend/README.md](backend/README.md) — API structure, env vars, seeding, tests
+   - [frontend/README.md](frontend/README.md) — app structure, NgRx, conventions
+
+Optional: read [docs/architecture.md](docs/architecture.md) for the high-level design.
+
+---
 
 ## Running the app
 
-- **Backend:** From `backend/` with venv activated: `uvicorn app.main:app --reload --host 0.0.0.0`. Use `.\start-postgres-only.ps1` from repo root if you run Postgres in Docker only.
-- **Frontend:** From `frontend/`: `npm install` then `npm run start`. App at http://localhost:4200; API at URL in `frontend/src/environments/environment.ts`.
+- **Backend:** From `backend/` with venv activated:  
+  `uvicorn app.main:app --reload --host 0.0.0.0`  
+  Use `.\start-postgres-only.ps1` from repo root if you run Postgres in Docker only.
+- **Frontend:** From `frontend/`: `npm install` then `npm run start`.  
+  App at http://localhost:4200; API URL is in `frontend/src/environments/environment.ts`.
+
+---
 
 ## Running tests
 
-- **Backend:** From `backend/` with venv activated: `pytest` (when tests are added).
-- **Frontend:** From `frontend/`: `npm run test` (Karma/Jasmine). Add specs for new components and services as you go.
+- **Backend:** From `backend/` with venv activated:
+  ```powershell
+  pytest tests/ -v
+  ```
+  Tests use in-memory SQLite and fixtures (see `backend/README.md`). Add tests for new API routes and auth behavior.
+- **Frontend:** From `frontend/`:
+  ```powershell
+  npm run test
+  ```
+  Uses Karma/Jasmine. Add specs for new components and services as you go.
+
+**Before submitting a PR:** Run both backend and frontend tests and fix any failures. Manually run the app to confirm nothing is broken.
+
+---
 
 ## Code style
 
-- **Backend (Python):** Use the existing style: docstrings on modules and public routes, type hints where they help. Follow the patterns in `app/api/` and `app/database.py` for session handling (use `Depends(get_db_dep)` in routes).
-- **Frontend (Angular):** Use NgModule-based components (no standalone components). Follow the existing structure: `core/` for services, `layout/`, `pages/`, `shared/`, `store/`. Respect `.editorconfig` (indent 2, single quotes for TS).
-- **Naming:** Prefer consistent names across API and frontend (e.g. "DQ" in code vs "Data Quality" in UI is fine; document in a comment if it’s non-obvious).
+### Backend (Python)
+
+- Use the existing style: docstrings on modules and public routes, type hints where they help.
+- Follow patterns in `app/api/` and `app/database.py`: use `Depends(get_db_dep)` in routes for DB access; use Pydantic schemas for request/response.
+- Keep routers thin; put business logic in helpers or services as needed.
+
+### Frontend (Angular)
+
+- **Use NgModule-based components** — no standalone components.
+- Follow the existing structure:
+  - **`core/`** — shared services (API, auth, modals, time period)
+  - **`layout/`** — app shell, domain selector
+  - **`pages/`** — route targets (one module per page/feature)
+  - **`shared/`** — reusable UI (modals, panels, grid cells)
+  - **`store/`** — NgRx state, actions, effects, selectors
+- Respect `.editorconfig` (indent 2, single quotes for TS).
+
+### Naming and consistency
+
+- Prefer consistent names across API and frontend (e.g. "DQ" in code vs "Data Quality" in UI is fine; add a short comment if it’s non-obvious).
+- New API endpoints should have corresponding frontend methods in `core/api.service.ts` and, if needed, NgRx actions/effects.
+
+---
+
+## Where to put new code
+
+| Type of change | Where it goes |
+|----------------|---------------|
+| New REST endpoint | `backend/app/api/<domain>.py` (or new file in `api/`), then register in `app/main.py`. Add Pydantic schema in `app/schemas/`. |
+| New Angular page/feature | `frontend/src/app/pages/<feature>-page/`, register route in `app-routing.module.ts`, add to layout/nav as needed. |
+| New shared UI component | `frontend/src/app/shared/<component-name>/`. |
+| New NgRx state/actions | `frontend/src/app/store/` (extend `app.state.ts`, `app.actions.ts`, etc.). |
+| New API client method | `frontend/src/app/core/api.service.ts`. |
+| DB model change | `backend/app/models/`, then consider migration or seed updates. |
+
+---
 
 ## Branches and pull requests
 
-- Use feature branches for larger changes; keep `main` (or your default branch) in a runnable state.
-- Before submitting a PR, run the backend and frontend tests and fix any failures. Run the app locally to confirm nothing is broken.
+- Use **feature branches** for larger changes; keep `main` (or your default branch) in a runnable state.
+- Before submitting a PR:
+  1. Run backend tests: `cd backend && pytest tests/ -v`
+  2. Run frontend tests: `cd frontend && npm run test`
+  3. Run the app locally and smoke-test your changes
+
+---
+
+## Debugging tips
+
+- **Backend:** Run with `uvicorn app.main:app --reload --host 0.0.0.0` and set breakpoints in your IDE; use "local backend" mode (Postgres only in Docker) so the API process is on your machine.
+- **Frontend:** Use browser DevTools; NgRx DevTools extension helps inspect store and actions. Check `environment.ts` for `apiUrl` and `devAlwaysLoggedIn`.
+- **API not reachable:** Verify CORS in `backend/app/main.py` includes your frontend origin; check `apiUrl` in `frontend/src/environments/environment.ts`.
+
+---
 
 ## Questions
 
-- Open an issue for bugs or feature ideas, or ask in your team channel if you have one.
+- **Bugs or feature ideas:** Open an issue in the repo.
+- **Team channel:** If your team has a Slack/Teams channel for this project, ask there for quick questions or pairing.
