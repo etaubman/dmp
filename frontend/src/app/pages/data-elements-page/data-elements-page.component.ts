@@ -23,7 +23,7 @@ import { DataElement, DataConcern, Endpoint, DataQualityRule } from '../../core/
 import { DataConcernModalService } from '../../core/data-concern-modal.service';
 import { DetailRow } from '../../shared/detail-modal/detail-modal.component';
 import { MetricItem } from '../../shared/concept-metrics/concept-metrics.component';
-import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concept-metrics/mock-kpi';
+import { mockSparklineFromValue, mockChangeFromValue, mockSparklineLabels } from '../../shared/concept-metrics/mock-kpi';
 
 @Component({
   selector: 'app-data-elements-page',
@@ -252,10 +252,13 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
     const tCh = mockChangeFromValue(total, 0);
     const wCh = mockChangeFromValue(withDesc, 1);
     const lCh = mockChangeFromValue(logical, 2);
+    const totalSpark = mockSparklineFromValue(total, 0);
+    const withDescSpark = mockSparklineFromValue(withDesc, 1);
+    const logicalSpark = mockSparklineFromValue(logical, 2);
     this.metrics = [
-      { label: 'Total', value: total, sparklineData: mockSparklineFromValue(total, 0), change: tCh.change, changePercent: tCh.changePercent },
-      { label: 'With description', value: withDesc, sparklineData: mockSparklineFromValue(withDesc, 1), change: wCh.change, changePercent: wCh.changePercent },
-      { label: 'Logical', value: logical, sparklineData: mockSparklineFromValue(logical, 2), change: lCh.change, changePercent: lCh.changePercent },
+      { label: 'Total', value: total, tooltip: 'Total number of data elements in the current domain scope.', sparklineData: totalSpark, sparklineLabels: mockSparklineLabels(totalSpark.length), change: tCh.change, changePercent: tCh.changePercent },
+      { label: 'With description', value: withDesc, tooltip: 'Data elements that have a non-empty description.', sparklineData: withDescSpark, sparklineLabels: mockSparklineLabels(withDescSpark.length), change: wCh.change, changePercent: wCh.changePercent },
+      { label: 'Logical', value: logical, tooltip: 'Data elements with element type set to logical.', sparklineData: logicalSpark, sparklineLabels: mockSparklineLabels(logicalSpark.length), change: lCh.change, changePercent: lCh.changePercent },
     ];
   }
 

@@ -1,0 +1,140 @@
+{
+  "domain_name": "L1 Equities",
+  "applications": [
+    { "name": "Equity Order Management System (OMS)", "description": "Order management, routing, and execution for cash and listed derivatives" },
+    { "name": "Equity Position Ledger", "description": "Positions, corporate actions, and settlement (T+1/T+2)" },
+    { "name": "Prime Brokerage Platform", "description": "Prime brokerage, stock loan, margin, and financing" },
+    { "name": "Execution Venue Gateway", "description": "Connectivity to exchanges and MTFs for best execution" },
+    { "name": "Equity Reference Data Service", "description": "ISIN, SEDOL, instrument master, and classification" },
+    { "name": "Equity Analytics & Reporting", "description": "Trade analytics, TCA, and regulatory reporting aggregation" }
+  ],
+  "data_elements": [
+    { "name": "Order ID", "description": "Unique order identifier (client and firm)", "element_type": "logical" },
+    { "name": "Fill Price", "description": "Execution price per share or contract", "element_type": "logical" },
+    { "name": "Fill Quantity", "description": "Executed quantity", "element_type": "logical" },
+    { "name": "SEDOL", "description": "Stock Exchange Daily Official List identifier", "element_type": "logical" },
+    { "name": "ISIN", "description": "International Security Identification Number", "element_type": "logical" },
+    { "name": "Settlement Date", "description": "Settlement date (T+1, T+2)", "element_type": "logical" },
+    { "name": "Execution Venue MIC", "description": "Market Identifier Code (MIC) of execution venue", "element_type": "logical" },
+    { "name": "Client Identifier", "description": "Client or account identifier for transaction reporting", "element_type": "logical" },
+    { "name": "Decision Time", "description": "Time of investment decision (MIFID II)", "element_type": "logical" },
+    { "name": "Best Execution Policy ID", "description": "Policy identifier for RTS 27/28", "element_type": "logical" },
+    { "name": "Order Type", "description": "Order type (market, limit, etc.)", "element_type": "logical" },
+    { "name": "Side", "description": "Buy or sell", "element_type": "logical" },
+    { "name": "Order Timestamp", "description": "Time of order submission", "element_type": "logical" },
+    { "name": "Currency", "description": "Settlement currency", "element_type": "logical" },
+    { "name": "Instrument ID", "description": "Internal instrument identifier", "element_type": "logical" }
+  ],
+  "eucs": [
+    { "name": "Block Trade Tracker", "euc_type": "euc", "description": "Excel block trade log and allocation" },
+    { "name": "Stock Loan Dashboard", "euc_type": "itess", "description": "Power BI stock loan utilization and availability" },
+    { "name": "Best Execution Review Pack", "euc_type": "euc", "description": "Excel RTS 27/28 quarterly review" },
+    { "name": "Transaction Reporting Exception Log", "euc_type": "itess", "description": "SharePoint MIFID II report exceptions" },
+    { "name": "TCA Summary Pack", "euc_type": "euc", "description": "Excel transaction cost analysis by venue" },
+    { "name": "Short Interest Tracker", "euc_type": "itess", "description": "Power BI stock loan and short interest" }
+  ],
+  "endpoints": [
+    { "name": "MIFID II Transaction Report", "description": "MIFID II transaction reporting to NCA", "application_name": "Equity Order Management System (OMS)" },
+    { "name": "RTS 27 Execution Quality Report", "description": "RTS 27 execution quality (annual)", "application_name": "Equity Order Management System (OMS)" },
+    { "name": "RTS 28 Best Execution Report", "description": "RTS 28 top five execution venues (quarterly)", "application_name": "Equity Order Management System (OMS)" },
+    { "name": "Best Execution Policy Publication", "description": "Publication of best execution policy and summary", "application_name": "Equity Reference Data Service" },
+    { "name": "CAT Order Event Report", "description": "Consolidated Audit Trail order/event submission", "application_name": "Equity Order Management System (OMS)" },
+    { "name": "Execution Report (Fills)", "description": "Fill and allocation report", "application_name": "Equity Order Management System (OMS)" },
+    { "name": "Position Report", "description": "End-of-day positions by instrument", "application_name": "Equity Position Ledger" },
+    { "name": "Reference Data Export", "description": "Daily instrument and classification export", "application_name": "Equity Reference Data Service" },
+    { "name": "TCA Report", "description": "Transaction cost analysis by venue and client", "application_name": "Equity Analytics & Reporting" }
+  ],
+  "data_quality_rules": [
+    { "name": "Order ID unique", "rule_type": "validity", "description": "Order ID must be unique", "data_element_name": "Order ID" },
+    { "name": "Fill qty non-negative", "rule_type": "validity", "description": "Fill quantity must be non-negative", "data_element_name": "Fill Quantity" },
+    { "name": "Settlement date T+2", "rule_type": "timeliness", "description": "Settlement date consistent with market", "data_element_name": "Settlement Date", "endpoint_name": "Position Report" },
+    { "name": "Execution Venue MIC valid", "rule_type": "validity", "description": "MIC must be valid for transaction report", "data_element_name": "Execution Venue MIC", "endpoint_name": "MIFID II Transaction Report" },
+    { "name": "Client ID present", "rule_type": "validity", "description": "Client identifier required for report", "data_element_name": "Client Identifier", "endpoint_name": "MIFID II Transaction Report" },
+    { "name": "Decision time populated", "rule_type": "timeliness", "description": "Decision time required for MIFID II", "data_element_name": "Decision Time", "endpoint_name": "MIFID II Transaction Report" },
+    { "name": "RTS 27 fill price valid", "rule_type": "validity", "description": "Execution price required for RTS 27", "data_element_name": "Fill Price", "endpoint_name": "RTS 27 Execution Quality Report" },
+    { "name": "RTS 28 venue MIC valid", "rule_type": "validity", "description": "Venue MIC for top-five disclosure", "data_element_name": "Execution Venue MIC", "endpoint_name": "RTS 28 Best Execution Report" },
+    { "name": "Fill qty present", "rule_type": "validity", "description": "Fill quantity required for execution report", "data_element_name": "Fill Quantity", "endpoint_name": "Execution Report (Fills)" },
+    { "name": "Order Type valid", "rule_type": "validity", "description": "Order type must be in allowed set", "data_element_name": "Order Type" },
+    { "name": "Side present", "rule_type": "validity", "description": "Side (buy/sell) required", "data_element_name": "Side" },
+    { "name": "Order timestamp not future", "rule_type": "timeliness", "description": "Order timestamp must not be in future", "data_element_name": "Order Timestamp", "endpoint_name": "MIFID II Transaction Report" }
+  ],
+  "data_quality_exceptions": [
+    { "rule_name": "Fill qty non-negative", "data_element_name": "Fill Quantity", "description": "Cancel fill with zero qty not flagged", "status": "closed" },
+    { "rule_name": "Execution Venue MIC valid", "data_element_name": "Execution Venue MIC", "description": "Invalid MIC for XOFF venue in Jan 2024 batch", "status": "open" },
+    { "rule_name": "Order Type valid", "data_element_name": "Order Type", "description": "Unknown order type in batch export", "status": "open" }
+  ],
+  "data_concerns": [
+    { "title": "SEDOL vs ISIN mapping", "description": "Mapping table out of date for new listings", "status": "open", "data_element_name": "SEDOL" },
+    { "title": "MIFID II report timeliness", "description": "Late submission risk for T+1 report", "status": "open", "application_name": "Equity Order Management System (OMS)", "endpoint_name": "MIFID II Transaction Report" },
+    { "title": "CAT clock sync", "description": "Clock synchronization variance across OMS and venues", "status": "open", "application_name": "Equity Order Management System (OMS)", "endpoint_name": "CAT Order Event Report" },
+    { "title": "Best execution disclosure", "description": "Quarterly disclosure data completeness", "status": "open", "application_name": "Equity Reference Data Service", "endpoint_name": "Best Execution Policy Publication" },
+    { "title": "Reference data latency", "description": "New listings not in OMS for first hour", "status": "open", "application_name": "Equity Reference Data Service", "data_element_name": "ISIN" },
+    { "title": "Prime margin data", "description": "Stock loan margin calculation uses stale prices", "status": "open", "application_name": "Prime Brokerage Platform" }
+  ],
+  "data_element_sor": [
+    { "data_element_name": "Order ID", "application_name": "Equity Order Management System (OMS)", "physical_data_attribute": "order_id" },
+    { "data_element_name": "Order ID", "application_name": "Equity Reference Data Service", "physical_data_attribute": "ext_order_ref" },
+    { "data_element_name": "Fill Price", "application_name": "Equity Order Management System (OMS)", "physical_data_attribute": "fill_price" },
+    { "data_element_name": "Settlement Date", "application_name": "Equity Position Ledger", "physical_data_attribute": "settlement_dt" },
+    { "data_element_name": "Execution Venue MIC", "application_name": "Equity Order Management System (OMS)", "physical_data_attribute": "exec_venue_mic" },
+    { "data_element_name": "Order Type", "application_name": "Equity Order Management System (OMS)", "physical_data_attribute": "ord_type" },
+    { "data_element_name": "Side", "application_name": "Equity Order Management System (OMS)", "physical_data_attribute": "side" },
+    { "data_element_name": "ISIN", "application_name": "Equity Reference Data Service", "physical_data_attribute": "isin" }
+  ],
+  "data_feeds": [
+    {
+      "name": "Execution Venue FIX Feed",
+      "description": "FIX 4.4 execution reports from execution venue gateway",
+      "source_type": "external",
+      "format": "fix",
+      "transmission_method": "tcp",
+      "consumer_application_name": "Equity Order Management System (OMS)",
+      "data_element_names": ["Order ID", "Fill Price", "Fill Quantity", "Execution Venue MIC"],
+      "controls": [
+        { "control_type": "validity", "name": "FIX tag presence", "description": "Required tags 11, 14, 31, 44 present" },
+        { "control_type": "timeliness", "name": "Execution latency", "description": "Execution report within 1s of fill" }
+      ]
+    },
+    {
+      "name": "OMS to Position Ledger Settlement Feed",
+      "description": "Daily settlement and fill data from OMS to Position Ledger",
+      "source_type": "internal",
+      "format": "csv",
+      "transmission_method": "sftp",
+      "producer_application_name": "Equity Order Management System (OMS)",
+      "consumer_application_name": "Equity Position Ledger",
+      "data_element_names": ["Order ID", "Settlement Date", "Fill Price", "Fill Quantity"],
+      "controls": [
+        { "control_type": "accuracy", "name": "Settlement reconciliation", "description": "Settlement date and amount match OMS" },
+        { "control_type": "validity", "name": "File format check", "description": "CSV schema and encoding validated" }
+      ]
+    },
+    {
+      "name": "Execution Report Stream",
+      "description": "Real-time execution and fill events for reporting",
+      "source_type": "internal",
+      "format": "json",
+      "transmission_method": "kafka",
+      "producer_application_name": "Equity Order Management System (OMS)",
+      "consumer_application_name": "Equity Order Management System (OMS)",
+      "data_element_names": ["Order ID", "Fill Price", "Fill Quantity"],
+      "controls": [
+        { "control_type": "timeliness", "name": "Kafka lag monitor", "description": "Consumer lag below threshold" }
+      ]
+    },
+    {
+      "name": "Reference Data Sync",
+      "description": "Daily instrument master sync to OMS and analytics",
+      "source_type": "internal",
+      "format": "csv",
+      "transmission_method": "sftp",
+      "producer_application_name": "Equity Reference Data Service",
+      "consumer_application_name": "Equity Analytics & Reporting",
+      "data_element_names": ["ISIN", "SEDOL", "Instrument ID"],
+      "controls": [
+        { "control_type": "validity", "name": "Schema check", "description": "Required columns present" },
+        { "control_type": "timeliness", "name": "Daily cutoff", "description": "File delivered by 06:00 UTC" }
+      ]
+    }
+  ]
+}

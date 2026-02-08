@@ -31,3 +31,14 @@ export function mockChangeFromValue(current: number, seed = 0): { change: number
   ];
   return choices[seed % choices.length];
 }
+
+/** Placeholder labels for sparkline points (e.g. for hover tooltip). Length must match sparklineData. */
+export function mockSparklineLabels(count: number): string[] {
+  const labels: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - (count - 1 - i));
+    labels.push(d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
+  }
+  return labels;
+}

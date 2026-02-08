@@ -1,0 +1,79 @@
+{
+  "domain_name": "L1 Investment Banking",
+  "applications": [
+    { "name": "Deal Pipeline & CRM", "description": "M&A and capital markets pipeline and client tracking" },
+    { "name": "Syndicate Book", "description": "Underwriting and book-building" },
+    { "name": "Capital Planning & Stress Testing", "description": "CCAR, capital plan, and FR-Y-14 aggregation" },
+    { "name": "Securities Underwriting Platform", "description": "IPO and follow-on issuance" }
+  ],
+  "data_elements": [
+    { "name": "Deal ID", "description": "Unique deal identifier", "element_type": "logical" },
+    { "name": "Deal Value", "description": "Transaction or fee value", "element_type": "logical" },
+    { "name": "Client ID", "description": "Client identifier", "element_type": "logical" },
+    { "name": "Deal Status", "description": "Pipeline status", "element_type": "logical" },
+    { "name": "Fee Amount", "description": "Advisory or underwriting fee", "element_type": "logical" },
+    { "name": "Tier 1 Capital", "description": "Tier 1 capital (FR-Y-14/CCAR)", "element_type": "logical" },
+    { "name": "Risk-Weighted Assets", "description": "RWA by exposure type", "element_type": "logical" },
+    { "name": "Stress Loss", "description": "Projected loss in stress scenario", "element_type": "logical" },
+    { "name": "Deal Close Date", "description": "Expected or actual closing date", "element_type": "logical" },
+    { "name": "Sector Code", "description": "Industry sector for pipeline reporting", "element_type": "logical" }
+  ],
+  "eucs": [
+    { "name": "Pipeline Summary", "euc_type": "euc", "description": "Excel pipeline by sector" },
+    { "name": "League Table Input", "euc_type": "itess", "description": "SharePoint league table data" },
+    { "name": "CCAR Narrative Workbook", "euc_type": "euc", "description": "Excel CCAR narrative and assumption inputs" },
+    { "name": "Deal Tracker", "euc_type": "itess", "description": "SharePoint deal status and milestones" }
+  ],
+  "endpoints": [
+    { "name": "FR-Y-14A Capital Plan", "description": "Annual capital plan submission (FR-Y-14A)", "application_name": "Capital Planning & Stress Testing" },
+    { "name": "FR-Y-14Q Schedules", "description": "Quarterly FR-Y-14Q schedules (e.g. A-M)", "application_name": "Capital Planning & Stress Testing" },
+    { "name": "CCAR Results", "description": "Comprehensive Capital Analysis and Review results", "application_name": "Capital Planning & Stress Testing" },
+    { "name": "Pipeline Report", "description": "Weekly pipeline", "application_name": "Deal Pipeline & CRM" },
+    { "name": "Book Run Report", "description": "Book build and allocation", "application_name": "Syndicate Book" }
+  ],
+  "data_quality_rules": [
+    { "name": "Deal ID unique", "rule_type": "validity", "description": "Deal ID must be unique", "data_element_name": "Deal ID" },
+    { "name": "Deal value non-negative", "rule_type": "validity", "description": "Deal value >= 0", "data_element_name": "Deal Value" },
+    { "name": "Tier 1 capital consistency", "rule_type": "accuracy", "description": "Tier 1 aligns with FR-Y-14A", "data_element_name": "Tier 1 Capital", "endpoint_name": "FR-Y-14A Capital Plan" },
+    { "name": "FR-Y-14Q fee consistency", "rule_type": "accuracy", "description": "Fee amounts align across schedules", "data_element_name": "Fee Amount", "endpoint_name": "FR-Y-14Q Schedules" },
+    { "name": "Stress loss non-negative", "rule_type": "validity", "description": "CCAR stress loss >= 0", "data_element_name": "Stress Loss", "endpoint_name": "CCAR Results" },
+    { "name": "Pipeline deal ID unique", "rule_type": "validity", "description": "Deal ID unique in pipeline report", "data_element_name": "Deal ID", "endpoint_name": "Pipeline Report" }
+  ],
+  "data_concerns": [
+    { "title": "Client ID cross-reference", "description": "Client ID not aligned with KYC system", "status": "open", "application_name": "Deal Pipeline & CRM", "data_element_name": "Client ID" },
+    { "title": "FR-Y-14A data lineage", "description": "Capital plan data from multiple source systems", "status": "open", "application_name": "Capital Planning & Stress Testing", "endpoint_name": "FR-Y-14A Capital Plan" },
+    { "title": "Book run allocation accuracy", "description": "Allocation vs order book consistency", "status": "open", "application_name": "Syndicate Book", "endpoint_name": "Book Run Report" }
+  ],
+  "data_element_sor": [
+    { "data_element_name": "Deal ID", "application_name": "Deal Pipeline & CRM", "physical_data_attribute": "deal_id" },
+    { "data_element_name": "Tier 1 Capital", "application_name": "Capital Planning & Stress Testing", "physical_data_attribute": "tier1_capital" }
+  ],
+  "data_feeds": [
+    {
+      "name": "FR-Y-14A Capital Plan Feed",
+      "description": "Annual capital plan submission",
+      "source_type": "external",
+      "format": "xml",
+      "transmission_method": "sftp",
+      "producer_application_name": "Capital Planning & Stress Testing",
+      "data_element_names": ["Tier 1 Capital", "Risk-Weighted Assets"],
+      "controls": [
+        { "control_type": "accuracy", "name": "Tier 1 consistency", "description": "Tier 1 capital aligns with FR-Y-14A" },
+        { "control_type": "timeliness", "name": "Submission deadline", "description": "Annual submission by deadline" }
+      ]
+    },
+    {
+      "name": "Pipeline Report Feed",
+      "description": "Weekly deal pipeline from CRM to reporting",
+      "source_type": "internal",
+      "format": "csv",
+      "transmission_method": "sftp",
+      "producer_application_name": "Deal Pipeline & CRM",
+      "consumer_application_name": "Capital Planning & Stress Testing",
+      "data_element_names": ["Deal ID", "Deal Value", "Deal Status"],
+      "controls": [
+        { "control_type": "validity", "name": "Deal ID unique", "description": "Deal IDs unique in pipeline export" }
+      ]
+    }
+  ]
+}

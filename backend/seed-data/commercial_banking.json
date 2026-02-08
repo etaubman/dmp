@@ -1,0 +1,103 @@
+{
+  "domain_name": "L1 Commercial Banking",
+  "applications": [
+    { "name": "Commercial Loan Origination", "description": "Origination, underwriting, and credit approval" },
+    { "name": "Commercial Deposit System", "description": "Deposits and commercial accounts" },
+    { "name": "Loan Accounting & Servicing", "description": "Loan-level accounting, payments, and covenants" },
+    { "name": "CECL Allowance Engine", "description": "Current Expected Credit Loss reserve calculation" },
+    { "name": "Regulatory Reporting Hub", "description": "FR-Y-14, Call Report, SNC data aggregation" }
+  ],
+  "data_elements": [
+    { "name": "Customer ID", "description": "Commercial customer identifier", "element_type": "logical" },
+    { "name": "Borrower ID", "description": "Borrower legal entity ID", "element_type": "logical" },
+    { "name": "Loan Amount", "description": "Origination or outstanding amount", "element_type": "logical" },
+    { "name": "Commitment Amount", "description": "Committed facility amount", "element_type": "logical" },
+    { "name": "Outstanding Balance", "description": "Drawn balance", "element_type": "logical" },
+    { "name": "NAICS Code", "description": "Industry classification", "element_type": "logical" },
+    { "name": "Risk Rating", "description": "Internal risk rating", "element_type": "logical" },
+    { "name": "ACLL Allowance", "description": "Allowance for credit losses (CECL)", "element_type": "logical" },
+    { "name": "SNC Shared Amount", "description": "Shared National Credit participation amount", "element_type": "logical" },
+    { "name": "Deposit Balance", "description": "Account balance", "element_type": "logical" },
+    { "name": "Maturity Date", "description": "Loan or facility maturity date", "element_type": "logical" },
+    { "name": "Collateral Type", "description": "Type of collateral securing the facility", "element_type": "logical" }
+  ],
+  "eucs": [
+    { "name": "Portfolio Review Pack", "euc_type": "euc", "description": "Excel portfolio review and concentration" },
+    { "name": "SNC Data Quality Tracker", "euc_type": "euc", "description": "Excel SNC submission prep and variance" },
+    { "name": "CECL Support Workbook", "euc_type": "itess", "description": "SharePoint CECL Q-factor and PD inputs" },
+    { "name": "Exception Report", "euc_type": "itess", "description": "SharePoint covenant exceptions" },
+    { "name": "CRE Concentration Pack", "euc_type": "euc", "description": "Excel commercial real estate concentration by geography" }
+  ],
+  "endpoints": [
+    { "name": "Shared National Credit (SNC)", "description": "SNC shared credit submission to Fed/OCC", "application_name": "Regulatory Reporting Hub" },
+    { "name": "FR-Y-14Q Schedule L", "description": "FR-Y-14Q Schedule L (Commercial Real Estate)", "application_name": "Regulatory Reporting Hub" },
+    { "name": "FR-Y-14Q Schedule H", "description": "FR-Y-14Q Schedule H (Mortgage)", "application_name": "Regulatory Reporting Hub" },
+    { "name": "Call Report FFIEC 031/041", "description": "Call Report (Consolidated/ domestic)", "application_name": "Regulatory Reporting Hub" },
+    { "name": "CECL Reserve Report", "description": "CECL allowance and roll-forward", "application_name": "CECL Allowance Engine" },
+    { "name": "Origination Report", "description": "New loan origination", "application_name": "Commercial Loan Origination" },
+    { "name": "Deposit Report", "description": "Deposit balances by segment", "application_name": "Commercial Deposit System" }
+  ],
+  "data_quality_rules": [
+    { "name": "Customer ID not null", "rule_type": "validity", "description": "Customer ID required", "data_element_name": "Customer ID" },
+    { "name": "Loan amount non-negative", "rule_type": "validity", "description": "Loan amount >= 0", "data_element_name": "Loan Amount" },
+    { "name": "Outstanding <= commitment", "rule_type": "validity", "description": "Outstanding must not exceed commitment", "data_element_name": "Outstanding Balance" },
+    { "name": "SNC shared amount consistency", "rule_type": "accuracy", "description": "SNC participation sums to total", "data_element_name": "SNC Shared Amount", "endpoint_name": "Shared National Credit (SNC)" },
+    { "name": "CECL timeliness", "rule_type": "timeliness", "description": "CECL as of quarter end", "data_element_name": "ACLL Allowance", "endpoint_name": "CECL Reserve Report" },
+    { "name": "Schedule L CRE data complete", "rule_type": "validity", "description": "FR-Y-14Q L fields populated", "data_element_name": "Commitment Amount", "endpoint_name": "FR-Y-14Q Schedule L" },
+    { "name": "Origination customer ID present", "rule_type": "validity", "description": "Customer ID required for origination report", "data_element_name": "Customer ID", "endpoint_name": "Origination Report" }
+  ],
+  "data_quality_exceptions": [
+    { "rule_name": "Outstanding <= commitment", "data_element_name": "Outstanding Balance", "description": "Outstanding exceeded commitment in legacy data", "status": "closed" },
+    { "rule_name": "SNC shared amount consistency", "data_element_name": "SNC Shared Amount", "description": "SNC participation mismatch for 2024-Q1", "status": "open" }
+  ],
+  "data_concerns": [
+    { "title": "NAICS code accuracy", "description": "NAICS codes not updated after reclassification", "status": "open", "data_element_name": "NAICS Code" },
+    { "title": "SNC submission timeliness", "description": "SNC data cut-off vs submission deadline", "status": "open", "application_name": "Regulatory Reporting Hub", "endpoint_name": "Shared National Credit (SNC)" },
+    { "title": "Schedule H mortgage data", "description": "Mortgage segment alignment with source", "status": "open", "application_name": "Regulatory Reporting Hub", "endpoint_name": "FR-Y-14Q Schedule H" }
+  ],
+  "data_element_sor": [
+    { "data_element_name": "Customer ID", "application_name": "Commercial Loan Origination", "physical_data_attribute": "customer_id" },
+    { "data_element_name": "Loan Amount", "application_name": "Commercial Loan Origination", "physical_data_attribute": "loan_amt" },
+    { "data_element_name": "SNC Shared Amount", "application_name": "Regulatory Reporting Hub", "physical_data_attribute": "snc_participation_amt" }
+  ],
+  "data_feeds": [
+    {
+      "name": "SNC Submission Feed",
+      "description": "Shared National Credit data to Fed/OCC",
+      "source_type": "external",
+      "format": "csv",
+      "transmission_method": "sftp",
+      "producer_application_name": "Regulatory Reporting Hub",
+      "data_element_names": ["SNC Shared Amount", "Loan Amount"],
+      "controls": [
+        { "control_type": "accuracy", "name": "SNC participation sum", "description": "Participation amounts sum to total" },
+        { "control_type": "timeliness", "name": "SNC deadline", "description": "Submission by regulatory deadline" }
+      ]
+    },
+    {
+      "name": "CECL Allowance Feed",
+      "description": "Allowance and roll-forward from CECL engine to reporting hub",
+      "source_type": "internal",
+      "format": "json",
+      "transmission_method": "rest",
+      "producer_application_name": "CECL Allowance Engine",
+      "consumer_application_name": "Regulatory Reporting Hub",
+      "data_element_names": ["ACLL Allowance"],
+      "controls": [
+        { "control_type": "validity", "name": "CECL schema validation", "description": "JSON schema and required fields" }
+      ]
+    },
+    {
+      "name": "Schedule L CRE Data Pack",
+      "description": "Manual upload of CRE data for FR-Y-14Q Schedule L",
+      "source_type": "internal",
+      "format": "csv",
+      "transmission_method": "manual",
+      "consumer_application_name": "Regulatory Reporting Hub",
+      "data_element_names": ["Commitment Amount", "Outstanding Balance"],
+      "controls": [
+        { "control_type": "validity", "name": "CRE file format", "description": "CSV columns and NAICS codes valid" }
+      ]
+    }
+  ]
+}

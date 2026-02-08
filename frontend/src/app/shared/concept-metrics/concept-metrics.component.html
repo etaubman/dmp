@@ -1,20 +1,51 @@
 <div class="mb-6 min-h-0 flex flex-col">
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4 flex-shrink-0">
-    <div *ngFor="let m of metrics" class="card-aurora p-4 flex flex-col">
-      <div class="text-gray-500 text-sm">{{ m.label }}</div>
-      <div class="flex items-baseline gap-2 mt-1 flex-wrap">
-        <span class="text-xl font-semibold text-accent-pop">{{ m.value }}</span>
-        <span *ngIf="m.change !== undefined && m.change !== null" class="text-xs font-medium px-1.5 py-0.5 rounded" [ngClass]="getChangeClass(m)">
+  <div class="kpi-grid gap-4 mb-4 flex-shrink-0">
+    <article *ngFor="let m of metrics; let i = index" class="kpi-tile card-aurora">
+      <header class="kpi-tile__header">
+        <h3 class="kpi-tile__label">{{ m.label }}</h3>
+        <button
+          *ngIf="m.tooltip"
+          type="button"
+          class="kpi-tile__info"
+          [attr.aria-label]="'More info about ' + m.label"
+          [attr.aria-describedby]="'kpi-tooltip-' + i"
+        >
+          <svg class="kpi-tile__info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 16v-4M12 8h.01"/>
+          </svg>
+          <span [id]="'kpi-tooltip-' + i" class="kpi-tile__info-tooltip" role="tooltip">{{ m.tooltip }}</span>
+        </button>
+      </header>
+      <div class="kpi-tile__value-row">
+        <span class="kpi-tile__value">{{ m.value }}</span>
+        <span *ngIf="m.change !== undefined && m.change !== null" class="kpi-tile__change" [ngClass]="getChangeClass(m)">
           {{ getChangeLabel(m) }}
         </span>
-        <span *ngIf="(m.change === null || m.change === undefined) && showChangePlaceholder && isNumericValue(m)" class="text-xs text-gray-500">—</span>
+        <span *ngIf="(m.change === null || m.change === undefined) && showChangePlaceholder && isNumericValue(m)" class="kpi-tile__change-placeholder">—</span>
       </div>
-      <div class="mt-2 h-8 flex-shrink-0" *ngIf="hasSparkline(m)">
-        <svg class="w-full h-full" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
+      <div
+        *ngIf="hasSparkline(m)"
+        class="kpi-tile__sparkline"
+        (mousemove)="onSparklineMouseMove($event, m, i)"
+        (mouseleave)="onSparklineMouseLeave()"
+      >
+        <svg class="kpi-tile__sparkline-svg" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient [id]="'kpi-sparkline-fill-' + i" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="var(--accent-pop, #5B9CFE)" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="var(--accent-pop, #5B9CFE)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <polygon [attr.points]="getSparklineAreaPoints(m)" [attr.fill]="'url(#kpi-sparkline-fill-' + i + ')'"/>
           <polyline [attr.points]="getSparklinePoints(m)" fill="none" stroke="var(--accent-pop, #5B9CFE)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+        <div *ngIf="sparklineHover && sparklineHover.index === i" class="kpi-tile__sparkline-tooltip">
+          <span class="kpi-tile__sparkline-tooltip-label">{{ sparklineHover.label }}</span>
+          <span class="kpi-tile__sparkline-tooltip-value">{{ sparklineHover.value }}</span>
+        </div>
       </div>
-    </div>
+    </article>
   </div>
   <div *ngIf="showChart && chartOptions" class="card-aurora p-4 mt-4 flex-shrink-0 max-w-2xl">
     <ag-charts [options]="chartOptions" style="width: 100%; height: 180px;"></ag-charts>

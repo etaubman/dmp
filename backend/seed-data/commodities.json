@@ -1,0 +1,112 @@
+{
+  "domain_name": "L1 Commodities",
+  "applications": [
+    { "name": "Commodities Trading Platform", "description": "Front-office trading for ags, energy, and metals" },
+    { "name": "Physical Commodities Ledger", "description": "Inventory, delivery, and physical settlement" },
+    { "name": "Commodities Risk Engine", "description": "VaR, position limits, and stress testing" },
+    { "name": "Agriculture Pricing & Analytics", "description": "Crop and grain pricing, basis, and supply chain" },
+    { "name": "Energy & Oil & Gas Trading", "description": "Crude, refined products, natural gas, and LNG" },
+    { "name": "Metals Trading & Refining", "description": "Precious and base metals, LME/COMEX" }
+  ],
+  "data_elements": [
+    { "name": "Commodity Code", "description": "Product code (e.g. WTI, Brent, Corn, Gold)", "element_type": "logical" },
+    { "name": "Position Quantity", "description": "Net position in contract or physical units", "element_type": "logical" },
+    { "name": "Mark-to-Market Price", "description": "Valuation price", "element_type": "logical" },
+    { "name": "Trade Date", "description": "Execution date", "element_type": "logical" },
+    { "name": "Delivery Location", "description": "Delivery or delivery point code", "element_type": "logical" },
+    { "name": "Counterparty LEI", "description": "Counterparty legal entity identifier for EMIR", "element_type": "logical" },
+    { "name": "UTI", "description": "Unique Transaction Identifier (EMIR)", "element_type": "logical" },
+    { "name": "Position Limit Utilization", "description": "Current position vs regulatory limit (Dodd-Frank 722)", "element_type": "logical" },
+    { "name": "Physical Delivery Date", "description": "Scheduled delivery date for physical", "element_type": "logical" },
+    { "name": "Contract Month", "description": "Futures contract expiry month", "element_type": "logical" },
+    { "name": "Valuation Currency", "description": "Currency for mark-to-market", "element_type": "logical" }
+  ],
+  "eucs": [
+    { "name": "Physical Inventory Recon", "euc_type": "euc", "description": "Excel reconciliation with warehouses" },
+    { "name": "Agriculture Basis Tracker", "euc_type": "euc", "description": "Excel basis and regional pricing" },
+    { "name": "EMIR Reporting Exception Log", "euc_type": "itess", "description": "SharePoint EMIR rejections and amendments" },
+    { "name": "Position Limits Dashboard", "euc_type": "itess", "description": "Power BI position limit utilization by product" },
+    { "name": "Volatility Surface Tracker", "euc_type": "euc", "description": "Excel options volatility by commodity" }
+  ],
+  "endpoints": [
+    { "name": "EMIR Trade Report", "description": "EMIR derivative reporting to TR", "application_name": "Commodities Trading Platform" },
+    { "name": "Dodd-Frank 722 Position Limits Report", "description": "Position limits and accountability reporting", "application_name": "Commodities Risk Engine" },
+    { "name": "Daily P&L", "description": "Commodities P&L report", "application_name": "Commodities Trading Platform" },
+    { "name": "Position Limit Report", "description": "Limit utilization by book and product", "application_name": "Commodities Risk Engine" },
+    { "name": "Physical Delivery Report", "description": "Physical delivery and inventory report", "application_name": "Physical Commodities Ledger" }
+  ],
+  "data_quality_rules": [
+    { "name": "Position quantity valid", "rule_type": "validity", "description": "Position must be numeric", "data_element_name": "Position Quantity", "exception_threshold_pct": 5 },
+    { "name": "Trade date within period", "rule_type": "timeliness", "description": "Trade date in reporting period", "data_element_name": "Trade Date", "endpoint_name": "Daily P&L", "exception_threshold_pct": 2 },
+    { "name": "UTI unique", "rule_type": "validity", "description": "UTI must be unique for EMIR", "data_element_name": "UTI", "endpoint_name": "EMIR Trade Report", "exception_threshold_pct": 0 },
+    { "name": "Counterparty LEI valid", "rule_type": "validity", "description": "LEI required for EMIR", "data_element_name": "Counterparty LEI", "endpoint_name": "EMIR Trade Report", "exception_threshold_pct": 1 },
+    { "name": "Position limit within threshold", "rule_type": "validity", "description": "Dodd-Frank 722 limit check", "data_element_name": "Physical Delivery Date", "endpoint_name": "Dodd-Frank 722 Position Limits Report", "exception_threshold_pct": 10, "flagged_for_monitoring": 1 }
+  ],
+  "data_quality_exceptions": [
+    { "rule_name": "Position quantity valid", "data_element_name": "Position Quantity", "description": "Position unit mismatch in aggregated view", "status": "open" }
+  ],
+  "data_quality_sql_versions": [
+    { "rule_name": "Position quantity valid", "sql_text": "SELECT id, position_qty FROM positions WHERE position_qty IS NULL OR position_qty < 0", "version": 1, "is_live": 1 }
+  ],
+  "data_quality_rule_instances": [
+    { "rule_name": "Position quantity valid", "data_element_name": "Position Quantity", "application_name": "Commodities Trading Platform", "run_at_offset_days": 0, "passed": 0, "exception_count": 0, "exception_pct": 0 },
+    { "rule_name": "Position quantity valid", "data_element_name": "Position Quantity", "application_name": "Commodities Trading Platform", "run_at_offset_days": 1, "passed": 1, "exception_count": 1, "exception_pct": 5 },
+    { "rule_name": "Position quantity valid", "data_element_name": "Position Quantity", "application_name": "Commodities Trading Platform", "run_at_offset_days": 2, "passed": 1, "exception_count": 2, "exception_pct": 10 }
+  ],
+  "rule_mod_requests": [
+    { "rule_name": "Position limit within threshold", "status": "requested" }
+  ],
+  "data_concerns": [
+    { "title": "Delivery location codes", "description": "Multiple code schemes across regions", "status": "open", "application_name": "Physical Commodities Ledger", "data_element_name": "Delivery Location" },
+    { "title": "EMIR timeliness", "description": "T+1 reporting occasionally delayed", "status": "open", "application_name": "Commodities Trading Platform", "endpoint_name": "EMIR Trade Report" },
+    { "title": "Dodd-Frank 722 data quality", "description": "Position limit data alignment with trading system", "status": "open", "application_name": "Commodities Risk Engine", "endpoint_name": "Dodd-Frank 722 Position Limits Report" }
+  ],
+  "data_element_sor": [
+    { "data_element_name": "Position Quantity", "application_name": "Commodities Trading Platform", "physical_data_attribute": "position_qty" },
+    { "data_element_name": "Position Quantity", "application_name": "Physical Commodities Ledger", "physical_data_attribute": "inventory_balance" },
+    { "data_element_name": "Trade Date", "application_name": "Commodities Trading Platform", "physical_data_attribute": "trade_dt" },
+    { "data_element_name": "UTI", "application_name": "Commodities Trading Platform", "physical_data_attribute": "uti" }
+  ],
+  "data_feeds": [
+    {
+      "name": "EMIR Trade Report Feed",
+      "description": "Derivative trade data to EMIR TR",
+      "source_type": "external",
+      "format": "xml",
+      "transmission_method": "rest",
+      "producer_application_name": "Commodities Trading Platform",
+      "data_element_names": ["Trade Date", "Counterparty LEI", "UTI"],
+      "controls": [
+        { "control_type": "validity", "name": "UTI unique", "description": "UTI uniqueness check for EMIR" },
+        { "control_type": "timeliness", "name": "T+1 submission", "description": "Report submitted by T+1" }
+      ]
+    },
+    {
+      "name": "Daily P&L Export",
+      "description": "Commodities P&L export from trading platform to risk",
+      "source_type": "internal",
+      "format": "csv",
+      "transmission_method": "sftp",
+      "producer_application_name": "Commodities Trading Platform",
+      "consumer_application_name": "Commodities Risk Engine",
+      "data_element_names": ["Position Quantity", "Mark-to-Market Price", "Trade Date"],
+      "controls": [
+        { "control_type": "accuracy", "name": "P&L reconciliation", "description": "P&L matches trading platform" },
+        { "control_type": "timeliness", "name": "Position latency", "description": "End-of-day position latency SLA" }
+      ]
+    },
+    {
+      "name": "Position Stream",
+      "description": "Real-time position updates for risk engine",
+      "source_type": "internal",
+      "format": "json",
+      "transmission_method": "kafka",
+      "producer_application_name": "Commodities Trading Platform",
+      "consumer_application_name": "Commodities Risk Engine",
+      "data_element_names": ["Position Quantity", "Mark-to-Market Price"],
+      "controls": [
+        { "control_type": "timeliness", "name": "Position latency", "description": "End-of-day position latency SLA" }
+      ]
+    }
+  ]
+}

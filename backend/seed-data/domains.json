@@ -1,0 +1,14 @@
+[
+  { "name": "L0 Markets", "description": "L0 Markets organization and data domain.", "parent_name": null },
+  { "name": "L0 Banking", "description": "L0 Banking organization and data domain.", "parent_name": null },
+  { "name": "L1 Equities", "description": "L1 Equities under L0 Markets.", "parent_name": "L0 Markets" },
+  { "name": "L1 Commodities", "description": "L1 Commodities under L0 Markets.", "parent_name": "L0 Markets" },
+  { "name": "L1 Commercial Banking", "description": "L1 Commercial Banking under L0 Banking.", "parent_name": "L0 Banking" },
+  { "name": "L1 Investment Banking", "description": "L1 Investment Banking under L0 Banking.", "parent_name": "L0 Banking" },
+  { "name": "L2 Equities Cash", "description": "L2 Equities Cash under L1 Equities.", "parent_name": "L1 Equities" },
+  { "name": "L2 Equities Derivatives", "description": "L2 Equities Derivatives under L1 Equities.", "parent_name": "L1 Equities" },
+  { "name": "L2 Equities Prime", "description": "L2 Equities Prime under L1 Equities.", "parent_name": "L1 Equities" },
+  { "name": "L2 Agriculture", "description": "L2 Agriculture under L1 Commodities.", "parent_name": "L1 Commodities" },
+  { "name": "L2 Oil & Gas", "description": "L2 Oil & Gas under L1 Commodities.", "parent_name": "L1 Commodities" },
+  { "name": "L2 Metals", "description": "L2 Metals under L1 Commodities.", "parent_name": "L1 Commodities" }
+]

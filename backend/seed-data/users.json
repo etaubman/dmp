@@ -1,0 +1,9 @@
+[
+  { "email": "ethan.taubman@example.com", "name": "Ethan Taubman", "role": "admin" },
+  { "email": "admin@example.com", "name": "Admin User", "role": "admin" },
+  { "email": "viewer@example.com", "name": "Viewer User", "role": "viewer" },
+  { "email": "editor@example.com", "name": "Editor User", "role": "editor" },
+  { "email": "data.steward@example.com", "name": "Data Steward", "role": "editor" },
+  { "email": "auditor@example.com", "name": "Compliance Auditor", "role": "viewer" },
+  { "email": "risk.manager@example.com", "name": "Risk Manager", "role": "editor" }
+]

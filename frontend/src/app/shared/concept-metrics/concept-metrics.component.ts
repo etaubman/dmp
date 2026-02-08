@@ -8,8 +8,12 @@ import type { AgCartesianChartOptions } from 'ag-charts-community';
 export interface MetricItem {
   label: string;
   value: number | string;
+  /** Optional short description shown in tooltip on the info icon. */
+  tooltip?: string;
   /** Optional trend data for sparkline (e.g. last 5–7 values). If omitted and value is number, a flat line is shown. */
   sparklineData?: number[];
+  /** Optional labels per sparkline point (e.g. dates). Same length as sparklineData. Used in sparkline hover tooltip. */
+  sparklineLabels?: string[];
   /** Change vs previous period: number (e.g. +2 or -1) or percent when changePercent is true. Omit for "—". */
   change?: number | null;
   /** When true, change is shown as percentage (e.g. +10%); otherwise as absolute (e.g. +2). */
@@ -27,6 +31,9 @@ export class ConceptMetricsComponent implements OnChanges {
   /** When true, show "—" for metrics that have no change value. */
   @Input() showChangePlaceholder = true;
   chartOptions: AgCartesianChartOptions | null = null;
+
+  /** Current sparkline hover tooltip: metric index and content. */
+  sparklineHover: { index: number; label: string; value: number } | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['metrics'] || changes['showChart']) {
@@ -62,12 +69,9 @@ export class ConceptMetricsComponent implements OnChanges {
   getChangeClass(m: MetricItem): Record<string, boolean> {
     const sign = this.getChangeSign(m);
     return {
-      'bg-emerald-500/20': sign === 1,
-      'text-emerald-400': sign === 1,
-      'bg-red-500/20': sign === -1,
-      'text-red-400': sign === -1,
-      'bg-gray-500/20': sign === 0,
-      'text-gray-400': sign === 0,
+      'kpi-tile__change--positive': sign === 1,
+      'kpi-tile__change--negative': sign === -1,
+      'kpi-tile__change--neutral': sign === 0,
     };
   }
 
@@ -107,5 +111,56 @@ export class ConceptMetricsComponent implements OnChanges {
       return `${x},${y}`;
     });
     return points.join(' ');
+  }
+
+  /** Points for area fill under sparkline (same viewBox 0 0 100 24). */
+  getSparklineAreaPoints(m: MetricItem): string {
+    const linePoints = this.getSparklinePoints(m);
+    if (!linePoints) return '';
+    const parts = linePoints.split(' ');
+    const firstX = parts[0].split(',')[0];
+    const lastX = parts[parts.length - 1].split(',')[0];
+    return `0,24 ${firstX},24 ${linePoints} ${lastX},24 100,24`;
+  }
+
+  /** Raw sparkline values for tooltip. */
+  getSparklineValues(m: MetricItem): number[] {
+    if (m.sparklineData?.length) return m.sparklineData;
+    if (typeof m.value === 'number') return [m.value, m.value, m.value];
+    return [0];
+  }
+
+  /** Labels for each sparkline point (for hover tooltip). Falls back to "Point 1", "Point 2", etc. */
+  getSparklineLabels(m: MetricItem): string[] {
+    const values = this.getSparklineValues(m);
+    if (m.sparklineLabels?.length === values.length) return m.sparklineLabels;
+    return values.map((_, i) => `Point ${i + 1}`);
+  }
+
+  /** Sparkline hover: get index from x ratio (0–1) and return label + value. */
+  getSparklineHoverContent(m: MetricItem, xRatio: number): { label: string; value: number } | null {
+    const values = this.getSparklineValues(m);
+    const labels = this.getSparklineLabels(m);
+    if (values.length === 0) return null;
+    const idx = Math.min(
+      Math.floor(xRatio * values.length),
+      values.length - 1
+    );
+    return { label: labels[idx] ?? `Point ${idx + 1}`, value: values[idx] };
+  }
+
+  onSparklineMouseMove(event: MouseEvent, m: MetricItem, metricIndex: number): void {
+    const el = event.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const xRatio = Math.max(0, Math.min(1, x / rect.width));
+    const content = this.getSparklineHoverContent(m, xRatio);
+    if (content) {
+      this.sparklineHover = { index: metricIndex, label: content.label, value: content.value };
+    }
+  }
+
+  onSparklineMouseLeave(): void {
+    this.sparklineHover = null;
   }
 }
