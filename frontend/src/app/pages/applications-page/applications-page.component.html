@@ -24,7 +24,7 @@
           [rowData]="applications"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
-          [suppressRowClickSelection]="true"
+          [rowSelection]="{ enableClickSelection: false }"
           (rowClicked)="onRowClicked($event.data)"
           [getRowId]="getRowId"
           class="ag-grid-full-height"

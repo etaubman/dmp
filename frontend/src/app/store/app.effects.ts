@@ -24,7 +24,7 @@ import {
   createLoadAdminListEffect,
   createAdminCrudEffect,
 } from './effect-helpers';
-import type { Domain, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/models';
+import type { Domain, DataElement, Application, EUC, Endpoint, DataFeed, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/models';
 
 const METRICS_FALLBACK: Metrics = {
   domains_count: 0,
@@ -157,6 +157,20 @@ export class AppEffects {
       apiCall: (action: unknown) => {
         const { domainId } = action as { domainId: number };
         return this.api.getDataConcerns(domainId);
+      },
+    })
+  );
+
+  loadDataFeeds$ = createEffect(() =>
+    createLoadListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadDataFeeds,
+      loadingKey: 'dataFeeds',
+      stateKey: 'dataFeeds',
+      setAction: AppActions.setDataFeeds as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setDataFeeds>,
+      emptyValue: [] as DataFeed[],
+      apiCall: (action: unknown) => {
+        const { domainId, scope } = action as { domainId: number; scope?: 'owned' | 'upstream' | 'downstream' };
+        return this.api.getDataFeeds(domainId, scope ?? 'owned');
       },
     })
   );

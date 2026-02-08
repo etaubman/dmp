@@ -27,6 +27,7 @@ export const selectEndpoints = createSelector(selectAppState, (s) => s.endpoints
 export const selectDataQualityRules = createSelector(selectAppState, (s) => s.dataQualityRules);
 export const selectDataQualityExceptions = createSelector(selectAppState, (s) => s.dataQualityExceptions);
 export const selectDataConcerns = createSelector(selectAppState, (s) => s.dataConcerns);
+export const selectDataFeeds = createSelector(selectAppState, (s) => s.dataFeeds);
 export const selectMetrics = createSelector(selectAppState, (s) => s.metrics);
 
 // Loading and global error (key must match effect loadingKey)

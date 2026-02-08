@@ -216,6 +216,44 @@ export interface DataQualityException {
   identified_at?: string;
 }
 
+// ——— Data Feed ———
+export interface DataFeed {
+  id: number;
+  domain_id: number;
+  name: string;
+  description?: string;
+  source_type?: string;
+  format?: string;
+  transmission_method?: string;
+  producer_application_id?: number;
+  consumer_application_id?: number;
+  created_at?: string;
+  updated_at?: string;
+  data_element_count?: number;
+  control_count?: number;
+  producer_application_name?: string;
+  consumer_application_name?: string;
+}
+
+export interface DataFeedControl {
+  id: number;
+  data_feed_id: number;
+  control_type?: string;
+  name: string;
+  description?: string;
+}
+
+export interface DataFeedDataElementRef {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+export interface DataFeedDetail extends DataFeed {
+  data_elements: DataFeedDataElementRef[];
+  controls: DataFeedControl[];
+}
+
 // ——— Data Concern ———
 export interface DataConcern {
   id: number;

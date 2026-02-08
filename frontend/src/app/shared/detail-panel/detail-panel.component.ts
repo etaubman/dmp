@@ -31,6 +31,10 @@ export class DetailPanelComponent {
   @Input() dqRuleInstances: DataQualityRuleInstance[] | null = null;
   @Input() instancesLoading = false;
   @Input() sors: DataElementSORSummary[] = [];
+  /** Data feed data elements (for Data Feeds page). */
+  @Input() feedDataElements: { id: number; name: string; description?: string }[] = [];
+  /** Data feed controls (for Data Feeds page). */
+  @Input() feedControls: { id: number; control_type?: string; name: string; description?: string }[] = [];
   @Input() open = false;
   /** When true, panel takes 50% width (e.g. on DQ Rules page); otherwise ~33%. */
   @Input() wide = false;

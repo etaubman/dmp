@@ -6,7 +6,7 @@
  * Request actions (create/update/delete): trigger effects that call API and optionally reload lists.
  */
 import { createAction, props } from '@ngrx/store';
-import { Domain, DomainTreeNode, DomainCreate, DomainUpdate, User, UserCreate, UserUpdate, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
+import { Domain, DomainTreeNode, DomainCreate, DomainUpdate, User, UserCreate, UserUpdate, DataElement, Application, EUC, Endpoint, DataFeed, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
 import type { AuthUser, LoginCredentials } from '../core/models';
 
 // --- Set actions (reducer only) ---
@@ -19,6 +19,7 @@ export const setEndpoints = createAction('[App] Set Endpoints', props<{ endpoint
 export const setDataQualityRules = createAction('[App] Set Data Quality Rules', props<{ dataQualityRules: DataQualityRule[] }>());
 export const setDataQualityExceptions = createAction('[App] Set Data Quality Exceptions', props<{ dataQualityExceptions: DataQualityException[] }>());
 export const setDataConcerns = createAction('[App] Set Data Concerns', props<{ dataConcerns: DataConcern[] }>());
+export const setDataFeeds = createAction('[App] Set Data Feeds', props<{ dataFeeds: DataFeed[] }>());
 export const setMetrics = createAction('[App] Set Metrics', props<{ metrics: Metrics }>());
 export const setLoading = createAction('[App] Set Loading', props<{ key: string; loading: boolean }>());
 export const setError = createAction('[App] Set Error', props<{ error: string | null }>());
@@ -35,6 +36,7 @@ export const loadEndpoints = createAction('[App] Load Endpoints', props<{ domain
 export const loadDataQualityRules = createAction('[App] Load Data Quality Rules', props<{ domainId?: number; dataElementId?: number }>());
 export const loadDataQualityExceptions = createAction('[App] Load Data Quality Exceptions', props<{ domainId?: number; dataElementId?: number }>());
 export const loadDataConcerns = createAction('[App] Load Data Concerns', props<{ domainId: number }>());
+export const loadDataFeeds = createAction('[App] Load Data Feeds', props<{ domainId: number; scope?: DomainScope }>());
 export const loadMetrics = createAction('[App] Load Metrics', props<{ domainId?: number }>());
 
 // --- Admin domains (tree + CRUD) ---

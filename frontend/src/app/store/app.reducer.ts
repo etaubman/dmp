@@ -17,6 +17,7 @@ import {
   setDataQualityRules,
   setDataQualityExceptions,
   setDataConcerns,
+  setDataFeeds,
   setMetrics,
   setLoading,
   setError,
@@ -40,6 +41,7 @@ export const appReducer = createReducer(
   on(setDataQualityRules, (state, { dataQualityRules }) => ({ ...state, dataQualityRules })),
   on(setDataQualityExceptions, (state, { dataQualityExceptions }) => ({ ...state, dataQualityExceptions })),
   on(setDataConcerns, (state, { dataConcerns }) => ({ ...state, dataConcerns })),
+  on(setDataFeeds, (state, { dataFeeds }) => ({ ...state, dataFeeds })),
   on(setMetrics, (state, { metrics }) => ({ ...state, metrics })),
   on(setLoading, (state, { key, loading }) => ({
     ...state,

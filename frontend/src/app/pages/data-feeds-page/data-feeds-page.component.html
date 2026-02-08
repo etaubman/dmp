@@ -2,11 +2,42 @@
   <div class="flex flex-wrap items-center justify-between gap-4 mb-4 flex-shrink-0">
     <div class="min-w-0">
       <h2 class="text-xl font-semibold text-gray-100 mb-1">Data Feeds</h2>
-      <p class="text-gray-500 text-sm">Select a domain to load data feeds.</p>
+      <p class="text-gray-500 text-sm">External and internal data sources; format, transmission, and controls.</p>
     </div>
     <div class="flex-shrink-0">
       <app-time-period-switch></app-time-period-switch>
     </div>
   </div>
-  <div class="text-gray-500 mb-4">No data feeds loaded. Select a domain in the sidebar to get started.</div>
+  <app-concept-metrics *ngIf="!loading" [metrics]="metrics"></app-concept-metrics>
+  <div class="flex gap-1 mb-3 flex-shrink-0" *ngIf="currentDomainId != null">
+    <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'owned'" (click)="setDomainScope('owned')">Owned by Domain</button>
+    <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'upstream'" (click)="setDomainScope('upstream')">Upstream of Domain</button>
+    <button type="button" class="domain-scope-tab" [class.domain-scope-tab--active]="domainScope === 'downstream'" (click)="setDomainScope('downstream')">Downstream of Domain</button>
+  </div>
+  <div *ngIf="loading" class="text-accent mb-4 flex-shrink-0">Loading…</div>
+  <div *ngIf="!loading && dataFeeds.length === 0" class="text-gray-500 mb-4 flex-shrink-0">No data feeds. Select a domain in the sidebar or change scope.</div>
+  <div class="flex flex-1 min-h-0 gap-gutter" *ngIf="!loading && dataFeeds.length > 0">
+    <div class="main-content" [class.main-content--panel-open]="selectedItem">
+      <div class="ag-theme-quartz h-full min-h-[200px]">
+        <ag-grid-angular
+          theme="legacy"
+          [rowData]="dataFeeds"
+          [columnDefs]="columnDefs"
+          [defaultColDef]="defaultColDef"
+          [rowSelection]="{ enableClickSelection: false }"
+          (rowClicked)="onRowClicked($event.data)"
+          [getRowId]="getRowId"
+          class="ag-grid-full-height"
+        ></ag-grid-angular>
+      </div>
+    </div>
+    <app-detail-panel
+      [title]="panelTitle"
+      [rows]="panelRows"
+      [feedDataElements]="panelFeedDataElements"
+      [feedControls]="panelFeedControls"
+      [open]="!!selectedItem"
+      (openChange)="closePanel()"
+    ></app-detail-panel>
+  </div>
 </div>

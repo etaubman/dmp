@@ -102,7 +102,28 @@
           </div>
         </div>
       </div>
-      <div *ngIf="(!rows || rows.length === 0) && (!dataElements || dataElements.length === 0) && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0) && (dqRuleInstances === null || dqRuleInstances.length === 0) && (!sors || sors.length === 0)" class="detail-panel__empty">
+      <div *ngIf="feedDataElements && feedDataElements.length > 0" class="detail-panel__section">
+        <h4 class="detail-panel__section-title">Data elements</h4>
+        <div class="detail-panel__concerns-list">
+          <div *ngFor="let de of feedDataElements" class="sor-card">
+            <div class="concern-card__title">{{ de.name }}</div>
+            <div *ngIf="de.description" class="concern-card__description">{{ de.description }}</div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="feedControls && feedControls.length > 0" class="detail-panel__section">
+        <h4 class="detail-panel__section-title">Controls</h4>
+        <div class="detail-panel__concerns-list">
+          <div *ngFor="let c of feedControls" class="sor-card">
+            <div class="concern-card__title">{{ c.name }}</div>
+            <div class="concern-card__meta">
+              <span *ngIf="c.control_type" class="concern-card__status">{{ c.control_type }}</span>
+            </div>
+            <div *ngIf="c.description" class="concern-card__description">{{ c.description }}</div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="(!rows || rows.length === 0) && (!dataElements || dataElements.length === 0) && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0) && (dqRuleInstances === null || dqRuleInstances.length === 0) && (!sors || sors.length === 0) && (!feedDataElements || feedDataElements.length === 0) && (!feedControls || feedControls.length === 0)" class="detail-panel__empty">
         <p class="text-gray-500 text-sm">No details to show.</p>
       </div>
     </div>

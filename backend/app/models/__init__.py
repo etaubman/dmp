@@ -1,8 +1,8 @@
 """
 SQLAlchemy domain models for the Data Manager Portal.
-Relationships: Domain -> CDEs, Applications, EUCs, Endpoints; CDE <-> DQ rules, exceptions, concerns.
+Relationships: Domain -> CDEs, Applications, EUCs, Endpoints, DataFeeds; CDE <-> DQ rules, exceptions, concerns.
 """
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -17,6 +17,9 @@ __all__ = [
     "Application",
     "EUC",
     "Endpoint",
+    "DataFeed",
+    "DataFeedDataElement",
+    "DataFeedControl",
     "DataQualityRule",
     "DataQualityException",
     "DataQualityRuleInstance",
@@ -59,6 +62,7 @@ class Domain(Base):
     endpoints = relationship("Endpoint", back_populates="domain")
     data_quality_rules = relationship("DataQualityRule", back_populates="domain")
     data_concerns = relationship("DataConcern", back_populates="domain")
+    data_feeds = relationship("DataFeed", back_populates="domain")
 
 
 # --- Critical Data Element ---
@@ -81,6 +85,7 @@ class DataElement(Base):
     dq_rule_instances = relationship("DataQualityRuleInstance", back_populates="data_element")
     data_concerns = relationship("DataConcern", back_populates="data_element")
     systems_of_record = relationship("DataElementSOR", back_populates="data_element")
+    data_feed_links = relationship("DataFeedDataElement", back_populates="data_element")
 
 
 # --- Data Element System of Record: which application sources this element and the physical attribute name ---
@@ -113,6 +118,8 @@ class Application(Base):
     dq_rule_instances = relationship("DataQualityRuleInstance", back_populates="application")
     data_concerns = relationship("DataConcern", back_populates="application")
     systems_of_record = relationship("DataElementSOR", back_populates="application")
+    data_feeds_produced = relationship("DataFeed", foreign_keys="DataFeed.producer_application_id", back_populates="producer_application")
+    data_feeds_consumed = relationship("DataFeed", foreign_keys="DataFeed.consumer_application_id", back_populates="consumer_application")
 
 
 # --- EUC: End User Computing / ITESS ---
@@ -147,6 +154,56 @@ class Endpoint(Base):
     application = relationship("Application", back_populates="endpoints")
     data_quality_rules = relationship("DataQualityRule", back_populates="endpoint")
     data_concerns = relationship("DataConcern", back_populates="endpoint")
+
+
+# --- Data Feed: external or internal source of data; has format, transmission, optional producer/consumer apps ---
+class DataFeed(Base):
+    __tablename__ = "data_feeds"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    domain_id = Column(Integer, ForeignKey("domains.id"), nullable=False, index=True)
+    name = Column(String(255), nullable=False, index=True)
+    description = Column(Text, nullable=True)
+    source_type = Column(String(64), nullable=True)  # external, internal
+    format = Column(String(64), nullable=True)  # fix, csv, json, xml, parquet
+    transmission_method = Column(String(64), nullable=True)  # sftp, kafka, rest, manual, etc.
+    producer_application_id = Column(Integer, ForeignKey("applications.id"), nullable=True, index=True)
+    consumer_application_id = Column(Integer, ForeignKey("applications.id"), nullable=True, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    domain = relationship("Domain", back_populates="data_feeds")
+    producer_application = relationship("Application", foreign_keys=[producer_application_id], back_populates="data_feeds_produced")
+    consumer_application = relationship("Application", foreign_keys=[consumer_application_id], back_populates="data_feeds_consumed")
+    data_feed_elements = relationship("DataFeedDataElement", back_populates="data_feed")
+    controls = relationship("DataFeedControl", back_populates="data_feed")
+
+
+# --- Data Feed <-> Data Element (many-to-many: feed contains data elements) ---
+class DataFeedDataElement(Base):
+    __tablename__ = "data_feed_data_elements"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    data_feed_id = Column(Integer, ForeignKey("data_feeds.id"), nullable=False, index=True)
+    data_element_id = Column(Integer, ForeignKey("data_elements.id"), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    data_feed = relationship("DataFeed", back_populates="data_feed_elements")
+    data_element = relationship("DataElement", back_populates="data_feed_links")
+
+
+# --- Data Feed Control: verify accuracy / validity / timeliness ---
+class DataFeedControl(Base):
+    __tablename__ = "data_feed_controls"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    data_feed_id = Column(Integer, ForeignKey("data_feeds.id"), nullable=False, index=True)
+    control_type = Column(String(64), nullable=True)  # accuracy, validity, timeliness
+    name = Column(String(255), nullable=False, index=True)
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    data_feed = relationship("DataFeed", back_populates="controls")
 
 
 # --- Data Quality Rule ---

@@ -17,6 +17,9 @@ from app.models import (
     Application,
     EUC,
     Endpoint,
+    DataFeed,
+    DataFeedDataElement,
+    DataFeedControl,
     DataQualityRule,
     DataQualityException,
     DataQualityRuleInstance,
@@ -222,6 +225,57 @@ def _seed_equities(db, domain_id):
         DataElementSOR(data_element_id=de_ids[5], application_id=app_ids[1], physical_data_attribute="settlement_dt"),
         DataElementSOR(data_element_id=de_ids[6], application_id=app_ids[0], physical_data_attribute="exec_venue_mic"),
     ])
+    # Data feeds: external (FIX from venue), internal (CSV between OMS and ledger), Kafka execution report
+    feed1 = DataFeed(
+        domain_id=domain_id,
+        name="Execution Venue FIX Feed",
+        description="FIX 4.4 execution reports from execution venue gateway",
+        source_type="external",
+        format="fix",
+        transmission_method="tcp",
+        consumer_application_id=app_ids[0],
+    )
+    feed2 = DataFeed(
+        domain_id=domain_id,
+        name="OMS to Position Ledger Settlement Feed",
+        description="Daily settlement and fill data from OMS to Position Ledger",
+        source_type="internal",
+        format="csv",
+        transmission_method="sftp",
+        producer_application_id=app_ids[0],
+        consumer_application_id=app_ids[1],
+    )
+    feed3 = DataFeed(
+        domain_id=domain_id,
+        name="Execution Report Stream",
+        description="Real-time execution and fill events for reporting",
+        source_type="internal",
+        format="json",
+        transmission_method="kafka",
+        producer_application_id=app_ids[0],
+        consumer_application_id=app_ids[0],
+    )
+    db.add_all([feed1, feed2, feed3])
+    db.flush()
+    db.add_all([
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[0]),
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[1]),
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[2]),
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[6]),
+        DataFeedDataElement(data_feed_id=feed2.id, data_element_id=de_ids[0]),
+        DataFeedDataElement(data_feed_id=feed2.id, data_element_id=de_ids[5]),
+        DataFeedDataElement(data_feed_id=feed2.id, data_element_id=de_ids[1]),
+        DataFeedDataElement(data_feed_id=feed3.id, data_element_id=de_ids[0]),
+        DataFeedDataElement(data_feed_id=feed3.id, data_element_id=de_ids[1]),
+        DataFeedDataElement(data_feed_id=feed3.id, data_element_id=de_ids[2]),
+    ])
+    db.add_all([
+        DataFeedControl(data_feed_id=feed1.id, control_type="validity", name="FIX tag presence", description="Required tags 11, 14, 31, 44 present"),
+        DataFeedControl(data_feed_id=feed1.id, control_type="timeliness", name="Execution latency", description="Execution report within 1s of fill"),
+        DataFeedControl(data_feed_id=feed2.id, control_type="accuracy", name="Settlement reconciliation", description="Settlement date and amount match OMS"),
+        DataFeedControl(data_feed_id=feed2.id, control_type="validity", name="File format check", description="CSV schema and encoding validated"),
+        DataFeedControl(data_feed_id=feed3.id, control_type="timeliness", name="Kafka lag monitor", description="Consumer lag below threshold"),
+    ])
 
 
 def _seed_commodities(db, domain_id):
@@ -303,6 +357,54 @@ def _seed_commodities(db, domain_id):
         DataElementSOR(data_element_id=de_ids[3], application_id=app_ids[0], physical_data_attribute="trade_dt"),
         DataElementSOR(data_element_id=de_ids[6], application_id=app_ids[0], physical_data_attribute="uti"),
     ])
+    # Data feeds: EMIR (external), internal P&L CSV, Kafka positions
+    feed1 = DataFeed(
+        domain_id=domain_id,
+        name="EMIR Trade Report Feed",
+        description="Derivative trade data to EMIR TR",
+        source_type="external",
+        format="xml",
+        transmission_method="rest",
+        producer_application_id=app_ids[0],
+    )
+    feed2 = DataFeed(
+        domain_id=domain_id,
+        name="Daily P&L Export",
+        description="Commodities P&L export from trading platform to risk",
+        source_type="internal",
+        format="csv",
+        transmission_method="sftp",
+        producer_application_id=app_ids[0],
+        consumer_application_id=app_ids[2],
+    )
+    feed3 = DataFeed(
+        domain_id=domain_id,
+        name="Position Stream",
+        description="Real-time position updates for risk engine",
+        source_type="internal",
+        format="json",
+        transmission_method="kafka",
+        producer_application_id=app_ids[0],
+        consumer_application_id=app_ids[2],
+    )
+    db.add_all([feed1, feed2, feed3])
+    db.flush()
+    db.add_all([
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[3]),
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[5]),
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[6]),
+        DataFeedDataElement(data_feed_id=feed2.id, data_element_id=de_ids[1]),
+        DataFeedDataElement(data_feed_id=feed2.id, data_element_id=de_ids[2]),
+        DataFeedDataElement(data_feed_id=feed2.id, data_element_id=de_ids[3]),
+        DataFeedDataElement(data_feed_id=feed3.id, data_element_id=de_ids[1]),
+        DataFeedDataElement(data_feed_id=feed3.id, data_element_id=de_ids[2]),
+    ])
+    db.add_all([
+        DataFeedControl(data_feed_id=feed1.id, control_type="validity", name="UTI unique", description="UTI uniqueness check for EMIR"),
+        DataFeedControl(data_feed_id=feed1.id, control_type="timeliness", name="T+1 submission", description="Report submitted by T+1"),
+        DataFeedControl(data_feed_id=feed2.id, control_type="accuracy", name="P&L reconciliation", description="P&L matches trading platform"),
+        DataFeedControl(data_feed_id=feed3.id, control_type="timeliness", name="Position latency", description="End-of-day position latency SLA"),
+    ])
 
 
 def _seed_commercial_banking(db, domain_id):
@@ -377,6 +479,50 @@ def _seed_commercial_banking(db, domain_id):
         DataElementSOR(data_element_id=de_ids[2], application_id=app_ids[0], physical_data_attribute="loan_amt"),
         DataElementSOR(data_element_id=de_ids[8], application_id=app_ids[4], physical_data_attribute="snc_participation_amt"),
     ])
+    # Data feeds: SNC submission (regulatory), internal CECL feed, manual CRE pack
+    feed1 = DataFeed(
+        domain_id=domain_id,
+        name="SNC Submission Feed",
+        description="Shared National Credit data to Fed/OCC",
+        source_type="external",
+        format="csv",
+        transmission_method="sftp",
+        producer_application_id=app_ids[4],
+    )
+    feed2 = DataFeed(
+        domain_id=domain_id,
+        name="CECL Allowance Feed",
+        description="Allowance and roll-forward from CECL engine to reporting hub",
+        source_type="internal",
+        format="json",
+        transmission_method="rest",
+        producer_application_id=app_ids[3],
+        consumer_application_id=app_ids[4],
+    )
+    feed3 = DataFeed(
+        domain_id=domain_id,
+        name="Schedule L CRE Data Pack",
+        description="Manual upload of CRE data for FR-Y-14Q Schedule L",
+        source_type="internal",
+        format="csv",
+        transmission_method="manual",
+        consumer_application_id=app_ids[4],
+    )
+    db.add_all([feed1, feed2, feed3])
+    db.flush()
+    db.add_all([
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[8]),
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[2]),
+        DataFeedDataElement(data_feed_id=feed2.id, data_element_id=de_ids[7]),
+        DataFeedDataElement(data_feed_id=feed3.id, data_element_id=de_ids[3]),
+        DataFeedDataElement(data_feed_id=feed3.id, data_element_id=de_ids[4]),
+    ])
+    db.add_all([
+        DataFeedControl(data_feed_id=feed1.id, control_type="accuracy", name="SNC participation sum", description="Participation amounts sum to total"),
+        DataFeedControl(data_feed_id=feed1.id, control_type="timeliness", name="SNC deadline", description="Submission by regulatory deadline"),
+        DataFeedControl(data_feed_id=feed2.id, control_type="validity", name="CECL schema validation", description="JSON schema and required fields"),
+        DataFeedControl(data_feed_id=feed3.id, control_type="validity", name="CRE file format", description="CSV columns and NAICS codes valid"),
+    ])
 
 
 def _seed_investment_banking(db, domain_id):
@@ -439,6 +585,40 @@ def _seed_investment_banking(db, domain_id):
         DataElementSOR(data_element_id=de_ids[0], application_id=app_ids[0], physical_data_attribute="deal_id"),
         DataElementSOR(data_element_id=de_ids[5], application_id=app_ids[2], physical_data_attribute="tier1_capital"),
     ])
+    # Data feeds: FR-Y-14 submission, pipeline report (internal)
+    feed1 = DataFeed(
+        domain_id=domain_id,
+        name="FR-Y-14A Capital Plan Feed",
+        description="Annual capital plan submission",
+        source_type="external",
+        format="xml",
+        transmission_method="sftp",
+        producer_application_id=app_ids[2],
+    )
+    feed2 = DataFeed(
+        domain_id=domain_id,
+        name="Pipeline Report Feed",
+        description="Weekly deal pipeline from CRM to reporting",
+        source_type="internal",
+        format="csv",
+        transmission_method="sftp",
+        producer_application_id=app_ids[0],
+        consumer_application_id=app_ids[2],
+    )
+    db.add_all([feed1, feed2])
+    db.flush()
+    db.add_all([
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[5]),
+        DataFeedDataElement(data_feed_id=feed1.id, data_element_id=de_ids[6]),
+        DataFeedDataElement(data_feed_id=feed2.id, data_element_id=de_ids[0]),
+        DataFeedDataElement(data_feed_id=feed2.id, data_element_id=de_ids[1]),
+        DataFeedDataElement(data_feed_id=feed2.id, data_element_id=de_ids[3]),
+    ])
+    db.add_all([
+        DataFeedControl(data_feed_id=feed1.id, control_type="accuracy", name="Tier 1 consistency", description="Tier 1 capital aligns with FR-Y-14A"),
+        DataFeedControl(data_feed_id=feed1.id, control_type="timeliness", name="Submission deadline", description="Annual submission by deadline"),
+        DataFeedControl(data_feed_id=feed2.id, control_type="validity", name="Deal ID unique", description="Deal IDs unique in pipeline export"),
+    ])
 
 
 # Map L1 domain name -> seed function (only L1 domains that have seed data)
@@ -492,10 +672,13 @@ def reset_and_reseed():
         db.query(DataQualityRuleInstance).delete()
         db.query(DataQualitySqlVersion).delete()
         db.query(DataQualityRule).delete()
+        db.query(DataFeedControl).delete()
+        db.query(DataFeedDataElement).delete()
+        db.query(DataFeed).delete()
         db.query(Endpoint).delete()
         db.query(EUC).delete()
-        db.query(Application).delete()
         db.query(DataElementSOR).delete()
+        db.query(Application).delete()
         db.query(DataElement).delete()
         # Domains: clear parent_id to avoid self-FK, then delete all
         db.query(Domain).update({Domain.parent_id: None})

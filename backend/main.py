@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.database import get_engine_and_session, ensure_dq_schema
-from app.api import domains, users, data_elements, applications, eucs, endpoints, data_quality, data_concerns, metrics, bulk
+from app.api import domains, users, data_elements, applications, eucs, endpoints, data_feeds, data_quality, data_concerns, metrics, bulk
 from app.auth import router as auth_router
 
 app = FastAPI(
@@ -36,6 +36,7 @@ app.include_router(data_elements.router, prefix="/api")
 app.include_router(applications.router, prefix="/api")
 app.include_router(eucs.router, prefix="/api")
 app.include_router(endpoints.router, prefix="/api")
+app.include_router(data_feeds.router, prefix="/api")
 app.include_router(data_quality.router, prefix="/api")
 app.include_router(data_concerns.router, prefix="/api")
 app.include_router(metrics.router, prefix="/api")

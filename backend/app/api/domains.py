@@ -151,10 +151,10 @@ def delete_domain(domain_id: int, db: Session = Depends(get_db_dep)):
             status_code=409,
             detail="Cannot delete domain that has child domains. Remove or move children first.",
         )
-    if domain.data_elements or domain.applications or domain.eucs or domain.endpoints or domain.data_quality_rules or domain.data_concerns:
+    if domain.data_elements or domain.applications or domain.eucs or domain.endpoints or domain.data_quality_rules or domain.data_concerns or domain.data_feeds:
         raise HTTPException(
             status_code=409,
-            detail="Cannot delete domain that has related data (data elements, applications, EUCs, endpoints, DQ rules, or data concerns). Remove or reassign them first.",
+            detail="Cannot delete domain that has related data (data elements, applications, EUCs, endpoints, data feeds, DQ rules, or data concerns). Remove or reassign them first.",
         )
 
     db.delete(domain)

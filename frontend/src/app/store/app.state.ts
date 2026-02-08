@@ -11,7 +11,7 @@
  * - loading: map of loading keys (e.g. 'domains', 'dataElements') to boolean; used for spinners.
  * - error: general app error message (e.g. from domain load failure).
  */
-import { Domain, DomainTreeNode, User, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
+import { Domain, DomainTreeNode, User, DataElement, Application, EUC, Endpoint, DataFeed, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
 import type { AuthUser } from '../core/models';
 
 export interface AppState {
@@ -30,6 +30,7 @@ export interface AppState {
   dataQualityRules: DataQualityRule[];
   dataQualityExceptions: DataQualityException[];
   dataConcerns: DataConcern[];
+  dataFeeds: DataFeed[];
   metrics: Metrics | null;
   /** Keys match effect loadingKey (e.g. 'domains', 'dataElements'). True while a load is in progress. */
   loading: { [key: string]: boolean };
@@ -52,6 +53,7 @@ export const initialAppState: AppState = {
   dataQualityRules: [],
   dataQualityExceptions: [],
   dataConcerns: [],
+  dataFeeds: [],
   metrics: null,
   loading: {},
   error: null,

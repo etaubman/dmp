@@ -38,11 +38,14 @@ import type {
   RuleModRequest,
   RuleInstanceCount,
   LineageApplication,
+  DataFeed,
+  DataFeedDetail,
   DataConcern,
   Metrics,
   LineageResponse,
 } from './models';
 import { DomainsApiService } from './domains-api.service';
+import { DataFeedsApiService } from './data-feeds-api.service';
 import { UsersApiService } from './users-api.service';
 import { AuthApiService } from './auth-api.service';
 import { DataElementsApiService } from './data-elements-api.service';
@@ -66,6 +69,7 @@ export class ApiService {
     private endpoints: EndpointsApiService,
     private dataQuality: DataQualityApiService,
     private dataConcerns: DataConcernsApiService,
+    private dataFeeds: DataFeedsApiService,
     private metrics: MetricsApiService,
     private bulk: BulkApiService,
   ) {}
@@ -185,6 +189,13 @@ export class ApiService {
 
   getDataConcerns(domainId: number, filters?: { application_id?: number; euc_id?: number; endpoint_id?: number; data_element_id?: number }): Observable<DataConcern[]> {
     return this.dataConcerns.getDataConcerns(domainId, filters);
+  }
+
+  getDataFeeds(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<DataFeed[]> {
+    return this.dataFeeds.getDataFeeds(domainId, scope);
+  }
+  getDataFeed(id: number): Observable<DataFeedDetail> {
+    return this.dataFeeds.getDataFeed(id);
   }
 
   getMetrics(domainId?: number): Observable<Metrics> {
