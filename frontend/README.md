@@ -70,7 +70,19 @@ Leave both **off** for production.
 npm run build
 ```
 
-Artifacts go to `dist/`. For production, the build uses `environment.prod.ts` — set `apiUrl` there for your API host.
+Artifacts go to `dist/frontend-app/`. For production, the build uses `environment.prod.ts` — set `apiUrl` there for your API host.
+
+### Rebuild from scratch
+
+To reinstall dependencies and do a clean build:
+
+```powershell
+Remove-Item -Recurse -Force node_modules, .angular, dist -ErrorAction SilentlyContinue
+npm install
+npm run build
+```
+
+On Windows, if `node_modules` cannot be deleted (e.g. "Access denied" on native binaries), close the IDE and any running Node or Angular processes, then retry or delete `node_modules` manually.
 
 ---
 

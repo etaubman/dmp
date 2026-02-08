@@ -17,6 +17,7 @@ This README helps **new team members** get the app running, understand the repo,
 - **Tech stack** — Frameworks and tools
 - **API overview** — Main endpoints and bulk operations
 - **Troubleshooting** — Common issues and fixes
+- **Rebuilding from scratch** — Docker and frontend clean rebuild, including DB seed
 - **Contributing** — Tests (backend, frontend, Cucumber E2E), code style, and PRs
 
 ---
@@ -160,6 +161,30 @@ For architecture and product requirements, see the **Repo layout** section below
 | **CORS errors in browser** | The API uses `CORS_ORIGINS` from `backend/app/config.py` (env: comma-separated list; defaults include `http://localhost:4200`, `http://127.0.0.1:4200`). To add an origin, set `CORS_ORIGINS` in `.env` or adjust the default in `config.py`. |
 | **Frontend can't reach API** | Confirm the API is running and that `frontend/src/environments/environment.ts` has `apiUrl` pointing to it (e.g. `http://localhost:8000`). |
 | **Login 401 / forgot password** | See backend README: run `python -m app.seed set-passwords` from `backend/` with venv activated, then log in with e.g. `ethan.taubman@example.com` / `password`. |
+
+---
+
+## Rebuilding from scratch
+
+**Docker (containers, volumes, and database):**
+
+1. From repo root:
+   ```powershell
+   docker-compose down -v
+   docker-compose build --no-cache
+   docker-compose up -d
+   ```
+2. The backend creates tables and **seeds the database** on startup (see [backend/README.md](backend/README.md)). Wait ~10–30 seconds for services to be ready.
+
+**Frontend:**
+
+1. From `frontend/`:
+   ```powershell
+   Remove-Item -Recurse -Force node_modules, .angular, dist -ErrorAction SilentlyContinue
+   npm install
+   npm run build
+   ```
+2. If `node_modules` cannot be removed (e.g. "Access denied" on Windows), close the IDE and any Node processes, then retry or delete `node_modules` manually. Build output is in `dist/frontend-app/`.
 
 ---
 

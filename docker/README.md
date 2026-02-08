@@ -78,6 +78,20 @@ If buckets are missing after `docker-compose up -d`, check that MinIO is healthy
 | **Volume data reset** | To start with a fresh DB or MinIO storage, remove volumes: `docker-compose down -v`. Then `docker-compose up -d` again. **Warning:** This deletes all data in Postgres and MinIO. |
 | **Port already in use** | Change the port mapping in `docker-compose.yml` (e.g. `"5433:5432"` for Postgres) or stop the conflicting service. |
 
+### Rebuilding containers and database from scratch
+
+From **repo root**:
+
+```powershell
+docker-compose down -v
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+- `down -v` removes containers and volumes (fresh Postgres and MinIO).
+- `build --no-cache` rebuilds the backend image from scratch.
+- On `up -d`, the backend creates tables and runs the **idempotent seed** (L0/L1/L2 domains, sample data, users). No extra step is needed to seed the database.
+
 ---
 
 ## See also
