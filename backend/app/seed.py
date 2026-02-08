@@ -10,6 +10,7 @@ from app.models import (
     Domain,
     User,
     DataElement,
+    DataElementSOR,
     Application,
     EUC,
     Endpoint,
@@ -151,6 +152,13 @@ def _seed_equities(db, domain_id):
         DataConcern(domain_id=domain_id, application_id=app_ids[0], endpoint_id=ep_ids[0], title="MIFID II report timeliness", description="Late submission risk for T+1 report", status="open"),
         DataConcern(domain_id=domain_id, application_id=app_ids[0], endpoint_id=ep_ids[4], title="CAT clock sync", description="Clock synchronization variance across OMS and venues", status="open"),
     ])
+    db.add_all([
+        DataElementSOR(data_element_id=de_ids[0], application_id=app_ids[0], physical_data_attribute="order_id"),
+        DataElementSOR(data_element_id=de_ids[0], application_id=app_ids[4], physical_data_attribute="ext_order_ref"),
+        DataElementSOR(data_element_id=de_ids[1], application_id=app_ids[0], physical_data_attribute="fill_price"),
+        DataElementSOR(data_element_id=de_ids[5], application_id=app_ids[1], physical_data_attribute="settlement_dt"),
+        DataElementSOR(data_element_id=de_ids[6], application_id=app_ids[0], physical_data_attribute="exec_venue_mic"),
+    ])
 
 
 def _seed_commodities(db, domain_id):
@@ -212,6 +220,12 @@ def _seed_commodities(db, domain_id):
     db.add_all([
         DataConcern(domain_id=domain_id, application_id=app_ids[1], data_element_id=de_ids[4], title="Delivery location codes", description="Multiple code schemes across regions", status="open"),
         DataConcern(domain_id=domain_id, application_id=app_ids[0], endpoint_id=ep_ids[0], title="EMIR timeliness", description="T+1 reporting occasionally delayed", status="open"),
+    ])
+    db.add_all([
+        DataElementSOR(data_element_id=de_ids[1], application_id=app_ids[0], physical_data_attribute="position_qty"),
+        DataElementSOR(data_element_id=de_ids[1], application_id=app_ids[1], physical_data_attribute="inventory_balance"),
+        DataElementSOR(data_element_id=de_ids[3], application_id=app_ids[0], physical_data_attribute="trade_dt"),
+        DataElementSOR(data_element_id=de_ids[6], application_id=app_ids[0], physical_data_attribute="uti"),
     ])
 
 
@@ -279,6 +293,11 @@ def _seed_commercial_banking(db, domain_id):
         DataConcern(domain_id=domain_id, data_element_id=de_ids[5], title="NAICS code accuracy", description="NAICS codes not updated after reclassification", status="open"),
         DataConcern(domain_id=domain_id, application_id=app_ids[4], endpoint_id=ep_ids[0], title="SNC submission timeliness", description="SNC data cut-off vs submission deadline", status="open"),
     ])
+    db.add_all([
+        DataElementSOR(data_element_id=de_ids[0], application_id=app_ids[0], physical_data_attribute="customer_id"),
+        DataElementSOR(data_element_id=de_ids[2], application_id=app_ids[0], physical_data_attribute="loan_amt"),
+        DataElementSOR(data_element_id=de_ids[8], application_id=app_ids[4], physical_data_attribute="snc_participation_amt"),
+    ])
 
 
 def _seed_investment_banking(db, domain_id):
@@ -333,6 +352,10 @@ def _seed_investment_banking(db, domain_id):
         DataConcern(domain_id=domain_id, application_id=app_ids[0], data_element_id=de_ids[2], title="Client ID cross-reference", description="Client ID not aligned with KYC system", status="open"),
         DataConcern(domain_id=domain_id, application_id=app_ids[2], endpoint_id=ep_ids[0], title="FR-Y-14A data lineage", description="Capital plan data from multiple source systems", status="open"),
     ])
+    db.add_all([
+        DataElementSOR(data_element_id=de_ids[0], application_id=app_ids[0], physical_data_attribute="deal_id"),
+        DataElementSOR(data_element_id=de_ids[5], application_id=app_ids[2], physical_data_attribute="tier1_capital"),
+    ])
 
 
 # Map L1 domain name -> seed function (only L1 domains that have seed data)
@@ -386,6 +409,7 @@ def reset_and_reseed():
         db.query(Endpoint).delete()
         db.query(EUC).delete()
         db.query(Application).delete()
+        db.query(DataElementSOR).delete()
         db.query(DataElement).delete()
         # Domains: clear parent_id to avoid self-FK, then delete all
         db.query(Domain).update({Domain.parent_id: None})

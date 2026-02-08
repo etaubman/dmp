@@ -96,6 +96,14 @@ export interface DataQualityRule {
   rule_type?: string;
 }
 
+/** System of record: application that sources a data element and the physical attribute name. */
+export interface DataElementSORSummary {
+  data_element_id: number;
+  application_id: number;
+  application_name: string;
+  physical_data_attribute?: string;
+}
+
 export interface DataQualityException {
   id: number;
   rule_id: number;
@@ -204,6 +212,12 @@ export class ApiService {
     let params = new HttpParams().set('domain_id', domainId);
     if (scope !== 'owned') params = params.set('scope', scope);
     return this.http.get<DataElement[]>(`${API}/data-elements`, { params });
+  }
+
+  getDataElementSorByDomain(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<DataElementSORSummary[]> {
+    let params = new HttpParams().set('domain_id', domainId);
+    if (scope !== 'owned') params = params.set('scope', scope);
+    return this.http.get<DataElementSORSummary[]>(`${API}/data-elements/sor`, { params });
   }
 
   getDataElementLineage(dataElementId: number): Observable<LineageResponse> {

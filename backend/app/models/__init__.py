@@ -13,6 +13,7 @@ __all__ = [
     "Base",
     "Domain",
     "DataElement",
+    "DataElementSOR",
     "Application",
     "EUC",
     "Endpoint",
@@ -75,6 +76,21 @@ class DataElement(Base):
         "DataQualityException", back_populates="data_element"
     )
     data_concerns = relationship("DataConcern", back_populates="data_element")
+    systems_of_record = relationship("DataElementSOR", back_populates="data_element")
+
+
+# --- Data Element System of Record: which application sources this element and the physical attribute name ---
+class DataElementSOR(Base):
+    __tablename__ = "data_element_sor"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    data_element_id = Column(Integer, ForeignKey("data_elements.id"), nullable=False, index=True)
+    application_id = Column(Integer, ForeignKey("applications.id"), nullable=False, index=True)
+    physical_data_attribute = Column(String(255), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    data_element = relationship("DataElement", back_populates="systems_of_record")
+    application = relationship("Application", back_populates="systems_of_record")
 
 
 # --- Application (system used in the business) ---
@@ -91,6 +107,7 @@ class Application(Base):
     domain = relationship("Domain", back_populates="applications")
     endpoints = relationship("Endpoint", back_populates="application")
     data_concerns = relationship("DataConcern", back_populates="application")
+    systems_of_record = relationship("DataElementSOR", back_populates="application")
 
 
 # --- EUC: End User Computing / ITESS ---

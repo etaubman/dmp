@@ -1,10 +1,11 @@
-"""Critical Data Elements API: list by domain, lineage for an element."""
+"""Critical Data Elements API: list by domain, lineage for an element, SOR."""
 from typing import Literal
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db_dep
-from app.models import DataElement, Domain, DataQualityRule, DataConcern, Endpoint
+from app.models import DataElement, Domain, DataQualityRule, DataConcern, Endpoint, DataElementSOR, Application
 from app.schemas.data_element import DataElementOut
+from app.schemas.data_element_sor import DataElementSOROut, DataElementSORSummaryOut
 from app.schemas.lineage import LineageResponse, LineageNode, LineageEdge
 
 router = APIRouter(prefix="/data-elements", tags=["data-elements"])
@@ -26,6 +27,35 @@ def _domain_ids_for_scope(db: Session, domain_id: int, scope: str) -> list[int]:
 
 def _node_id(prefix: str, pk: int) -> str:
     return f"{prefix}-{pk}"
+
+
+@router.get("/sor", response_model=list[DataElementSORSummaryOut])
+def list_data_element_sor_by_domain(
+    domain_id: int = Query(..., description="Filter by domain"),
+    scope: Literal["owned", "upstream", "downstream"] = Query("owned", description="Scope for data elements"),
+    db: Session = Depends(get_db_dep),
+):
+    """List all SOR records for data elements in the given domain (and scope). Used for grid counts and panel."""
+    domain_ids = _domain_ids_for_scope(db, domain_id, scope)
+    if not domain_ids:
+        return []
+    rows = (
+        db.query(DataElementSOR, Application.name.label("application_name"))
+        .join(Application, DataElementSOR.application_id == Application.id)
+        .join(DataElement, DataElementSOR.data_element_id == DataElement.id)
+        .filter(DataElement.domain_id.in_(domain_ids))
+        .order_by(DataElementSOR.data_element_id, Application.name)
+        .all()
+    )
+    return [
+        DataElementSORSummaryOut(
+            data_element_id=sor.data_element_id,
+            application_id=sor.application_id,
+            application_name=app_name,
+            physical_data_attribute=sor.physical_data_attribute,
+        )
+        for sor, app_name in rows
+    ]
 
 
 # More specific route first so /api/data-elements/1/lineage is not matched by list
@@ -163,6 +193,32 @@ def get_data_element_lineage(
         )
 
     return LineageResponse(nodes=nodes, edges=edges)
+
+
+@router.get("/{data_element_id}/sor", response_model=list[DataElementSOROut])
+def get_data_element_sor(
+    data_element_id: int,
+    db: Session = Depends(get_db_dep),
+):
+    """Return systems of record for a data element: applications and physical data attribute names."""
+    de = db.query(DataElement).filter(DataElement.id == data_element_id).first()
+    if not de:
+        raise HTTPException(status_code=404, detail="Data element not found")
+    rows = (
+        db.query(DataElementSOR, Application.name.label("application_name"))
+        .join(Application, DataElementSOR.application_id == Application.id)
+        .filter(DataElementSOR.data_element_id == data_element_id)
+        .order_by(Application.name)
+        .all()
+    )
+    return [
+        DataElementSOROut(
+            application_id=sor.application_id,
+            application_name=app_name,
+            physical_data_attribute=sor.physical_data_attribute,
+        )
+        for sor, app_name in rows
+    ]
 
 
 @router.get("", response_model=list[DataElementOut])

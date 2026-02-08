@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { DetailRow } from '../detail-modal/detail-modal.component';
-import { DataConcern, Endpoint, DataQualityRule } from '../../core/api.service';
+import { DataConcern, Endpoint, DataQualityRule, DataElementSORSummary } from '../../core/api.service';
 
 @Component({
   selector: 'app-detail-panel',
@@ -13,6 +13,7 @@ export class DetailPanelComponent {
   @Input() concerns: DataConcern[] = [];
   @Input() endpoints: Endpoint[] = [];
   @Input() dqRules: DataQualityRule[] = [];
+  @Input() sors: DataElementSORSummary[] = [];
   @Input() open = false;
   @Output() openChange = new EventEmitter<boolean>();
   @Output() concernClick = new EventEmitter<DataConcern>();

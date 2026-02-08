@@ -32,6 +32,7 @@ import { LineageButtonCellComponent } from './pages/data-elements-page/lineage-b
 import { DataConcernsCountCellComponent } from './pages/data-elements-page/data-concerns-count-cell/data-concerns-count-cell.component';
 import { EndpointsCountCellComponent } from './pages/data-elements-page/endpoints-count-cell/endpoints-count-cell.component';
 import { DqRulesCountCellComponent } from './pages/data-elements-page/dq-rules-count-cell/dq-rules-count-cell.component';
+import { SorCountCellComponent } from './pages/data-elements-page/sor-count-cell/sor-count-cell.component';
 import { EndpointDetailModalComponent } from './shared/endpoint-detail-modal/endpoint-detail-modal.component';
 import { DqRuleDetailModalComponent } from './shared/dq-rule-detail-modal/dq-rule-detail-modal.component';
 import { ApplicationsPageComponent } from './pages/applications-page/applications-page.component';
@@ -64,6 +65,7 @@ import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-se
     DataConcernsCountCellComponent,
     EndpointsCountCellComponent,
     DqRulesCountCellComponent,
+    SorCountCellComponent,
     EndpointDetailModalComponent,
     DqRuleDetailModalComponent,
     DataElementsPageComponent,

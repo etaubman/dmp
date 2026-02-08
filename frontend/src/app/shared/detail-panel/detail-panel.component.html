@@ -21,7 +21,7 @@
           </div>
         </button>
       </div>
-      <div *ngIf="endpoints && endpoints.length > 0 && (!concerns || concerns.length === 0)" class="detail-panel__concerns-list">
+      <div *ngIf="endpoints && endpoints.length > 0 && (!concerns || concerns.length === 0) && (!sors || sors.length === 0)" class="detail-panel__concerns-list">
         <button *ngFor="let ep of endpoints" type="button" class="concern-card" (click)="onEndpointCardClick(ep)">
           <div class="concern-card__title">{{ ep.name }}</div>
           <div class="concern-card__meta">
@@ -33,7 +33,7 @@
           </div>
         </button>
       </div>
-      <div *ngIf="dqRules && dqRules.length > 0 && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0)" class="detail-panel__concerns-list">
+      <div *ngIf="dqRules && dqRules.length > 0 && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!sors || sors.length === 0)" class="detail-panel__concerns-list">
         <button *ngFor="let r of dqRules" type="button" class="concern-card" (click)="onDqRuleCardClick(r)">
           <div class="concern-card__title">{{ r.name }}</div>
           <div class="concern-card__meta">
@@ -47,7 +47,16 @@
           </div>
         </button>
       </div>
-      <dl *ngIf="(!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0)" class="space-y-2">
+      <div *ngIf="sors && sors.length > 0 && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0)" class="detail-panel__concerns-list">
+        <div *ngFor="let s of sors" class="sor-card">
+          <div class="concern-card__title">{{ s.application_name }}</div>
+          <div class="concern-card__meta">
+            <span class="sor-card__attr" *ngIf="s.physical_data_attribute">Physical Data Attribute: {{ s.physical_data_attribute }}</span>
+            <span class="sor-card__attr sor-card__attr--muted" *ngIf="!s.physical_data_attribute">Physical Data Attribute: —</span>
+          </div>
+        </div>
+      </div>
+      <dl *ngIf="(!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0) && (!sors || sors.length === 0)" class="space-y-2">
         <div *ngFor="let row of rows" class="flex">
           <dt class="w-36 flex-shrink-0 text-gray-500 text-sm">{{ row.label }}</dt>
           <dd class="text-gray-200 text-sm break-words">{{ row.value ?? '—' }}</dd>

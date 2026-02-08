@@ -8,7 +8,9 @@ import { LineageButtonCellComponent } from './lineage-button-cell/lineage-button
 import { DataConcernsCountCellComponent } from './data-concerns-count-cell/data-concerns-count-cell.component';
 import { EndpointsCountCellComponent } from './endpoints-count-cell/endpoints-count-cell.component';
 import { DqRulesCountCellComponent } from './dq-rules-count-cell/dq-rules-count-cell.component';
+import { SorCountCellComponent } from './sor-count-cell/sor-count-cell.component';
 import { selectDataElements, selectDataConcerns, selectEndpoints, selectDataQualityRules, selectCurrentDomainId, selectLoading } from '../../store/app.selectors';
+import { ApiService, DataElementSORSummary } from '../../core/api.service';
 import * as AppActions from '../../store/app.actions';
 import type { DomainScope } from '../../store/app.actions';
 import { DataElement, DataConcern, Endpoint, DataQualityRule } from '../../core/api.service';
@@ -25,7 +27,7 @@ import { mockSparklineFromValue, mockChangeFromValue } from '../../shared/concep
 export class DataElementsPageComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   dataElements: DataElement[] = [];
-  enrichedElements: (DataElement & { concernCount?: number; hasCriticalConcern?: boolean; endpointCount?: number; dqRulesCount?: number })[] = [];
+  enrichedElements: (DataElement & { concernCount?: number; hasCriticalConcern?: boolean; endpointCount?: number; dqRulesCount?: number; sorCount?: number })[] = [];
   loading = false;
   selectedItem: DataElement | null = null;
   panelRows: DetailRow[] = [];
@@ -33,12 +35,15 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
   panelConcerns: DataConcern[] = [];
   panelEndpoints: Endpoint[] = [];
   panelDqRules: DataQualityRule[] = [];
+  panelSors: DataElementSORSummary[] = [];
   dataConcerns: DataConcern[] = [];
   endpoints: Endpoint[] = [];
   dataQualityRules: DataQualityRule[] = [];
+  sorByElement: DataElementSORSummary[] = [];
   concernsByElement: Record<number, { count: number; hasCritical: boolean }> = {};
   endpointIdsByElement: Record<number, number[]> = {};
   dqRulesByElement: Record<number, DataQualityRule[]> = {};
+  sorCountByElement: Record<number, number> = {};
 
   lineageModalOpen = false;
   lineageElement: DataElement | null = null;
@@ -62,6 +67,17 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
     { field: 'name', headerName: 'Name', flex: 1 },
     { field: 'description', headerName: 'Description', flex: 1 },
     { field: 'element_type', headerName: 'Type', width: 120 },
+    {
+      headerName: '# SOR',
+      width: 120,
+      sortable: false,
+      filter: false,
+      cellStyle: { textAlign: 'center' },
+      cellRenderer: SorCountCellComponent,
+      cellRendererParams: {
+        onOpenSor: (data: DataElement) => this.openSorPanel(data),
+      },
+    },
     {
       headerName: '# DC',
       width: 120,
@@ -108,7 +124,7 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
   ];
   defaultColDef: ColDef = { sortable: true, filter: true };
 
-  constructor(private store: Store, private concernModal: DataConcernModalService) {}
+  constructor(private store: Store, private concernModal: DataConcernModalService, private api: ApiService) {}
 
   ngOnInit(): void {
     this.store
@@ -121,6 +137,14 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
           this.store.dispatch(AppActions.loadDataConcerns({ domainId }));
           this.store.dispatch(AppActions.loadEndpoints({ domainId, scope: this.domainScope }));
           this.store.dispatch(AppActions.loadDataQualityRules({ domainId }));
+          this.api.getDataElementSorByDomain(domainId, this.domainScope).pipe(takeUntil(this.destroy$)).subscribe((sors) => {
+            this.sorByElement = sors;
+            this.updateSorCountByElement();
+            this.refreshEnrichedElements();
+          });
+        } else {
+          this.sorByElement = [];
+          this.sorCountByElement = {};
         }
       });
     combineLatest([
@@ -140,13 +164,7 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
         this.updateConcernsByElement();
         this.updateEndpointIdsByElement();
         this.updateDqRulesByElement();
-        this.enrichedElements = list.map((e) => ({
-          ...e,
-          concernCount: this.concernsByElement[e.id]?.count ?? 0,
-          hasCriticalConcern: this.concernsByElement[e.id]?.hasCritical ?? false,
-          endpointCount: this.endpointIdsByElement[e.id]?.length ?? 0,
-          dqRulesCount: this.dqRulesByElement[e.id]?.length ?? 0,
-        }));
+        this.refreshEnrichedElements();
         this.updateMetrics();
       });
   }
@@ -188,6 +206,25 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
       map[id].push(r);
     }
     this.dqRulesByElement = map;
+  }
+
+  private updateSorCountByElement(): void {
+    const map: Record<number, number> = {};
+    for (const s of this.sorByElement) {
+      map[s.data_element_id] = (map[s.data_element_id] ?? 0) + 1;
+    }
+    this.sorCountByElement = map;
+  }
+
+  private refreshEnrichedElements(): void {
+    this.enrichedElements = this.dataElements.map((e) => ({
+      ...e,
+      concernCount: this.concernsByElement[e.id]?.count ?? 0,
+      hasCriticalConcern: this.concernsByElement[e.id]?.hasCritical ?? false,
+      endpointCount: this.endpointIdsByElement[e.id]?.length ?? 0,
+      dqRulesCount: this.dqRulesByElement[e.id]?.length ?? 0,
+      sorCount: this.sorCountByElement[e.id] ?? 0,
+    }));
   }
 
   private updateMetrics(): void {
@@ -250,6 +287,17 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
     this.panelConcerns = [];
     this.panelEndpoints = [];
     this.panelDqRules = this.dqRulesByElement[element.id] ?? [];
+    this.panelSors = [];
+  }
+
+  openSorPanel(element: DataElement): void {
+    this.selectedItem = element;
+    this.panelTitle = 'SOR – ' + element.name;
+    this.panelRows = [];
+    this.panelConcerns = [];
+    this.panelEndpoints = [];
+    this.panelDqRules = [];
+    this.panelSors = this.sorByElement.filter((s) => s.data_element_id === element.id);
   }
 
   closePanel(): void {
@@ -257,6 +305,7 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
     this.panelConcerns = [];
     this.panelEndpoints = [];
     this.panelDqRules = [];
+    this.panelSors = [];
   }
 
   openLineage(data: DataElement): void {
@@ -299,6 +348,11 @@ export class DataElementsPageComponent implements OnInit, OnDestroy {
     this.domainScope = scope;
     if (this.currentDomainId != null) {
       this.store.dispatch(AppActions.loadDataElements({ domainId: this.currentDomainId, scope }));
+      this.api.getDataElementSorByDomain(this.currentDomainId, scope).pipe(takeUntil(this.destroy$)).subscribe((sors) => {
+        this.sorByElement = sors;
+        this.updateSorCountByElement();
+        this.refreshEnrichedElements();
+      });
     }
   }
 }
