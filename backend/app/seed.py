@@ -19,6 +19,9 @@ from app.models import (
     Endpoint,
     DataQualityRule,
     DataQualityException,
+    DataQualityRuleInstance,
+    DataQualitySqlVersion,
+    RuleModRequest,
     DataConcern,
 )
 from app.auth.local_provider import hash_password
@@ -267,17 +270,28 @@ def _seed_commodities(db, domain_id):
     db.flush()
     ep_ids = [e.id for e in endpoints]
     dqrs = [
-        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[1], name="Position quantity valid", rule_type="validity", description="Position must be numeric"),
-        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[3], endpoint_id=ep_ids[2], name="Trade date within period", rule_type="timeliness", description="Trade date in reporting period"),
-        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[6], endpoint_id=ep_ids[0], name="UTI unique", rule_type="validity", description="UTI must be unique for EMIR"),
-        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[5], endpoint_id=ep_ids[0], name="Counterparty LEI valid", rule_type="validity", description="LEI required for EMIR"),
-        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[8], endpoint_id=ep_ids[1], name="Position limit within threshold", rule_type="validity", description="Dodd-Frank 722 limit check"),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[1], name="Position quantity valid", rule_type="validity", description="Position must be numeric", exception_threshold_pct=5),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[3], endpoint_id=ep_ids[2], name="Trade date within period", rule_type="timeliness", description="Trade date in reporting period", exception_threshold_pct=2),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[6], endpoint_id=ep_ids[0], name="UTI unique", rule_type="validity", description="UTI must be unique for EMIR", exception_threshold_pct=0),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[5], endpoint_id=ep_ids[0], name="Counterparty LEI valid", rule_type="validity", description="LEI required for EMIR", exception_threshold_pct=1),
+        DataQualityRule(domain_id=domain_id, data_element_id=de_ids[8], endpoint_id=ep_ids[1], name="Position limit within threshold", rule_type="validity", description="Dodd-Frank 722 limit check", exception_threshold_pct=10, flagged_for_monitoring=1),
     ]
     db.add_all(dqrs)
     db.flush()
     db.add_all([
         DataQualityException(rule_id=dqrs[0].id, data_element_id=de_ids[1], description="Position unit mismatch in aggregated view", status="open"),
     ])
+    # SQL version and instances for first rule (Position quantity valid)
+    sv1 = DataQualitySqlVersion(rule_id=dqrs[0].id, sql_text="SELECT id, position_qty FROM positions WHERE position_qty IS NULL OR position_qty < 0", version=1, is_live=1)
+    db.add(sv1)
+    db.flush()
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    for i in range(3):
+        run_at = now - timedelta(days=i)
+        db.add(DataQualityRuleInstance(rule_id=dqrs[0].id, data_element_id=de_ids[1], application_id=app_ids[0], run_at=run_at, passed=1 if i > 0 else 0, exception_count=i, exception_pct=min(100, i * 5), sql_version_id=sv1.id))
+    db.add(RuleModRequest(rule_id=dqrs[4].id, status="requested"))
+    db.flush()
     db.add_all([
         DataConcern(domain_id=domain_id, application_id=app_ids[1], data_element_id=de_ids[4], title="Delivery location codes", description="Multiple code schemes across regions", status="open"),
         DataConcern(domain_id=domain_id, application_id=app_ids[0], endpoint_id=ep_ids[0], title="EMIR timeliness", description="T+1 reporting occasionally delayed", status="open"),
@@ -474,6 +488,9 @@ def reset_and_reseed():
         # Delete in dependency order (children before parents)
         db.query(DataConcern).delete()
         db.query(DataQualityException).delete()
+        db.query(RuleModRequest).delete()
+        db.query(DataQualityRuleInstance).delete()
+        db.query(DataQualitySqlVersion).delete()
         db.query(DataQualityRule).delete()
         db.query(Endpoint).delete()
         db.query(EUC).delete()

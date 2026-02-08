@@ -7,15 +7,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.database import get_engine_and_session, get_db_dep
+from app.database import get_engine_and_session, get_db_dep, ensure_dq_schema
 from app.seed import run_seed
 from typing import Literal
 from app.api import domains, users, data_elements, applications, eucs, endpoints, data_quality, data_concerns, metrics, bulk
 from app.auth import router as auth_router
 from app.api.domains import get_domains_tree_list
 from app.api.data_elements import list_data_element_sor_by_domain
+from app.api.data_quality import list_rule_instances
 from app.schemas.domain import DomainTreeOut
 from app.schemas.data_element_sor import DataElementSORSummaryOut
+from app.schemas.data_quality import DataQualityRuleInstanceOut
 
 app = FastAPI(
     title="Data Manager Portal API",
@@ -50,6 +52,29 @@ def api_data_elements_sor(
     return list_data_element_sor_by_domain(domain_id=domain_id, scope=scope, db=db)
 
 
+# Explicit route so GET /api/data-quality-rules/instances is matched before /api/data-quality-rules/{rule_id}
+@app.get("/api/data-quality-rules/instances", response_model=list[DataQualityRuleInstanceOut])
+def api_data_quality_rule_instances(
+    rule_id: int | None = Query(None),
+    data_element_id: int | None = Query(None),
+    application_id: int | None = Query(None),
+    from_date: str | None = Query(None, alias="from"),
+    to_date: str | None = Query(None, alias="to"),
+    limit: int = Query(100, le=500),
+    db: Session = Depends(get_db_dep),
+):
+    """List rule instances (runs) with optional filters."""
+    return list_rule_instances(
+        rule_id=rule_id,
+        data_element_id=data_element_id,
+        application_id=application_id,
+        from_date=from_date,
+        to_date=to_date,
+        limit=limit,
+        db=db,
+    )
+
+
 # Include routers
 app.include_router(auth_router, prefix="/api")
 app.include_router(domains.router, prefix="/api")
@@ -73,6 +98,7 @@ def startup():
     try:
         engine, _ = get_engine_and_session()  # create tables
         ensure_auth_columns(engine)  # add password_hash to users if existing DB
+        ensure_dq_schema(engine)  # add DQ columns/tables if existing DB
         run_seed()
         ensure_all_users_have_passwords()  # guarantee every user has a password (e.g. "password")
     except Exception as e:

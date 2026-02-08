@@ -8,6 +8,7 @@ from app.api.helpers import get_or_404
 from app.models import DataElement, Domain, DataQualityRule, DataConcern, Endpoint, DataElementSOR, Application
 from app.schemas.data_element import DataElementOut
 from app.schemas.data_element_sor import DataElementSOROut, DataElementSORSummaryOut
+from app.schemas.data_quality import LineageApplicationOut
 from app.schemas.lineage import LineageResponse, LineageNode, LineageEdge
 
 router = APIRouter(prefix="/data-elements", tags=["data-elements"])
@@ -44,6 +45,58 @@ def list_data_element_sor_by_domain(
         )
         for sor, app_name in rows
     ]
+
+
+@router.get("/{data_element_id}/lineage-applications", response_model=list[LineageApplicationOut])
+def get_data_element_lineage_applications(
+    data_element_id: int,
+    db: Session = Depends(get_db_dep),
+):
+    """Return applications in the lineage path for this data element (from SOR and from endpoints of rules)."""
+    get_or_404(db, DataElement, data_element_id, "Data element not found")
+    seen: set[tuple[int, str]] = set()
+    out: list[LineageApplicationOut] = []
+    # From SOR
+    sors = (
+        db.query(DataElementSOR, Application.name)
+        .join(Application, DataElementSOR.application_id == Application.id)
+        .filter(DataElementSOR.data_element_id == data_element_id)
+        .all()
+    )
+    for sor, app_name in sors:
+        key = (sor.application_id, "sor")
+        if key not in seen:
+            seen.add(key)
+            out.append(
+                LineageApplicationOut(
+                    application_id=sor.application_id,
+                    application_name=app_name,
+                    source="sor",
+                )
+            )
+    # From endpoints of rules that reference this element
+    rules = (
+        db.query(DataQualityRule, Endpoint, Application.name)
+        .join(Endpoint, DataQualityRule.endpoint_id == Endpoint.id)
+        .join(Application, Endpoint.application_id == Application.id)
+        .filter(DataQualityRule.data_element_id == data_element_id)
+        .all()
+    )
+    for rule, ep, app_name in rules:
+        app_id = ep.application_id
+        if app_id is None:
+            continue
+        key = (app_id, "endpoint")
+        if key not in seen:
+            seen.add(key)
+            out.append(
+                LineageApplicationOut(
+                    application_id=app_id,
+                    application_name=app_name,
+                    source="endpoint",
+                )
+            )
+    return out
 
 
 # More specific route first so /api/data-elements/1/lineage is not matched by list

@@ -72,6 +72,27 @@
           </button>
         </div>
       </div>
+      <div *ngIf="dqRuleInstances !== null" class="detail-panel__section">
+        <h4 class="detail-panel__section-title">Rule instances</h4>
+        <div *ngIf="instancesLoading" class="detail-panel__muted text-sm">Loading…</div>
+        <div *ngIf="!instancesLoading && dqRuleInstances.length === 0" class="detail-panel__muted text-sm">No runs yet.</div>
+        <div *ngIf="!instancesLoading && dqRuleInstances.length > 0" class="detail-panel__instance-cards">
+          <button *ngFor="let inst of dqRuleInstances" type="button" class="detail-panel__instance-card" (click)="onInstanceCardClick(inst)">
+            <div class="detail-panel__instance-card-row">
+              <span class="detail-panel__instance-card-health" [class.detail-panel__instance-card-health--pass]="inst.passed === true" [class.detail-panel__instance-card-health--fail]="inst.passed === false" [class.detail-panel__instance-card-health--unknown]="inst.passed != true && inst.passed != false" [attr.title]="inst.passed === true ? 'Passed' : (inst.passed === false ? 'Failed' : 'Unknown')">●</span>
+              <span class="detail-panel__instance-card-title">{{ inst.run_at | date:'short' }}</span>
+            </div>
+            <div class="detail-panel__instance-card-meta">
+              <span class="detail-panel__instance-card-status" [class.text-green-400]="inst.passed === true" [class.text-red-400]="inst.passed === false">{{ inst.passed === true ? 'Passed' : (inst.passed === false ? 'Failed' : '—') }}</span>
+              <span *ngIf="inst.exception_pct != null" class="detail-panel__instance-card-id">{{ inst.exception_pct }}% exceptions</span>
+              <span *ngIf="inst.exception_count != null" class="detail-panel__instance-card-id">{{ inst.exception_count }} count</span>
+            </div>
+            <div class="detail-panel__instance-card-refs">
+              <span class="concern-card__ref">App {{ inst.application_id }}</span>
+            </div>
+          </button>
+        </div>
+      </div>
       <div *ngIf="sors && sors.length > 0 && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0) && (!dataElements || dataElements.length === 0)" class="detail-panel__concerns-list">
         <div *ngFor="let s of sors" class="sor-card">
           <div class="concern-card__title">{{ s.application_name }}</div>
@@ -81,7 +102,7 @@
           </div>
         </div>
       </div>
-      <div *ngIf="(!rows || rows.length === 0) && (!dataElements || dataElements.length === 0) && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0) && (!sors || sors.length === 0)" class="detail-panel__empty">
+      <div *ngIf="(!rows || rows.length === 0) && (!dataElements || dataElements.length === 0) && (!concerns || concerns.length === 0) && (!endpoints || endpoints.length === 0) && (!dqRules || dqRules.length === 0) && (dqRuleInstances === null || dqRuleInstances.length === 0) && (!sors || sors.length === 0)" class="detail-panel__empty">
         <p class="text-gray-500 text-sm">No details to show.</p>
       </div>
     </div>

@@ -119,6 +119,81 @@ export interface DataQualityRule {
   name: string;
   description?: string;
   rule_type?: string;
+  exception_threshold_pct?: number;
+  flagged_for_monitoring?: boolean;
+}
+
+export interface DataQualityRuleInstance {
+  id: number;
+  rule_id: number;
+  data_element_id?: number;
+  application_id: number;
+  run_at: string;
+  passed: boolean;
+  exception_count: number;
+  exception_pct?: number;
+  notes?: string;
+  sql_version_id?: number;
+  marked_false_positive?: boolean;
+}
+
+export interface DataQualityRuleInstanceDetail extends DataQualityRuleInstance {
+  sql_text?: string;
+  sql_text_prettified?: string;
+}
+
+export interface DataQualitySqlVersion {
+  id: number;
+  rule_id: number;
+  sql_text: string;
+  version: number;
+  is_live: boolean;
+  created_at?: string;
+}
+
+export interface DQPerformanceSummary {
+  rule_id: number;
+  data_element_id?: number;
+  application_id: number;
+  last_run_at?: string;
+  last_passed?: boolean;
+  last_exception_pct?: number;
+  threshold_pct?: number;
+  recent_runs: DataQualityRuleInstance[];
+}
+
+export interface DQTrendPoint {
+  run_at: string;
+  passed: boolean;
+  exception_pct?: number;
+  exception_count: number;
+}
+
+export interface DQTrendResponse {
+  rule_id: number;
+  data_element_id?: number;
+  application_id: number;
+  points: DQTrendPoint[];
+}
+
+export interface RuleModRequest {
+  id: number;
+  rule_id: number;
+  status: string;
+  requested_at?: string;
+  requested_by?: number;
+}
+
+export interface RuleInstanceCount {
+  rule_id: number;
+  instance_count: number;
+  last_passed?: boolean | null;
+}
+
+export interface LineageApplication {
+  application_id: number;
+  application_name: string;
+  source: string;
 }
 
 /** System of record: application that sources a data element and the physical attribute name. */
@@ -135,6 +210,9 @@ export interface DataQualityException {
   data_element_id?: number;
   description?: string;
   status?: string;
+  is_false_positive?: boolean;
+  marked_at?: string;
+  marked_by?: number;
   identified_at?: string;
 }
 

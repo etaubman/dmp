@@ -57,6 +57,7 @@ import { ApplicationsPageComponent } from './pages/applications-page/application
 import { EucsPageComponent } from './pages/eucs-page/eucs-page.component';
 import { EndpointsPageComponent } from './pages/endpoints-page/endpoints-page.component';
 import { DqRulesPageComponent } from './pages/dq-rules-page/dq-rules-page.component';
+import { InstanceCountBadgeCellComponent } from './pages/dq-rules-page/instance-count-badge-cell/instance-count-badge-cell.component';
 import { DqExceptionsPageComponent } from './pages/dq-exceptions-page/dq-exceptions-page.component';
 import { DataConcernsPageComponent } from './pages/data-concerns-page/data-concerns-page.component';
 import { MetricsPageComponent } from './pages/metrics-page/metrics-page.component';
@@ -98,6 +99,7 @@ import { AuthInterceptor } from './core/auth-interceptor';
     ApplicationsPageComponent,
     EucsPageComponent,
     EndpointsPageComponent,
+    InstanceCountBadgeCellComponent,
     DqRulesPageComponent,
     DqExceptionsPageComponent,
     DataConcernsPageComponent,

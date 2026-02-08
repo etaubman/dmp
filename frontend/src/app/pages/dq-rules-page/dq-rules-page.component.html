@@ -16,7 +16,7 @@
       <div class="ag-theme-quartz h-full min-h-[200px]">
         <ag-grid-angular
           theme="legacy"
-          [rowData]="rules"
+          [rowData]="enrichedRules"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
           [suppressRowClickSelection]="true"
@@ -26,6 +26,21 @@
         ></ag-grid-angular>
       </div>
     </div>
-    <app-detail-panel [title]="panelTitle" [rows]="panelRows" [open]="!!selectedItem" (openChange)="closePanel()"></app-detail-panel>
+    <app-detail-panel
+      [title]="panelTitle"
+      [rows]="panelRows"
+      [open]="!!selectedItem"
+      [wide]="true"
+      (openChange)="closePanel()"
+      [dqRuleInstances]="selectedItem ? panelInstances : null"
+      [instancesLoading]="panelInstancesLoading"
+      (instanceCardClick)="onInstanceCardClick($event)"
+    ></app-detail-panel>
+    <app-dq-rule-detail-modal
+      [rule]="selectedItem"
+      [selectedInstanceId]="selectedInstanceIdForModal"
+      [open]="modalOpen"
+      (openChange)="closeDetailModal()"
+    ></app-dq-rule-detail-modal>
   </div>
 </div>

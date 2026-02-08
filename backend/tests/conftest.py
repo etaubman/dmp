@@ -25,6 +25,8 @@ from app.models import (
     Endpoint,
     DataQualityRule,
     DataQualityException,
+    DataQualityRuleInstance,
+    DataQualitySqlVersion,
     DataConcern,
     DataElementSOR,
 )
@@ -84,11 +86,18 @@ def _add_api_seed(db):
         endpoint_id=ep1.id,
         name="Rule One",
         rule_type="validity",
+        exception_threshold_pct=5,
     )
     db.add(rule1)
     db.flush()
     exc1 = DataQualityException(rule_id=rule1.id, data_element_id=de1.id, status="open")
     db.add(exc1)
+    db.flush()
+    sv1 = DataQualitySqlVersion(rule_id=rule1.id, sql_text="SELECT 1 FROM t WHERE x IS NULL", version=1, is_live=1)
+    db.add(sv1)
+    db.flush()
+    inst1 = DataQualityRuleInstance(rule_id=rule1.id, data_element_id=de1.id, application_id=app1.id, passed=1, exception_count=0, exception_pct=0, sql_version_id=sv1.id)
+    db.add(inst1)
     db.flush()
     concern1 = DataConcern(
         domain_id=root.id,

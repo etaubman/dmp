@@ -26,7 +26,36 @@ def ensure_auth_columns(engine):
             conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)"))
             conn.commit()
     except Exception:
-        # SQLite or other DBs may not support IF NOT EXISTS or column already exists
+        # SQLite or other DBs may not support IF NOT EXISTS or column already exist
+        pass
+
+
+def ensure_dq_schema(engine):
+    """Add DQ-related columns and tables for existing DBs (rule threshold, flag, false positive, etc.)."""
+    dialect = engine.dialect.name
+    try:
+        with engine.connect() as conn:
+            if dialect == "postgresql":
+                conn.execute(text("ALTER TABLE data_quality_rules ADD COLUMN IF NOT EXISTS exception_threshold_pct INTEGER"))
+                conn.execute(text("ALTER TABLE data_quality_rules ADD COLUMN IF NOT EXISTS flagged_for_monitoring INTEGER DEFAULT 0 NOT NULL"))
+                conn.execute(text("ALTER TABLE data_quality_exceptions ADD COLUMN IF NOT EXISTS is_false_positive INTEGER DEFAULT 0 NOT NULL"))
+                conn.execute(text("ALTER TABLE data_quality_exceptions ADD COLUMN IF NOT EXISTS marked_at TIMESTAMP WITH TIME ZONE"))
+                conn.execute(text("ALTER TABLE data_quality_exceptions ADD COLUMN IF NOT EXISTS marked_by INTEGER REFERENCES users(id)"))
+            else:
+                # SQLite: try add column; ignore if exists
+                for stmt in [
+                    "ALTER TABLE data_quality_rules ADD COLUMN exception_threshold_pct INTEGER",
+                    "ALTER TABLE data_quality_rules ADD COLUMN flagged_for_monitoring INTEGER DEFAULT 0",
+                    "ALTER TABLE data_quality_exceptions ADD COLUMN is_false_positive INTEGER DEFAULT 0",
+                    "ALTER TABLE data_quality_exceptions ADD COLUMN marked_at DATETIME",
+                    "ALTER TABLE data_quality_exceptions ADD COLUMN marked_by INTEGER",
+                ]:
+                    try:
+                        conn.execute(text(stmt))
+                    except Exception:
+                        pass
+            conn.commit()
+    except Exception:
         pass
 
 

@@ -10,8 +10,13 @@
 }
 
 :host.detail-panel-open {
-  flex: 0 0 33.333%;
+  flex: 1 0 33.333%;
   min-width: 320px;
+}
+
+:host.detail-panel-open.detail-panel-wide {
+  flex: 1 0 50%;
+  min-width: 380px;
 }
 
 .detail-panel {
@@ -26,9 +31,9 @@
 }
 
 .detail-panel--open {
-  width: 95%;
-  min-width: 320px;
-  max-width: 95%;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .detail-panel__inner {
@@ -171,4 +176,118 @@
 
 .sor-card__attr--muted {
   color: #6b7280;
+}
+
+.detail-panel__muted {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.concern-card--instance .concern-card__title--instance {
+  font-size: 0.8125rem;
+}
+
+.concern-card__row-with-health {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.concern-card__health-dot {
+  font-size: 0.625rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.concern-card__health-dot--pass {
+  color: #22c55e;
+}
+
+.concern-card__health-dot--fail {
+  color: #ef4444;
+}
+
+/* Rule instance cards (DQ Rules page): card layout with health indicator */
+.detail-panel__instance-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.detail-panel__instance-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.detail-panel__instance-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.detail-panel__instance-card-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.detail-panel__instance-card-health {
+  font-size: 0.625rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.detail-panel__instance-card-health--pass {
+  color: #22c55e;
+}
+
+.detail-panel__instance-card-health--fail {
+  color: #ef4444;
+}
+
+.detail-panel__instance-card-health--unknown {
+  color: #6b7280;
+}
+
+.detail-panel__instance-card-title {
+  font-weight: 600;
+  color: #f3f4f6;
+  font-size: 0.875rem;
+}
+
+.detail-panel__instance-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.detail-panel__instance-card-status {
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.detail-panel__instance-card-id {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.detail-panel__instance-card-refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
 }

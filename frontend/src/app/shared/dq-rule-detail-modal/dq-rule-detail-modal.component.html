@@ -5,36 +5,111 @@
       <button type="button" class="dq-rule-modal__close" (click)="close()" aria-label="Close">✕</button>
     </div>
     <div class="dq-rule-modal__body">
-      <dl *ngIf="rule" class="dq-rule-modal__detail-list">
-        <div class="dq-rule-modal__row">
-          <dt class="dq-rule-modal__dt">ID</dt>
-          <dd class="dq-rule-modal__dd">{{ rule.id }}</dd>
-        </div>
-        <div class="dq-rule-modal__row">
-          <dt class="dq-rule-modal__dt">Name</dt>
-          <dd class="dq-rule-modal__dd">{{ rule.name }}</dd>
-        </div>
-        <div class="dq-rule-modal__row">
-          <dt class="dq-rule-modal__dt">Rule type</dt>
-          <dd class="dq-rule-modal__dd">{{ rule.rule_type ?? '—' }}</dd>
-        </div>
-        <div class="dq-rule-modal__row" *ngIf="rule.domain_id != null">
-          <dt class="dq-rule-modal__dt">Domain ID</dt>
-          <dd class="dq-rule-modal__dd">{{ rule.domain_id }}</dd>
-        </div>
-        <div class="dq-rule-modal__row" *ngIf="rule.data_element_id != null">
-          <dt class="dq-rule-modal__dt">Data Element ID</dt>
-          <dd class="dq-rule-modal__dd">{{ rule.data_element_id }}</dd>
-        </div>
-        <div class="dq-rule-modal__row" *ngIf="rule.endpoint_id != null">
-          <dt class="dq-rule-modal__dt">Endpoint ID</dt>
-          <dd class="dq-rule-modal__dd">{{ rule.endpoint_id }}</dd>
-        </div>
-        <div class="dq-rule-modal__row">
-          <dt class="dq-rule-modal__dt">Description</dt>
-          <dd class="dq-rule-modal__dd">{{ rule.description ?? '—' }}</dd>
-        </div>
-      </dl>
+      <ng-container *ngIf="rule">
+        <section class="dq-rule-modal__section">
+          <h4 class="dq-rule-modal__section-title">Overview</h4>
+          <dl class="dq-rule-modal__detail-list">
+            <div class="dq-rule-modal__row">
+              <dt class="dq-rule-modal__dt">ID</dt>
+              <dd class="dq-rule-modal__dd">{{ rule.id }}</dd>
+            </div>
+            <div class="dq-rule-modal__row">
+              <dt class="dq-rule-modal__dt">Name</dt>
+              <dd class="dq-rule-modal__dd">{{ rule.name }}</dd>
+            </div>
+            <div class="dq-rule-modal__row">
+              <dt class="dq-rule-modal__dt">Rule type</dt>
+              <dd class="dq-rule-modal__dd">{{ rule.rule_type ?? '—' }}</dd>
+            </div>
+            <div class="dq-rule-modal__row">
+              <dt class="dq-rule-modal__dt">Exception threshold %</dt>
+              <dd class="dq-rule-modal__dd">{{ rule.exception_threshold_pct != null ? rule.exception_threshold_pct : '—' }}</dd>
+            </div>
+            <div class="dq-rule-modal__row">
+              <dt class="dq-rule-modal__dt">Flagged for monitoring</dt>
+              <dd class="dq-rule-modal__dd">{{ rule.flagged_for_monitoring ? 'Yes' : 'No' }}</dd>
+            </div>
+            <div class="dq-rule-modal__row" *ngIf="rule.domain_id != null">
+              <dt class="dq-rule-modal__dt">Domain ID</dt>
+              <dd class="dq-rule-modal__dd">{{ rule.domain_id }}</dd>
+            </div>
+            <div class="dq-rule-modal__row" *ngIf="rule.data_element_id != null">
+              <dt class="dq-rule-modal__dt">Data Element ID</dt>
+              <dd class="dq-rule-modal__dd">{{ rule.data_element_id }}</dd>
+            </div>
+            <div class="dq-rule-modal__row" *ngIf="rule.endpoint_id != null">
+              <dt class="dq-rule-modal__dt">Endpoint ID</dt>
+              <dd class="dq-rule-modal__dd">{{ rule.endpoint_id }}</dd>
+            </div>
+            <div class="dq-rule-modal__row">
+              <dt class="dq-rule-modal__dt">Description</dt>
+              <dd class="dq-rule-modal__dd">{{ rule.description ?? '—' }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="dq-rule-modal__section">
+          <h4 class="dq-rule-modal__section-title">Performance</h4>
+          <div *ngIf="loadingPerformance" class="dq-rule-modal__muted">Loading…</div>
+          <div *ngIf="!loadingPerformance && performance" class="dq-rule-modal__perf">
+            <p class="dq-rule-modal__perf-line">
+              Last run: <strong>{{ performance.last_run_at ? (performance.last_run_at | date:'short') : '—' }}</strong>
+              <span *ngIf="performance.last_passed !== null" [class.text-green-400]="performance.last_passed" [class.text-red-400]="!performance.last_passed">
+                ({{ performance.last_passed ? 'Passed' : 'Failed' }})
+              </span>
+            </p>
+            <p class="dq-rule-modal__perf-line" *ngIf="performance.last_exception_pct != null">
+              Exception %: {{ performance.last_exception_pct }}% <span *ngIf="performance.threshold_pct != null">(threshold: {{ performance.threshold_pct }}%)</span>
+            </p>
+          </div>
+        </section>
+
+        <section class="dq-rule-modal__section" *ngIf="trend?.points?.length">
+          <h4 class="dq-rule-modal__section-title">Trend</h4>
+          <div *ngIf="loadingTrend" class="dq-rule-modal__muted">Loading…</div>
+          <div *ngIf="!loadingTrend && chartOptions" class="dq-rule-modal__chart">
+            <ag-charts [options]="chartOptions" style="width: 100%; height: 100%;"></ag-charts>
+          </div>
+        </section>
+
+        <section class="dq-rule-modal__section">
+          <h4 class="dq-rule-modal__section-title">Recent runs</h4>
+          <div *ngIf="loadingInstances" class="dq-rule-modal__muted">Loading…</div>
+          <div *ngIf="!loadingInstances && instances.length === 0" class="dq-rule-modal__muted">No runs yet.</div>
+          <ul *ngIf="!loadingInstances && instances.length > 0" class="dq-rule-modal__instances">
+            <li *ngFor="let inst of instances" class="dq-rule-modal__instance">
+              <span class="dq-rule-modal__instance-date">{{ inst.run_at | date:'short' }}</span>
+              <span [class.text-green-400]="inst.passed" [class.text-red-400]="!inst.passed">{{ inst.passed ? 'Passed' : 'Failed' }}</span>
+              <span *ngIf="inst.exception_pct != null">({{ inst.exception_pct }}% exc)</span>
+              <button type="button" class="dq-rule-modal__btn-link" (click)="viewSql(inst)">View SQL</button>
+              <button *ngIf="!inst.marked_false_positive" type="button" class="dq-rule-modal__btn-link ml-2" (click)="markInstanceFalsePositive(inst)">Mark false positive</button>
+            </li>
+          </ul>
+        </section>
+
+        <section class="dq-rule-modal__section" *ngIf="selectedInstance">
+          <h4 class="dq-rule-modal__section-title">SQL (prettified)</h4>
+          <pre class="dq-rule-modal__sql">{{ selectedInstance.sql_text_prettified || selectedInstance.sql_text || '—' }}</pre>
+          <button type="button" class="dq-rule-modal__btn-link mt-2" (click)="closeSql()">Close</button>
+        </section>
+
+        <section class="dq-rule-modal__section">
+          <h4 class="dq-rule-modal__section-title">Actions</h4>
+          <div class="dq-rule-modal__actions">
+            <button type="button" class="btn btn-secondary text-sm" (click)="flagForMonitoring()" [disabled]="flagging">
+              {{ rule.flagged_for_monitoring ? 'Unflag for monitoring' : 'Flag for monitoring' }}
+            </button>
+            <button type="button" class="btn btn-secondary text-sm" (click)="requestRuleMod()" [disabled]="requestingMod">Request rule mod</button>
+            <a routerLink="/data-concerns" class="btn btn-secondary text-sm">Create data concern</a>
+          </div>
+          <div *ngIf="modRequests.length > 0" class="dq-rule-modal__mod-requests mt-2">
+            <strong>Mod requests:</strong>
+            <ul class="list-disc list-inside">
+              <li *ngFor="let req of modRequests">{{ req.status }} ({{ req.requested_at | date:'short' }})</li>
+            </ul>
+          </div>
+        </section>
+      </ng-container>
       <p *ngIf="open && !rule" class="dq-rule-modal__empty">No DQ rule selected.</p>
     </div>
   </div>

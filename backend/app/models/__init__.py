@@ -19,6 +19,9 @@ __all__ = [
     "Endpoint",
     "DataQualityRule",
     "DataQualityException",
+    "DataQualityRuleInstance",
+    "DataQualitySqlVersion",
+    "RuleModRequest",
     "DataConcern",
     "SeedFlag",
     "User",
@@ -29,7 +32,7 @@ __all__ = [
 class DQRuleType(str, enum.Enum):
     ACCURACY = "accuracy"
     VALIDITY = "validity"
-    TIMELENESS = "timeliness"
+    TIMELINESS = "timeliness"
 
 
 class EUCType(str, enum.Enum):
@@ -75,6 +78,7 @@ class DataElement(Base):
     data_quality_exceptions = relationship(
         "DataQualityException", back_populates="data_element"
     )
+    dq_rule_instances = relationship("DataQualityRuleInstance", back_populates="data_element")
     data_concerns = relationship("DataConcern", back_populates="data_element")
     systems_of_record = relationship("DataElementSOR", back_populates="data_element")
 
@@ -106,6 +110,7 @@ class Application(Base):
 
     domain = relationship("Domain", back_populates="applications")
     endpoints = relationship("Endpoint", back_populates="application")
+    dq_rule_instances = relationship("DataQualityRuleInstance", back_populates="application")
     data_concerns = relationship("DataConcern", back_populates="application")
     systems_of_record = relationship("DataElementSOR", back_populates="application")
 
@@ -155,6 +160,8 @@ class DataQualityRule(Base):
     name = Column(String(255), nullable=False, index=True)
     description = Column(Text, nullable=True)
     rule_type = Column(String(64), nullable=True)  # accuracy, validity, timeliness
+    exception_threshold_pct = Column(Integer, nullable=True)  # 0-100; exceed = failed run
+    flagged_for_monitoring = Column(Integer, nullable=False, server_default="0")  # 0/1 bool
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -162,6 +169,9 @@ class DataQualityRule(Base):
     data_element = relationship("DataElement", back_populates="data_quality_rules")
     endpoint = relationship("Endpoint", back_populates="data_quality_rules")
     exceptions = relationship("DataQualityException", back_populates="rule")
+    instances = relationship("DataQualityRuleInstance", back_populates="rule")
+    sql_versions = relationship("DataQualitySqlVersion", back_populates="rule")
+    mod_requests = relationship("RuleModRequest", back_populates="rule")
 
 
 # --- Data Quality Exception (record that fails a rule) ---
@@ -173,11 +183,64 @@ class DataQualityException(Base):
     data_element_id = Column(Integer, ForeignKey("data_elements.id"), nullable=True, index=True)
     description = Column(Text, nullable=True)
     status = Column(String(64), nullable=True)  # open, closed, etc.
+    is_false_positive = Column(Integer, nullable=False, server_default="0")  # 0/1 bool
+    marked_at = Column(DateTime(timezone=True), nullable=True)
+    marked_by = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     identified_at = Column(DateTime(timezone=True), server_default=func.now())
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     rule = relationship("DataQualityRule", back_populates="exceptions")
     data_element = relationship("DataElement", back_populates="data_quality_exceptions")
+
+
+# --- Data Quality Rule Instance (one run of a rule for element + application in lineage) ---
+class DataQualityRuleInstance(Base):
+    __tablename__ = "data_quality_rule_instances"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    rule_id = Column(Integer, ForeignKey("data_quality_rules.id"), nullable=False, index=True)
+    data_element_id = Column(Integer, ForeignKey("data_elements.id"), nullable=True, index=True)
+    application_id = Column(Integer, ForeignKey("applications.id"), nullable=False, index=True)
+    run_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    passed = Column(Integer, nullable=False, server_default="1")  # 0/1 bool
+    exception_count = Column(Integer, nullable=False, server_default="0")
+    exception_pct = Column(Integer, nullable=True)  # 0-100
+    notes = Column(Text, nullable=True)
+    sql_version_id = Column(Integer, ForeignKey("data_quality_sql_versions.id"), nullable=True, index=True)
+    marked_false_positive = Column(Integer, nullable=False, server_default="0")  # 0/1 bool
+
+    rule = relationship("DataQualityRule", back_populates="instances")
+    data_element = relationship("DataElement", back_populates="dq_rule_instances")
+    application = relationship("Application", back_populates="dq_rule_instances")
+    sql_version = relationship("DataQualitySqlVersion", back_populates="instances")
+
+
+# --- Data Quality SQL Version (one live version per rule) ---
+class DataQualitySqlVersion(Base):
+    __tablename__ = "data_quality_sql_versions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    rule_id = Column(Integer, ForeignKey("data_quality_rules.id"), nullable=False, index=True)
+    sql_text = Column(Text, nullable=False)
+    version = Column(Integer, nullable=False, server_default="1")
+    is_live = Column(Integer, nullable=False, server_default="0")  # 0/1 bool; only one per rule
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    rule = relationship("DataQualityRule", back_populates="sql_versions")
+    instances = relationship("DataQualityRuleInstance", back_populates="sql_version")
+
+
+# --- Rule Mod Request (when user requests a rule change) ---
+class RuleModRequest(Base):
+    __tablename__ = "rule_mod_requests"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    rule_id = Column(Integer, ForeignKey("data_quality_rules.id"), nullable=False, index=True)
+    status = Column(String(64), nullable=False, server_default="requested")  # requested, in_progress, done
+    requested_at = Column(DateTime(timezone=True), server_default=func.now())
+    requested_by = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+
+    rule = relationship("DataQualityRule", back_populates="mod_requests")
 
 
 # --- Data Concern (governance concern; can link to app, euc, endpoint, element) ---

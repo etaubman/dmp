@@ -144,6 +144,7 @@ For architecture and product requirements, see the **Repo layout** section below
 ## API overview
 
 - **REST:** `/api/domains`, `/api/domain-tree`, `/api/data-elements`, `/api/applications`, `/api/eucs`, `/api/endpoints`, `/api/data-quality-rules`, `/api/data-quality-exceptions`, `/api/data-concerns`, `/api/metrics`, `/api/users`
+- **Data quality (extended):** Rules support `exception_threshold_pct` and `flagged_for_monitoring`. Rule instances (runs), SQL versions (one live per rule), performance and trend, lineage-applications per element, request-mod, flag-monitoring, and false-positive (exception/instance). See `docs/data-quality-rules-feature-plan.md` and OpenAPI at http://localhost:8000/docs
 - **Bulk:** `POST /api/bulk/upload` (form: `entity_type`, `file`); `GET /api/bulk/download?entity_type=...&domain_id=...`. CSV header row required; column names per entity type are in the OpenAPI docs at http://localhost:8000/docs
 - **Health:** `GET /health`, `GET /ready` (DB check)
 

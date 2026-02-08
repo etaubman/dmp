@@ -8,7 +8,7 @@ This README helps **new team members** run the backend, understand its structure
 
 ## What the backend does
 
-- Serves **REST APIs** for all portal entities (domains, CDEs, applications, EUCs, endpoints, DQ rules/exceptions, data concerns, metrics, users).
+- Serves **REST APIs** for all portal entities (domains, CDEs, applications, EUCs, endpoints, DQ rules/exceptions, data concerns, metrics, users). Data quality includes rule instances (runs), SQL versions (with **sqlparse** for prettified SQL), performance/trend, lineage-applications, and actions (request mod, flag for monitoring, false positive).
 - Provides **bulk upload/download** (CSV) with files stored in S3-compatible storage (MinIO in dev).
 - Handles **auth** (login/logout, JWT); supports a dev-only "always logged in" mode for local frontend development.
 - On startup: creates DB tables if missing and runs **idempotent seed** (L0/L1/L2 domains, sample data, default users).
@@ -68,7 +68,7 @@ then restart so the seed can set default passwords for existing users.
 | **`app/main.py`** | FastAPI app, CORS, router registration, startup (tables + seed), `/health`, `/ready`, `/api/domain-tree` |
 | **`app/config.py`** | Settings from env (`get_settings()`) |
 | **`app/database.py`** | SQLAlchemy engine and session; `get_db_dep` for FastAPI route injection, `get_db` / `get_db_session` for other use |
-| **`app/models/`** | SQLAlchemy models (Domain, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, User, etc.) |
+| **`app/models/`** | SQLAlchemy models (Domain, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataQualityRuleInstance, DataQualitySqlVersion, RuleModRequest, DataConcern, User, etc.) |
 | **`app/schemas/`** | Pydantic request/response schemas per entity |
 | **`app/api/`** | Routers: `domains`, `users`, `data_elements`, `applications`, `eucs`, `endpoints`, `data_quality`, `data_concerns`, `metrics`, `bulk` |
 | **`app/auth/`** | Auth: login router, JWT, dependencies (`get_current_user`), dev "always logged in" provider |

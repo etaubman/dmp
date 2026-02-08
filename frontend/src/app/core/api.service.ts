@@ -32,6 +32,14 @@ import type {
   Endpoint,
   DataQualityRule,
   DataQualityException,
+  DataQualityRuleInstance,
+  DataQualityRuleInstanceDetail,
+  DataQualitySqlVersion,
+  DQPerformanceSummary,
+  DQTrendResponse,
+  RuleModRequest,
+  RuleInstanceCount,
+  LineageApplication,
   DataConcern,
   Metrics,
   LineageResponse,
@@ -120,6 +128,10 @@ export class ApiService {
     return this.http.get<LineageResponse>(`${API}/data-elements/${dataElementId}/lineage`);
   }
 
+  getDataElementLineageApplications(dataElementId: number): Observable<LineageApplication[]> {
+    return this.http.get<LineageApplication[]>(`${API}/data-elements/${dataElementId}/lineage-applications`);
+  }
+
   // ——— Applications ———
   getApplications(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<Application[]> {
     let params = new HttpParams().set('domain_id', domainId);
@@ -158,6 +170,65 @@ export class ApiService {
     if (domainId != null) params = params.set('domain_id', domainId);
     if (dataElementId != null) params = params.set('data_element_id', dataElementId);
     return this.http.get<DataQualityException[]>(`${API}/data-quality-exceptions`, { params });
+  }
+
+  getDataQualityRule(ruleId: number): Observable<DataQualityRule> {
+    return this.http.get<DataQualityRule>(`${API}/data-quality-rules/${ruleId}`);
+  }
+
+  getRuleInstanceCounts(domainId: number): Observable<RuleInstanceCount[]> {
+    return this.http.get<RuleInstanceCount[]>(`${API}/data-quality-rules/instance-counts`, { params: { domain_id: domainId } });
+  }
+
+  getRuleInstances(filters?: { rule_id?: number; data_element_id?: number; application_id?: number }): Observable<DataQualityRuleInstance[]> {
+    let params = new HttpParams();
+    if (filters?.rule_id != null) params = params.set('rule_id', filters.rule_id);
+    if (filters?.data_element_id != null) params = params.set('data_element_id', filters.data_element_id);
+    if (filters?.application_id != null) params = params.set('application_id', filters.application_id);
+    return this.http.get<DataQualityRuleInstance[]>(`${API}/data-quality-rules/instances`, { params });
+  }
+
+  getRuleInstance(instanceId: number, prettify = true): Observable<DataQualityRuleInstanceDetail> {
+    const params = new HttpParams().set('prettify', String(prettify));
+    return this.http.get<DataQualityRuleInstanceDetail>(`${API}/data-quality-rules/instances/${instanceId}`, { params });
+  }
+
+  getRulePerformance(ruleId: number, dataElementId?: number, applicationId?: number): Observable<DQPerformanceSummary> {
+    let params = new HttpParams();
+    if (dataElementId != null) params = params.set('data_element_id', dataElementId);
+    if (applicationId != null) params = params.set('application_id', applicationId);
+    return this.http.get<DQPerformanceSummary>(`${API}/data-quality-rules/${ruleId}/performance`, { params });
+  }
+
+  getRulePerformanceTrend(ruleId: number, filters?: { data_element_id?: number; application_id?: number }): Observable<DQTrendResponse> {
+    let params = new HttpParams();
+    if (filters?.data_element_id != null) params = params.set('data_element_id', filters.data_element_id);
+    if (filters?.application_id != null) params = params.set('application_id', filters.application_id);
+    return this.http.get<DQTrendResponse>(`${API}/data-quality-rules/${ruleId}/performance/trend`, { params });
+  }
+
+  getRuleSqlVersions(ruleId: number): Observable<DataQualitySqlVersion[]> {
+    return this.http.get<DataQualitySqlVersion[]>(`${API}/data-quality-rules/${ruleId}/sql-versions`);
+  }
+
+  getRuleModRequests(ruleId: number): Observable<RuleModRequest[]> {
+    return this.http.get<RuleModRequest[]>(`${API}/data-quality-rules/${ruleId}/mod-requests`);
+  }
+
+  requestRuleMod(ruleId: number): Observable<RuleModRequest> {
+    return this.http.post<RuleModRequest>(`${API}/data-quality-rules/${ruleId}/request-mod`, {});
+  }
+
+  flagRuleForMonitoring(ruleId: number, flagged: boolean): Observable<{ id: number; flagged_for_monitoring: boolean }> {
+    return this.http.patch<{ id: number; flagged_for_monitoring: boolean }>(`${API}/data-quality-rules/${ruleId}/flag-monitoring`, {}, { params: { flagged } });
+  }
+
+  markExceptionFalsePositive(exceptionId: number): Observable<{ id: number; is_false_positive: boolean }> {
+    return this.http.patch<{ id: number; is_false_positive: boolean }>(`${API}/data-quality-exceptions/${exceptionId}/false-positive`, {});
+  }
+
+  markInstanceFalsePositive(instanceId: number): Observable<{ id: number; marked_false_positive: boolean }> {
+    return this.http.patch<{ id: number; marked_false_positive: boolean }>(`${API}/data-quality-rules/instances/${instanceId}/false-positive`, {});
   }
 
   // ——— Data Concerns ———

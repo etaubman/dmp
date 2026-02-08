@@ -1,11 +1,19 @@
 /**
  * Side detail panel: shows title, optional rows (label/value), and optional lists of data elements,
- * concerns, endpoints, DQ rules, SORs as clickable cards. Emits concernClick, endpointClick,
- * dqRuleClick, dataElementClick so the parent can open modals. open/openChange control visibility.
+ * concerns, endpoints, DQ rules, DQ rule instances, SORs as clickable cards. Emits concernClick,
+ * endpointClick, dqRuleClick, dataElementClick, instanceCardClick so the parent can open modals or
+ * load instance detail (e.g. prettified SQL). open/openChange control visibility.
  */
 import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { DetailRow } from '../detail-modal/detail-modal.component';
-import { DataConcern, Endpoint, DataQualityRule, DataElementSORSummary, DataElement } from '../../core/api.service';
+import {
+  DataConcern,
+  Endpoint,
+  DataQualityRule,
+  DataElementSORSummary,
+  DataElement,
+  DataQualityRuleInstance,
+} from '../../core/api.service';
 
 @Component({
   selector: 'app-detail-panel',
@@ -19,16 +27,26 @@ export class DetailPanelComponent {
   @Input() concerns: DataConcern[] = [];
   @Input() endpoints: Endpoint[] = [];
   @Input() dqRules: DataQualityRule[] = [];
+  /** When set, show rule instance cards; used on DQ Rules page. */
+  @Input() dqRuleInstances: DataQualityRuleInstance[] | null = null;
+  @Input() instancesLoading = false;
   @Input() sors: DataElementSORSummary[] = [];
   @Input() open = false;
+  /** When true, panel takes 50% width (e.g. on DQ Rules page); otherwise ~33%. */
+  @Input() wide = false;
   @Output() openChange = new EventEmitter<boolean>();
   @Output() dataElementClick = new EventEmitter<DataElement>();
   @Output() concernClick = new EventEmitter<DataConcern>();
   @Output() endpointClick = new EventEmitter<Endpoint>();
   @Output() dqRuleClick = new EventEmitter<DataQualityRule>();
+  @Output() instanceCardClick = new EventEmitter<DataQualityRuleInstance>();
 
   @HostBinding('class.detail-panel-open') get isPanelOpen(): boolean {
     return this.open;
+  }
+
+  @HostBinding('class.detail-panel-wide') get isPanelWide(): boolean {
+    return this.wide;
   }
 
   close(): void {
@@ -51,4 +69,9 @@ export class DetailPanelComponent {
   onDataElementCardClick(element: DataElement): void {
     this.dataElementClick.emit(element);
   }
+
+  onInstanceCardClick(inst: DataQualityRuleInstance): void {
+    this.instanceCardClick.emit(inst);
+  }
+
 }

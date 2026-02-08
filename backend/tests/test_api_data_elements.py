@@ -68,3 +68,18 @@ def test_get_data_element_sor(client_with_seed):
     data = response.json()
     assert len(data) >= 1
     assert any(s.get("application_name") == "App One" and s.get("physical_data_attribute") == "attr_one" for s in data)
+
+
+def test_get_data_element_lineage_applications_not_found(client):
+    """GET /api/data-elements/999/lineage-applications returns 404."""
+    response = client.get("/api/data-elements/999/lineage-applications")
+    assert response.status_code == 404
+
+
+def test_get_data_element_lineage_applications(client_with_seed):
+    """GET /api/data-elements/1/lineage-applications returns apps from SOR and endpoints."""
+    response = client_with_seed.get("/api/data-elements/1/lineage-applications")
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert any(a.get("source") == "sor" and a.get("application_name") == "App One" for a in data)
