@@ -90,8 +90,8 @@ This document outlines the changes needed in the frontend and backend to add an 
 
 ### 2.3 API service
 
-- **File**: `frontend/src/app/core/api.service.ts`
-  - Add:
+- **Files**: `frontend/src/app/core/domains-api.service.ts` (resource client) and `api.service.ts` (façade that delegates to it).
+  - Implemented:
     - `getDomainsTree(): Observable<DomainTreeNode[]>` — GET `/api/domains/tree` (use a new interface for tree node with `children`).
     - `createDomain(body: DomainCreate): Observable<Domain>` — POST `/api/domains`.
     - `updateDomain(id: number, body: DomainUpdate): Observable<Domain>` — PATCH `/api/domains/{id}`.
@@ -163,7 +163,7 @@ This document outlines the changes needed in the frontend and backend to add an 
 | Backend    | Extend | `app/api/domains.py` (tree, POST, PATCH, DELETE) |
 | Backend    | Optional | `app/models/__init__.py` (children on Domain) |
 | Backend    | Optional | `app/seed.py` (L2/L3 example data) |
-| Frontend   | Extend | `core/api.service.ts` (tree, create, update, delete) |
+| Frontend   | Extend | `core/domains-api.service.ts` and `core/api.service.ts` (tree, create, update, delete) |
 | Frontend   | Extend | `app-routing.module.ts` (admin routes) |
 | Frontend   | Extend | `layout/layout.component.html` (Admin nav) |
 | Frontend   | Extend | `store/*` (actions, effects, reducer, selectors for admin domains) |

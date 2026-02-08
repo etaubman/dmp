@@ -29,7 +29,7 @@ This document is a **checklist and plan** for getting the repo ready for additio
 - Project name and one-line description (Data Manager Portal frontend).
 - Prerequisites: Node/npm version; Angular CLI optional global install.
 - How to run: `npm install`, `npm run start` (or `ng serve`); API base URL via `environment.ts` (default `http://localhost:8000`).
-- Structure: `src/app/` — `core/` (api.service, shared services), `layout/`, `pages/`, `shared/` (reusable components), `store/` (NgRx).
+- Structure: `src/app/` — `core/` (API clients: resource `*-api.service.ts` + `api.service.ts` façade, shared services), `layout/`, `pages/`, `shared/` (reusable components), `store/` (NgRx, including `effect-helpers.ts`).
 - Build: `npm run build`; production env and API URL.
 - Tests: `npm run test` (Karma); note that specs are to be added (see Testing section).
 - Any design decisions: e.g. “non-standalone modules” (per project rule), Tailwind, AG Grid/Charts.
@@ -44,7 +44,7 @@ This document is a **checklist and plan** for getting the repo ready for additio
 - Prerequisites: Python 3.11+ (or 3.10+), pip, venv; Postgres (local or Docker); optional MinIO for S3.
 - Setup: `python -m venv venv`, activate, `pip install -r requirements.txt`; copy root `.env.example` to root `.env` (backend reads from env).
 - Run: `uvicorn app.main:app --reload --host 0.0.0.0` from `backend/` (or `python -m uvicorn app.main:app --reload`).
-- Project layout: `app/` — `api/` (routers), `config.py`, `database.py`, `models/`, `schemas/`, `seed.py`, `s3_client.py`; `main.py` entrypoint.
+- Project layout: `app/` — `api/` (routers; all routes live here; `helpers.py` for `get_or_404`), `config.py` (includes `cors_origins`, `seed_on_startup`), `database.py`, `models/`, `schemas/`, `seed.py`, `s3_client.py`; `main.py` entrypoint (app composition only).
 - API docs: http://localhost:8000/docs (Swagger), http://localhost:8000/redoc.
 - Health: `GET /health`, `GET /ready` (DB check).
 - Seeding: `python -m app.seed` (idempotent); `python -m app.seed reset` for domain reset and re-seed (document `reset-domains-reseed.ps1` from repo root).
@@ -95,7 +95,7 @@ This document is a **checklist and plan** for getting the repo ready for additio
 
 **Add:**
 
-- **`core/api.service.ts`:** File-level comment describing role (single place for API calls and DTOs). Keep or add brief JSDoc for public methods and for interfaces that are “contracts” with the backend.
+- **`core/api.service.ts` and `*-api.service.ts`:** File-level comment describing role (façade delegates to resource API services; DTOs in `core/models/`). Keep or add brief JSDoc for public methods and for interfaces that are “contracts” with the backend.
 - **Layout and page components:** One-line file-level comment per component (e.g. “Sidebar and header layout; hosts router-outlet for main app routes.”). Optional one-line on `ngOnInit`/main entry if non-trivial.
 - **Store:** Short comment at top of `app.state.ts`, `app.actions.ts`, `app.reducer.ts`, `app.effects.ts`, `app.selectors.ts` describing responsibility (e.g. “Global app state: selected domain, domain list, loading flags.”).
 - **Shared components:** File-level comment for modals, detail panels, and grid cell components so new devs know when to use them.
@@ -114,7 +114,7 @@ This document is a **checklist and plan** for getting the repo ready for additio
 
 ### 3.2 Frontend
 
-- **`api.service.ts`:** Large single file (~290 lines). Options: (a) add clear section comments (Domains, Users, Data Elements, …) and keep one file; (b) split into domain-api.service, data-elements-api.service, etc., and a thin facade or inject multiple services where needed. Section comments are the minimal change; split is a nice refactor for maintainability.
+- **`api.service.ts`:** Split done: resource-focused `*-api.service.ts` (domains, users, auth, data-elements, applications, eucs, endpoints, data-quality, data-concerns, metrics, bulk) and a thin `api.service.ts` façade; DTOs in `core/models/`, query param helpers in `core/http-params.ts`. Use the façade for backward compatibility or inject specific API services where appropriate.
 - **Environment:** `environment.ts` and `environment.prod.ts` — ensure both are documented in frontend README (API URL, production build).
 - **Naming:** Consistently use “DQ” vs “Data Quality” in user-facing strings vs code (document preference in CONTRIBUTING or a short style note).
 - **Redux/Store:** Ensure action type names and effect flows are easy to follow; add a short comment block in `app.effects.ts` describing the main flows (e.g. load domains on init, load domain-scoped data when domain changes).

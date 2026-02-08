@@ -9,6 +9,9 @@ from app.schemas.domain import DomainOut, DomainTreeOut, DomainCreate, DomainUpd
 
 router = APIRouter(prefix="/domains", tags=["domains"])
 
+# Separate router for GET /api/domain-tree so path is not matched by GET /api/domains/{domain_id}
+domain_tree_router = APIRouter(tags=["domains"])
+
 MAX_DEPTH = 4  # L0 (0) through L3 (3)
 
 
@@ -50,6 +53,12 @@ def get_domains_tree_list(db: Session) -> list[DomainTreeOut]:
     """Return domain hierarchy as a tree (L0→L1→L2→L3). Used by GET /api/domain-tree."""
     roots = db.query(Domain).filter(Domain.parent_id.is_(None)).order_by(Domain.name).all()
     return [_domain_to_tree_node(r, 0) for r in roots]
+
+
+@domain_tree_router.get("/domain-tree", response_model=list[DomainTreeOut])
+def api_domain_tree(db: Session = Depends(get_db_dep)):
+    """Return domain hierarchy as a tree (L0→L1→L2→L3)."""
+    return get_domains_tree_list(db)
 
 
 @router.get("", response_model=list[DomainOut])

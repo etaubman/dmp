@@ -18,8 +18,24 @@ import { ApiService } from '../core/api.service';
 import { AuthService } from '../core/auth.service';
 import * as AppActions from './app.actions';
 import { Store } from '@ngrx/store';
-import { createLoadListEffect } from './effect-helpers';
-import type { Domain, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern } from '../core/models';
+import {
+  createLoadListEffect,
+  createLoadSingleEffect,
+  createLoadAdminListEffect,
+  createAdminCrudEffect,
+} from './effect-helpers';
+import type { Domain, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/models';
+
+const METRICS_FALLBACK: Metrics = {
+  domains_count: 0,
+  data_elements_count: 0,
+  applications_count: 0,
+  eucs_count: 0,
+  endpoints_count: 0,
+  data_quality_rules_count: 0,
+  data_quality_exceptions_count: 0,
+  data_concerns_count: 0,
+};
 
 @Injectable()
 export class AppEffects {
@@ -145,190 +161,124 @@ export class AppEffects {
     })
   );
 
-  // --- Metrics (single object; custom loading/fallback) ---
+  // --- Metrics (single object; effect helper) ---
   loadMetrics$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadMetrics),
-      mergeMap(({ domainId }) => {
-        this.store.dispatch(AppActions.setLoading({ key: 'metrics', loading: true }));
-        return this.api.getMetrics(domainId ?? undefined).pipe(
-          map((metrics) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'metrics', loading: false }));
-            return AppActions.setMetrics({ metrics });
-          }),
-          catchError(() => {
-            this.store.dispatch(AppActions.setLoading({ key: 'metrics', loading: false }));
-            return of(AppActions.setMetrics({ metrics: { domains_count: 0, data_elements_count: 0, applications_count: 0, eucs_count: 0, endpoints_count: 0, data_quality_rules_count: 0, data_quality_exceptions_count: 0, data_concerns_count: 0 } }));
-          }),
-        );
-      }),
-    ),
+    createLoadSingleEffect<Metrics>(this.actions$, this.store, {
+      loadAction: AppActions.loadMetrics,
+      loadingKey: 'metrics',
+      setAction: (p: Record<string, Metrics>) => AppActions.setMetrics({ metrics: p['metrics'] }),
+      setActionKey: 'metrics',
+      fallbackValue: METRICS_FALLBACK,
+      apiCall: (action: unknown) => {
+        const { domainId } = action as { domainId?: number };
+        return this.api.getMetrics(domainId ?? undefined);
+      },
+    })
   );
 
-  // --- Admin: domains tree and CRUD ---
+  // --- Admin: domains tree and CRUD (effect helpers) ---
   loadDomainsTree$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadDomainsTree),
-      mergeMap(() => {
-        this.store.dispatch(AppActions.setLoading({ key: 'adminDomainsTree', loading: true }));
-        return this.api.getDomainsTree().pipe(
-          map((tree) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'adminDomainsTree', loading: false }));
-            return AppActions.setDomainsTree({ tree });
-          }),
-          catchError((err) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'adminDomainsTree', loading: false }));
-            const msg = err?.error?.detail || err?.message || 'Failed to load domain tree';
-            this.store.dispatch(AppActions.setAdminDomainsError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
-            return of(AppActions.setDomainsTree({ tree: [] }));
-          }),
-        );
+    createLoadAdminListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadDomainsTree,
+      loadingKey: 'adminDomainsTree',
+      setAction: AppActions.setDomainsTree as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setDomainsTree>,
+      setErrorAction: AppActions.setAdminDomainsError,
+      stateKey: 'tree',
+      emptyValue: [],
+      apiCall: () => this.api.getDomainsTree(),
+      errorMessage: 'Failed to load domain tree',
+    })
+  );
+
+  createDomain$ = createEffect(
+    () =>
+      createAdminCrudEffect(this.actions$, this.store, {
+        requestAction: AppActions.createDomainRequest,
+        apiCall: (action: unknown) => this.api.createDomain((action as { body: Parameters<ApiService['createDomain']>[0] }).body),
+        successReloadActions: [AppActions.loadDomainsTree(), AppActions.loadDomains()],
+        errorAction: AppActions.setAdminDomainsError,
+        errorMessage: 'Failed to create domain',
       }),
-    ),
-  );
-
-  createDomain$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.createDomainRequest),
-      mergeMap(({ body }) =>
-        this.api.createDomain(body).pipe(
-          map(() => {
-            this.store.dispatch(AppActions.loadDomainsTree());
-            this.store.dispatch(AppActions.loadDomains());
-            return { type: '[App] Create Domain Success' };
-          }),
-          catchError((err) => {
-            const msg = err?.error?.detail || err?.message || 'Failed to create domain';
-            this.store.dispatch(AppActions.setAdminDomainsError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
-            return of({ type: '[App] Create Domain Failed' });
-          }),
-        ),
-      ),
-    ),
     { dispatch: false },
   );
 
-  updateDomain$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.updateDomainRequest),
-      mergeMap(({ id, body }) =>
-        this.api.updateDomain(id, body).pipe(
-          map(() => {
-            this.store.dispatch(AppActions.loadDomainsTree());
-            this.store.dispatch(AppActions.loadDomains());
-            return { type: '[App] Update Domain Success' };
-          }),
-          catchError((err) => {
-            const msg = err?.error?.detail || err?.message || 'Failed to update domain';
-            this.store.dispatch(AppActions.setAdminDomainsError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
-            return of({ type: '[App] Update Domain Failed' });
-          }),
-        ),
-      ),
-    ),
+  updateDomain$ = createEffect(
+    () =>
+      createAdminCrudEffect(this.actions$, this.store, {
+        requestAction: AppActions.updateDomainRequest,
+        apiCall: (action: unknown) => {
+          const { id, body } = action as { id: number; body: Parameters<ApiService['updateDomain']>[1] };
+          return this.api.updateDomain(id, body);
+        },
+        successReloadActions: [AppActions.loadDomainsTree(), AppActions.loadDomains()],
+        errorAction: AppActions.setAdminDomainsError,
+        errorMessage: 'Failed to update domain',
+      }),
     { dispatch: false },
   );
 
-  deleteDomain$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.deleteDomainRequest),
-      mergeMap(({ id }) =>
-        this.api.deleteDomain(id).pipe(
-          map(() => {
-            this.store.dispatch(AppActions.loadDomainsTree());
-            this.store.dispatch(AppActions.loadDomains());
-            return { type: '[App] Delete Domain Success' };
-          }),
-          catchError((err) => {
-            const msg = err?.error?.detail || err?.message || 'Failed to delete domain';
-            this.store.dispatch(AppActions.setAdminDomainsError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
-            return of({ type: '[App] Delete Domain Failed' });
-          }),
-        ),
-      ),
-    ),
+  deleteDomain$ = createEffect(
+    () =>
+      createAdminCrudEffect(this.actions$, this.store, {
+        requestAction: AppActions.deleteDomainRequest,
+        apiCall: (action: unknown) => this.api.deleteDomain((action as { id: number }).id),
+        successReloadActions: [AppActions.loadDomainsTree(), AppActions.loadDomains()],
+        errorAction: AppActions.setAdminDomainsError,
+        errorMessage: 'Failed to delete domain',
+      }),
     { dispatch: false },
   );
 
-  // --- Admin: users list and CRUD ---
+  // --- Admin: users list and CRUD (effect helpers) ---
   loadUsers$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.loadUsers),
-      mergeMap(() => {
-        this.store.dispatch(AppActions.setLoading({ key: 'adminUsers', loading: true }));
-        return this.api.getUsers().pipe(
-          map((users) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'adminUsers', loading: false }));
-            return AppActions.setUsers({ users });
-          }),
-          catchError((err) => {
-            this.store.dispatch(AppActions.setLoading({ key: 'adminUsers', loading: false }));
-            const msg = err?.error?.detail || err?.message || 'Failed to load users';
-            this.store.dispatch(AppActions.setAdminUsersError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
-            return of(AppActions.setUsers({ users: [] }));
-          }),
-        );
+    createLoadAdminListEffect(this.actions$, this.store, {
+      loadAction: AppActions.loadUsers,
+      loadingKey: 'adminUsers',
+      setAction: AppActions.setUsers as unknown as (p: Record<string, unknown>) => ReturnType<typeof AppActions.setUsers>,
+      setErrorAction: AppActions.setAdminUsersError,
+      stateKey: 'users',
+      emptyValue: [],
+      apiCall: () => this.api.getUsers(),
+      errorMessage: 'Failed to load users',
+    })
+  );
+
+  createUser$ = createEffect(
+    () =>
+      createAdminCrudEffect(this.actions$, this.store, {
+        requestAction: AppActions.createUserRequest,
+        apiCall: (action: unknown) => this.api.createUser((action as { body: Parameters<ApiService['createUser']>[0] }).body),
+        successReloadActions: [AppActions.loadUsers()],
+        errorAction: AppActions.setAdminUsersError,
+        errorMessage: 'Failed to create user',
       }),
-    ),
-  );
-
-  createUser$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.createUserRequest),
-      mergeMap(({ body }) =>
-        this.api.createUser(body).pipe(
-          map(() => {
-            this.store.dispatch(AppActions.loadUsers());
-            return { type: '[App] Create User Success' };
-          }),
-          catchError((err) => {
-            const msg = err?.error?.detail || err?.message || 'Failed to create user';
-            this.store.dispatch(AppActions.setAdminUsersError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
-            return of({ type: '[App] Create User Failed' });
-          }),
-        ),
-      ),
-    ),
     { dispatch: false },
   );
 
-  updateUser$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.updateUserRequest),
-      mergeMap(({ id, body }) =>
-        this.api.updateUser(id, body).pipe(
-          map(() => {
-            this.store.dispatch(AppActions.loadUsers());
-            return { type: '[App] Update User Success' };
-          }),
-          catchError((err) => {
-            const msg = err?.error?.detail || err?.message || 'Failed to update user';
-            this.store.dispatch(AppActions.setAdminUsersError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
-            return of({ type: '[App] Update User Failed' });
-          }),
-        ),
-      ),
-    ),
+  updateUser$ = createEffect(
+    () =>
+      createAdminCrudEffect(this.actions$, this.store, {
+        requestAction: AppActions.updateUserRequest,
+        apiCall: (action: unknown) => {
+          const { id, body } = action as { id: number; body: Parameters<ApiService['updateUser']>[1] };
+          return this.api.updateUser(id, body);
+        },
+        successReloadActions: [AppActions.loadUsers()],
+        errorAction: AppActions.setAdminUsersError,
+        errorMessage: 'Failed to update user',
+      }),
     { dispatch: false },
   );
 
-  deleteUser$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AppActions.deleteUserRequest),
-      mergeMap(({ id }) =>
-        this.api.deleteUser(id).pipe(
-          map(() => {
-            this.store.dispatch(AppActions.loadUsers());
-            return { type: '[App] Delete User Success' };
-          }),
-          catchError((err) => {
-            const msg = err?.error?.detail || err?.message || 'Failed to delete user';
-            this.store.dispatch(AppActions.setAdminUsersError({ error: typeof msg === 'string' ? msg : JSON.stringify(msg) }));
-            return of({ type: '[App] Delete User Failed' });
-          }),
-        ),
-      ),
-    ),
+  deleteUser$ = createEffect(
+    () =>
+      createAdminCrudEffect(this.actions$, this.store, {
+        requestAction: AppActions.deleteUserRequest,
+        apiCall: (action: unknown) => this.api.deleteUser((action as { id: number }).id),
+        successReloadActions: [AppActions.loadUsers()],
+        errorAction: AppActions.setAdminUsersError,
+        errorMessage: 'Failed to delete user',
+      }),
     { dispatch: false },
   );
 

@@ -1,6 +1,6 @@
 # Refactor Plan: Maintainability Without Overcomplication
 
-A ranked list of frontend and backend refactors to improve maintainability. Each item includes impact, effort, and risk so you can prioritize. The goal is **steady improvement**, not a full rewrite.
+A ranked list of frontend and backend refactors to improve maintainability. **Current status:** Backend #3 (routes in routers), #4 (CORS in config), and frontend #1 (API split), #2 (effect helpers) are **done**; see Summary Table and "Order of implementation" below. Each item includes impact, effort, and risk so you can prioritize. The goal is **steady improvement**, not a full rewrite.
 
 ---
 
@@ -26,9 +26,9 @@ A ranked list of frontend and backend refactors to improve maintainability. Each
 
 ---
 
-### 3. **Move route registration out of `main.py`** — Do when touching routers
+### 3. **Move route registration out of `main.py`** — ✅ Done
 
-**Problem:** `main.py` defines two routes inline (`/api/domain-tree`, `/api/data-elements/sor`) and imports router-specific logic (`get_domains_tree_list`, `list_data_element_sor_by_domain`). That mixes app wiring with route implementation.
+**Was:** `main.py` defined routes inline (`/api/domain-tree`, `/api/data-elements/sor`) and imports router-specific logic (`get_domains_tree_list`, `list_data_element_sor_by_domain`). That mixes app wiring with route implementation.
 
 **Change:** Either:
 - Register these routes on the existing `domains` and `data_elements` routers with distinct paths (e.g. `/domains/tree`, `/data-elements/sor`), and mount routers under `/api` in `main.py`, or
@@ -38,13 +38,11 @@ A ranked list of frontend and backend refactors to improve maintainability. Each
 
 ---
 
-### 4. **Move CORS origins to config** — Optional, low effort
+### 4. **Move CORS origins to config** — ✅ Done
 
-**Problem:** `allow_origins` is hardcoded in `main.py`. For different environments you have to edit code.
+**Was:** `allow_origins` was hardcoded in `main.py`.
 
-**Change:** In `app/config.py`, add something like `cors_origins: list[str]` (e.g. from env or a comma-separated variable). Use it in `CORSMiddleware` in `main.py`.
-
-**Impact:** Low (cleaner config, easier env-specific setup). **Effort:** Low. **Risk:** Low.
+**Done:** `app/config.py` has `cors_origins: list[str]` from env `CORS_ORIGINS` (comma-separated). `main.py` uses `settings.cors_origins` in CORSMiddleware.
 
 ---
 
@@ -56,7 +54,7 @@ A ranked list of frontend and backend refactors to improve maintainability. Each
 
 ## Frontend Refactors (ranked)
 
-### 1. **Split API layer: DTOs vs API methods** — Do first
+### 1. **Split API layer: DTOs vs API methods** — ✅ Done
 
 **Problem:** `api.service.ts` holds all DTOs (interfaces) and all HTTP methods in one large file (~290 lines). It’s the single point of change for every entity and every endpoint, which makes navigation and code review harder.
 
@@ -68,7 +66,7 @@ A ranked list of frontend and backend refactors to improve maintainability. Each
 
 ---
 
-### 2. **Reduce NgRx effect boilerplate with a small helper** — Do early
+### 2. **Reduce NgRx effect boilerplate with a small helper** — ✅ Done
 
 **Problem:** `app.effects.ts` has many “load → setLoading → api call → setData/setLoading(false) → catchError” effects that are almost identical. Repeating this for every entity makes the file long and any change to the pattern (e.g. error handling) must be repeated.
 
@@ -111,17 +109,17 @@ Then each entity effect becomes a short call to this helper. Keep the helper in 
 
 | Priority | Backend | Frontend |
 |----------|---------|----------|
-| **1 (do first)** | Extract `domain_ids_for_scope` to shared module | Split API: DTOs (and optionally API methods) out of `api.service.ts` |
-| **2 (do early)** | `get_or_404` helper/dependency | Generic load/set/error effect helper |
-| **3 (when touching)** | Move `/domain-tree` and `/data-elements/sor` into routers or small routes module | Shared date-formatting (pipe or util) |
-| **4 (optional)** | CORS origins in config | — |
+| **1 (do first)** | Extract `domain_ids_for_scope` to shared module | ~~Split API~~ ✅ Done: resource APIs + façade + `http-params.ts` |
+| **2 (do early)** | `get_or_404` helper (in `app/api/helpers.py`) | ~~Effect helper~~ ✅ Done: `effect-helpers.ts` factories |
+| **3 (when touching)** | ~~Move routes out of main~~ ✅ Done: routes in routers | Shared date-formatting (pipe or util) |
+| **4 (optional)** | ~~CORS in config~~ ✅ Done: `config.cors_origins`, `seed_on_startup` | — |
 | **Skip for now** | Full service/repository layer | Feature-sliced store; lazy feature modules |
 
 ---
 
-## Order of implementation
+## Order of implementation (status)
 
-1. Backend: **#1 domain_ids_for_scope** → **#2 get_or_404** → **#3 route registration** (then #4 CORS if desired).  
-2. Frontend: **#1 split API (DTOs + optional API split)** → **#2 effect helper** → **#3 date formatting** when you next change a detail modal.
+1. Backend: **#1 domain_ids_for_scope** (already done), **#2 get_or_404** (in `helpers.py`), **#3 route registration** ✅, **#4 CORS** ✅.  
+2. Frontend: **#1 split API** ✅, **#2 effect helper** ✅, **#3 date formatting** when you next change a detail modal.
 
 This keeps each step small, testable, and reversible without overcomplicating the codebase.

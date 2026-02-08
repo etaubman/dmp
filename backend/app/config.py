@@ -37,3 +37,12 @@ class Settings:
     auth_jwt_expire_minutes: int = int(os.getenv("AUTH_JWT_EXPIRE_MINUTES", "60"))
     # When True, unauthenticated requests are treated as a dev user (first admin). See README.
     auth_dev_always_logged_in: bool = os.getenv("AUTH_DEV_ALWAYS_LOGGED_IN", "").lower() in ("1", "true", "yes")
+
+    # CORS: comma-separated origins (e.g. "http://localhost:4200,http://127.0.0.1:4200")
+    cors_origins: list[str] = os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:4200,http://127.0.0.1:4200",
+    ).split(",")
+
+    # Startup: when True, run DB seed and ensure user passwords (default True for dev)
+    seed_on_startup: bool = os.getenv("SEED_ON_STARTUP", "1").lower() not in ("0", "false", "no")

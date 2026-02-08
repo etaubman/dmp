@@ -1,19 +1,17 @@
 /**
- * Central API client for the Data Manager Portal backend.
+ * Thin façade over resource-focused API clients.
  *
- * All HTTP calls to the backend live here. DTOs (Domain, User, DataElement, etc.) are
- * defined in core/models and re-exported from this file. Components and NgRx effects
- * use ApiService for data; AuthInterceptor attaches the JWT from AuthService to requests.
+ * All HTTP calls are delegated to domains-api, users-api, auth-api, data-elements-api,
+ * applications-api, eucs-api, endpoints-api, data-quality-api, data-concerns-api,
+ * metrics-api, and bulk-api services. DTOs are in core/models.
  *
- * Base URL: environment.apiUrl + '/api'. Scope parameters (owned/upstream/downstream)
- * filter domain-scoped lists where the backend supports them.
+ * Components and effects can inject ApiService for backward compatibility, or inject
+ * the specific *-api.service for a single domain.
  */
 export * from './models';
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
 import type {
   Domain,
   DomainTreeNode,
@@ -44,222 +42,159 @@ import type {
   Metrics,
   LineageResponse,
 } from './models';
-
-const API = environment.apiUrl + '/api';
+import { DomainsApiService } from './domains-api.service';
+import { UsersApiService } from './users-api.service';
+import { AuthApiService } from './auth-api.service';
+import { DataElementsApiService } from './data-elements-api.service';
+import { ApplicationsApiService } from './applications-api.service';
+import { EucsApiService } from './eucs-api.service';
+import { EndpointsApiService } from './endpoints-api.service';
+import { DataQualityApiService } from './data-quality-api.service';
+import { DataConcernsApiService } from './data-concerns-api.service';
+import { MetricsApiService } from './metrics-api.service';
+import { BulkApiService } from './bulk-api.service';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private domains: DomainsApiService,
+    private users: UsersApiService,
+    private auth: AuthApiService,
+    private dataElements: DataElementsApiService,
+    private applications: ApplicationsApiService,
+    private eucs: EucsApiService,
+    private endpoints: EndpointsApiService,
+    private dataQuality: DataQualityApiService,
+    private dataConcerns: DataConcernsApiService,
+    private metrics: MetricsApiService,
+    private bulk: BulkApiService,
+  ) {}
 
-  // ——— Domains (flat list + tree for admin) ———
   getDomains(): Observable<Domain[]> {
-    return this.http.get<Domain[]>(`${API}/domains`);
+    return this.domains.getDomains();
   }
-
   getDomain(id: number): Observable<Domain> {
-    return this.http.get<Domain>(`${API}/domains/${id}`);
+    return this.domains.getDomain(id);
   }
-
   getDomainsTree(): Observable<DomainTreeNode[]> {
-    return this.http.get<DomainTreeNode[]>(`${API}/domain-tree`);
+    return this.domains.getDomainsTree();
   }
-
   createDomain(body: DomainCreate): Observable<Domain> {
-    return this.http.post<Domain>(`${API}/domains`, body);
+    return this.domains.createDomain(body);
   }
-
   updateDomain(id: number, body: DomainUpdate): Observable<Domain> {
-    return this.http.patch<Domain>(`${API}/domains/${id}`, body);
+    return this.domains.updateDomain(id, body);
   }
-
   deleteDomain(id: number): Observable<void> {
-    return this.http.delete<void>(`${API}/domains/${id}`);
+    return this.domains.deleteDomain(id);
   }
 
-  // ——— Users ———
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${API}/users`);
+    return this.users.getUsers();
   }
-
   getUser(id: number): Observable<User> {
-    return this.http.get<User>(`${API}/users/${id}`);
+    return this.users.getUser(id);
   }
-
   createUser(body: UserCreate): Observable<User> {
-    return this.http.post<User>(`${API}/users`, body);
+    return this.users.createUser(body);
   }
-
   updateUser(id: number, body: UserUpdate): Observable<User> {
-    return this.http.patch<User>(`${API}/users/${id}`, body);
+    return this.users.updateUser(id, body);
   }
-
   deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${API}/users/${id}`);
+    return this.users.deleteUser(id);
   }
 
-  // ——— Auth ———
   login(credentials: LoginCredentials): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${API}/auth/login`, credentials);
+    return this.auth.login(credentials);
   }
-
   logout(): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${API}/auth/logout`, {});
+    return this.auth.logout();
   }
-
   getMe(): Observable<AuthUser> {
-    return this.http.get<AuthUser>(`${API}/auth/me`);
+    return this.auth.getMe();
   }
 
-  // ——— Data Elements ———
-  /** domain_id required; scope filters by owned / upstream / downstream. */
   getDataElements(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<DataElement[]> {
-    let params = new HttpParams().set('domain_id', domainId);
-    if (scope !== 'owned') params = params.set('scope', scope);
-    return this.http.get<DataElement[]>(`${API}/data-elements`, { params });
+    return this.dataElements.getDataElements(domainId, scope);
   }
-
   getDataElementSorByDomain(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<DataElementSORSummary[]> {
-    let params = new HttpParams().set('domain_id', domainId);
-    if (scope !== 'owned') params = params.set('scope', scope);
-    return this.http.get<DataElementSORSummary[]>(`${API}/data-elements/sor`, { params });
+    return this.dataElements.getDataElementSorByDomain(domainId, scope);
   }
-
   getDataElementLineage(dataElementId: number): Observable<LineageResponse> {
-    return this.http.get<LineageResponse>(`${API}/data-elements/${dataElementId}/lineage`);
+    return this.dataElements.getDataElementLineage(dataElementId);
   }
-
   getDataElementLineageApplications(dataElementId: number): Observable<LineageApplication[]> {
-    return this.http.get<LineageApplication[]>(`${API}/data-elements/${dataElementId}/lineage-applications`);
+    return this.dataElements.getDataElementLineageApplications(dataElementId);
   }
 
-  // ——— Applications ———
   getApplications(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<Application[]> {
-    let params = new HttpParams().set('domain_id', domainId);
-    if (scope !== 'owned') params = params.set('scope', scope);
-    return this.http.get<Application[]>(`${API}/applications`, { params });
+    return this.applications.getApplications(domainId, scope);
   }
 
-  // ——— EUCs ———
   getEucs(domainId: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<EUC[]> {
-    let params = new HttpParams().set('domain_id', domainId);
-    if (scope !== 'owned') params = params.set('scope', scope);
-    return this.http.get<EUC[]>(`${API}/eucs`, { params });
+    return this.eucs.getEucs(domainId, scope);
   }
 
-  // ——— Endpoints ———
   getEndpoints(domainId?: number, applicationId?: number, scope: 'owned' | 'upstream' | 'downstream' = 'owned'): Observable<Endpoint[]> {
-    let params = new HttpParams();
-    if (domainId != null) {
-      params = params.set('domain_id', domainId);
-      if (scope !== 'owned') params = params.set('scope', scope);
-    }
-    if (applicationId != null) params = params.set('application_id', applicationId);
-    return this.http.get<Endpoint[]>(`${API}/endpoints`, { params });
+    return this.endpoints.getEndpoints(domainId ?? undefined, applicationId ?? undefined, scope);
   }
 
-  // ——— Data Quality ———
   getDataQualityRules(domainId?: number, dataElementId?: number): Observable<DataQualityRule[]> {
-    let params = new HttpParams();
-    if (domainId != null) params = params.set('domain_id', domainId);
-    if (dataElementId != null) params = params.set('data_element_id', dataElementId);
-    return this.http.get<DataQualityRule[]>(`${API}/data-quality-rules`, { params });
+    return this.dataQuality.getDataQualityRules(domainId, dataElementId);
   }
-
   getDataQualityExceptions(domainId?: number, dataElementId?: number): Observable<DataQualityException[]> {
-    let params = new HttpParams();
-    if (domainId != null) params = params.set('domain_id', domainId);
-    if (dataElementId != null) params = params.set('data_element_id', dataElementId);
-    return this.http.get<DataQualityException[]>(`${API}/data-quality-exceptions`, { params });
+    return this.dataQuality.getDataQualityExceptions(domainId, dataElementId);
   }
-
   getDataQualityRule(ruleId: number): Observable<DataQualityRule> {
-    return this.http.get<DataQualityRule>(`${API}/data-quality-rules/${ruleId}`);
+    return this.dataQuality.getDataQualityRule(ruleId);
   }
-
   getRuleInstanceCounts(domainId: number): Observable<RuleInstanceCount[]> {
-    return this.http.get<RuleInstanceCount[]>(`${API}/data-quality-rules/instance-counts`, { params: { domain_id: domainId } });
+    return this.dataQuality.getRuleInstanceCounts(domainId);
   }
-
   getRuleInstances(filters?: { rule_id?: number; data_element_id?: number; application_id?: number }): Observable<DataQualityRuleInstance[]> {
-    let params = new HttpParams();
-    if (filters?.rule_id != null) params = params.set('rule_id', filters.rule_id);
-    if (filters?.data_element_id != null) params = params.set('data_element_id', filters.data_element_id);
-    if (filters?.application_id != null) params = params.set('application_id', filters.application_id);
-    return this.http.get<DataQualityRuleInstance[]>(`${API}/data-quality-rules/instances`, { params });
+    return this.dataQuality.getRuleInstances(filters);
   }
-
   getRuleInstance(instanceId: number, prettify = true): Observable<DataQualityRuleInstanceDetail> {
-    const params = new HttpParams().set('prettify', String(prettify));
-    return this.http.get<DataQualityRuleInstanceDetail>(`${API}/data-quality-rules/instances/${instanceId}`, { params });
+    return this.dataQuality.getRuleInstance(instanceId, prettify);
   }
-
   getRulePerformance(ruleId: number, dataElementId?: number, applicationId?: number): Observable<DQPerformanceSummary> {
-    let params = new HttpParams();
-    if (dataElementId != null) params = params.set('data_element_id', dataElementId);
-    if (applicationId != null) params = params.set('application_id', applicationId);
-    return this.http.get<DQPerformanceSummary>(`${API}/data-quality-rules/${ruleId}/performance`, { params });
+    return this.dataQuality.getRulePerformance(ruleId, dataElementId, applicationId);
   }
-
   getRulePerformanceTrend(ruleId: number, filters?: { data_element_id?: number; application_id?: number }): Observable<DQTrendResponse> {
-    let params = new HttpParams();
-    if (filters?.data_element_id != null) params = params.set('data_element_id', filters.data_element_id);
-    if (filters?.application_id != null) params = params.set('application_id', filters.application_id);
-    return this.http.get<DQTrendResponse>(`${API}/data-quality-rules/${ruleId}/performance/trend`, { params });
+    return this.dataQuality.getRulePerformanceTrend(ruleId, filters);
   }
-
   getRuleSqlVersions(ruleId: number): Observable<DataQualitySqlVersion[]> {
-    return this.http.get<DataQualitySqlVersion[]>(`${API}/data-quality-rules/${ruleId}/sql-versions`);
+    return this.dataQuality.getRuleSqlVersions(ruleId);
   }
-
   getRuleModRequests(ruleId: number): Observable<RuleModRequest[]> {
-    return this.http.get<RuleModRequest[]>(`${API}/data-quality-rules/${ruleId}/mod-requests`);
+    return this.dataQuality.getRuleModRequests(ruleId);
   }
-
   requestRuleMod(ruleId: number): Observable<RuleModRequest> {
-    return this.http.post<RuleModRequest>(`${API}/data-quality-rules/${ruleId}/request-mod`, {});
+    return this.dataQuality.requestRuleMod(ruleId);
   }
-
   flagRuleForMonitoring(ruleId: number, flagged: boolean): Observable<{ id: number; flagged_for_monitoring: boolean }> {
-    return this.http.patch<{ id: number; flagged_for_monitoring: boolean }>(`${API}/data-quality-rules/${ruleId}/flag-monitoring`, {}, { params: { flagged } });
+    return this.dataQuality.flagRuleForMonitoring(ruleId, flagged);
   }
-
   markExceptionFalsePositive(exceptionId: number): Observable<{ id: number; is_false_positive: boolean }> {
-    return this.http.patch<{ id: number; is_false_positive: boolean }>(`${API}/data-quality-exceptions/${exceptionId}/false-positive`, {});
+    return this.dataQuality.markExceptionFalsePositive(exceptionId);
   }
-
   markInstanceFalsePositive(instanceId: number): Observable<{ id: number; marked_false_positive: boolean }> {
-    return this.http.patch<{ id: number; marked_false_positive: boolean }>(`${API}/data-quality-rules/instances/${instanceId}/false-positive`, {});
+    return this.dataQuality.markInstanceFalsePositive(instanceId);
   }
 
-  // ——— Data Concerns ———
-  /** domain_id required; optional filters narrow by application, EUC, endpoint, or data element. */
   getDataConcerns(domainId: number, filters?: { application_id?: number; euc_id?: number; endpoint_id?: number; data_element_id?: number }): Observable<DataConcern[]> {
-    let params = new HttpParams().set('domain_id', domainId);
-    if (filters?.application_id != null) params = params.set('application_id', filters.application_id);
-    if (filters?.euc_id != null) params = params.set('euc_id', filters.euc_id);
-    if (filters?.endpoint_id != null) params = params.set('endpoint_id', filters.endpoint_id);
-    if (filters?.data_element_id != null) params = params.set('data_element_id', filters.data_element_id);
-    return this.http.get<DataConcern[]>(`${API}/data-concerns`, { params });
+    return this.dataConcerns.getDataConcerns(domainId, filters);
   }
 
-  // ——— Metrics ———
   getMetrics(domainId?: number): Observable<Metrics> {
-    const params = domainId != null ? new HttpParams().set('domain_id', domainId) : undefined;
-    return this.http.get<Metrics>(`${API}/metrics`, { params });
+    return this.metrics.getMetrics(domainId);
   }
 
-  // ——— Bulk upload/download (admin) ———
-  /** entityType identifies the entity (e.g. data_elements, applications). Returns counts and per-row errors. */
   uploadBulk(entityType: string, file: File): Observable<{ created: number; updated: number; errors: { row: number; error: string }[] }> {
-    const form = new FormData();
-    form.append('entity_type', entityType);
-    form.append('file', file);
-    return this.http.post<{ created: number; updated: number; errors: { row: number; error: string }[] }>(`${API}/bulk/upload`, form);
+    return this.bulk.uploadBulk(entityType, file);
   }
-
   downloadBulk(entityType: string, domainId?: number): string {
-    let url = `${API}/bulk/download?entity_type=${encodeURIComponent(entityType)}`;
-    if (domainId != null) url += `&domain_id=${domainId}`;
-    return url;
+    return this.bulk.downloadBulk(entityType, domainId);
   }
 }

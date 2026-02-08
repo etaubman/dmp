@@ -72,7 +72,7 @@ Optional: read [docs/architecture.md](docs/architecture.md) for the high-level d
 ### Naming and consistency
 
 - Prefer consistent names across API and frontend (e.g. "DQ" in code vs "Data Quality" in UI is fine; add a short comment if it’s non-obvious).
-- New API endpoints should have corresponding frontend methods in `core/api.service.ts` and, if needed, NgRx actions/effects.
+- New API endpoints should have corresponding frontend methods in the appropriate `core/*-api.service.ts` (or the thin `core/api.service.ts` façade) and, if needed, NgRx actions/effects.
 
 ---
 
@@ -84,7 +84,7 @@ Optional: read [docs/architecture.md](docs/architecture.md) for the high-level d
 | New Angular page/feature | `frontend/src/app/pages/<feature>-page/`, register route in `app-routing.module.ts`, add to layout/nav as needed. |
 | New shared UI component | `frontend/src/app/shared/<component-name>/`. |
 | New NgRx state/actions | `frontend/src/app/store/` (extend `app.state.ts`, `app.actions.ts`, etc.). |
-| New API client method | `frontend/src/app/core/api.service.ts`. |
+| New API client method | `frontend/src/app/core/<resource>-api.service.ts` (e.g. `domains-api.service.ts`); or extend the façade `api.service.ts` if you add to an existing resource. |
 | DB model change | `backend/app/models/`, then consider migration or seed updates. |
 
 ---
@@ -104,7 +104,7 @@ Optional: read [docs/architecture.md](docs/architecture.md) for the high-level d
 
 - **Backend:** Run with `uvicorn app.main:app --reload --host 0.0.0.0` and set breakpoints in your IDE; use "local backend" mode (Postgres only in Docker) so the API process is on your machine.
 - **Frontend:** Use browser DevTools; NgRx DevTools extension helps inspect store and actions. Check `environment.ts` for `apiUrl` and `devAlwaysLoggedIn`.
-- **API not reachable:** Verify CORS in `backend/app/main.py` includes your frontend origin; check `apiUrl` in `frontend/src/environments/environment.ts`.
+- **API not reachable:** Verify CORS: set `CORS_ORIGINS` in env or `backend/app/config.py` (defaults include `http://localhost:4200`, `http://127.0.0.1:4200`). Check `apiUrl` in `frontend/src/environments/environment.ts`.
 
 ---
 

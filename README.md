@@ -157,7 +157,7 @@ For architecture and product requirements, see the **Repo layout** section below
 |-------|-------------|
 | **Port already in use** | Ensure nothing else uses 5432 (Postgres), 8000 (API), 4200 (frontend), 8080 (Adminer), 9000/9001 (MinIO). Change ports in `docker-compose.yml` or stop the conflicting service. |
 | **"DB not ready" / connection refused** | Wait for Postgres to be healthy after `docker-compose up -d` (about 5–10 seconds). For local backend, use `DATABASE_URL` with `localhost`, not `postgres`. |
-| **CORS errors in browser** | The API allows `http://localhost:4200` and `http://127.0.0.1:4200`. If the frontend runs on another host/port, add it in `backend/app/main.py` (CORSMiddleware). |
+| **CORS errors in browser** | The API uses `CORS_ORIGINS` from `backend/app/config.py` (env: comma-separated list; defaults include `http://localhost:4200`, `http://127.0.0.1:4200`). To add an origin, set `CORS_ORIGINS` in `.env` or adjust the default in `config.py`. |
 | **Frontend can't reach API** | Confirm the API is running and that `frontend/src/environments/environment.ts` has `apiUrl` pointing to it (e.g. `http://localhost:8000`). |
 | **Login 401 / forgot password** | See backend README: run `python -m app.seed set-passwords` from `backend/` with venv activated, then log in with e.g. `ethan.taubman@example.com` / `password`. |
 

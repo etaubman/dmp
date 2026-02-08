@@ -45,13 +45,13 @@ Leave both **off** for production.
 
 | Path | Purpose |
 |------|---------|
-| **`core/`** | Shared services: `api.service.ts` (HTTP and DTOs for all API calls), `auth.service.ts`, `auth.guard.ts`, `auth-interceptor.ts`, `data-concern-modal.service.ts`, `time-period.service.ts`; `models/` for shared types. |
+| **`core/`** | API clients: resource-focused services (`domains-api.service.ts`, `users-api.service.ts`, `auth-api.service.ts`, `data-elements-api.service.ts`, `applications-api.service.ts`, `eucs-api.service.ts`, `endpoints-api.service.ts`, `data-quality-api.service.ts`, `data-concerns-api.service.ts`, `metrics-api.service.ts`, `bulk-api.service.ts`) and a thin façade `api.service.ts` that delegates to them; `http-params.ts` for typed query builders (`buildDomainScopeParams`, `withOptionalParam`, etc.); `models/` for shared DTOs; `auth.service.ts`, `auth.guard.ts`, `auth-interceptor.ts`, `data-concern-modal.service.ts`, `time-period.service.ts`. |
 | **`layout/`** | App shell: `LayoutComponent` (sidebar + header + router-outlet), `AdminLayoutComponent`, `DomainSelectorComponent`. |
 | **`pages/`** | Route targets: Home, Data Elements, Applications, EUCs, Endpoints, DQ Rules, DQ Exceptions, Data Concerns, Metrics, Bulk; Admin (Domains, User Management, Settings); Login. |
 | **`shared/`** | Reusable UI: detail modals, detail panel, concept metrics, time-period switch, lineage modal, AG Grid cell components (kebab actions, counts, etc.). |
-| **`store/`** | NgRx: `app.state.ts`, `app.actions.ts`, `app.reducer.ts`, `app.effects.ts`, `app.selectors.ts` (global state: selected domain, domain list, loading, etc.). |
+| **`store/`** | NgRx: `app.state.ts`, `app.actions.ts`, `app.reducer.ts`, `app.effects.ts`, `app.selectors.ts` (global state: selected domain, domain list, loading, etc.). **`effect-helpers.ts`** provides factories for list load, single-object load, admin list load, and admin CRUD effects. |
 
-**Adding a new page:** Create a module under `pages/<name>-page/`, add a route in `app-routing.module.ts`, and add a nav link in the layout if needed. Use `core/api.service.ts` for API calls and the store for domain/global state.
+**Adding a new page:** Create a module under `pages/<name>-page/`, add a route in `app-routing.module.ts`, and add a nav link in the layout if needed. Use `core/api.service.ts` (façade) or the relevant `core/<resource>-api.service.ts` for API calls, and the store for domain/global state.
 
 ---
 
@@ -106,7 +106,7 @@ Runs unit tests with Karma/Jasmine. Add specs for new components and services as
 
 ## CORS and API URL
 
-If the frontend runs on a different origin (e.g. different port or host), the backend must allow it in CORS (see `backend/app/main.py`). The frontend does not use a dev proxy by default; it calls `apiUrl` from the environment directly. Ensure `environment.ts` has the correct `apiUrl` for your backend (e.g. `http://localhost:8000`).
+If the frontend runs on a different origin (e.g. different port or host), the backend must allow it via `CORS_ORIGINS` in `backend/app/config.py` (env: comma-separated list). The frontend does not use a dev proxy by default; it calls `apiUrl` from the environment directly. Ensure `environment.ts` has the correct `apiUrl` for your backend (e.g. `http://localhost:8000`).
 
 ---
 

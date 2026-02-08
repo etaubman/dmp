@@ -65,12 +65,12 @@ then restart so the seed can set default passwords for existing users.
 
 | Path | Purpose |
 |------|---------|
-| **`app/main.py`** | FastAPI app, CORS, router registration, startup (tables + seed), `/health`, `/ready`, `/api/domain-tree` |
-| **`app/config.py`** | Settings from env (`get_settings()`) |
+| **`app/main.py`** | FastAPI app entrypoint: CORS (from config), router registration only, startup (tables; optional seed via config), `/health`, `/ready`. All API routes live in `app/api/` routers. |
+| **`app/config.py`** | Settings from env (`get_settings()`): DB, S3, auth, **`cors_origins`** (comma-separated), **`seed_on_startup`** (disable with `SEED_ON_STARTUP=0`). |
 | **`app/database.py`** | SQLAlchemy engine and session; `get_db_dep` for FastAPI route injection, `get_db` / `get_db_session` for other use |
 | **`app/models/`** | SQLAlchemy models (Domain, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataQualityRuleInstance, DataQualitySqlVersion, RuleModRequest, DataConcern, User, etc.) |
 | **`app/schemas/`** | Pydantic request/response schemas per entity |
-| **`app/api/`** | Routers: `domains`, `users`, `data_elements`, `applications`, `eucs`, `endpoints`, `data_quality`, `data_concerns`, `metrics`, `bulk` |
+| **`app/api/`** | Routers: `domains` (and `domain_tree_router` for `/domain-tree`), `users`, `data_elements`, `applications`, `eucs`, `endpoints`, `data_quality`, `data_concerns`, `metrics`, `bulk`. **`app/api/helpers.py`** provides `get_or_404` and `parse_optional_int` for route handlers. |
 | **`app/auth/`** | Auth: login router, JWT, dependencies (`get_current_user`), dev "always logged in" provider |
 | **`app/seed.py`** | Idempotent seed (L0/L1/L2 domains, users, sample data); supports `reset` and `set-passwords` |
 | **`app/s3_client.py`** | S3/MinIO client for bulk upload/download |
@@ -90,12 +90,14 @@ See repo root `.env.example`. Main ones:
 | **`S3_ENDPOINT_URL`**, **`S3_ACCESS_KEY`**, **`S3_SECRET_KEY`**, **`S3_BUCKET_UPLOADS`**, **`S3_BUCKET_EXPORTS`** | Bulk upload/download. Match MinIO credentials when using Docker MinIO. |
 | **`AUTH_JWT_SECRET`** | Secret for signing JWTs (set a strong value in production). |
 | **`AUTH_DEV_ALWAYS_LOGGED_IN`** | When set to `1`, `true`, or `yes`, the API treats every request as authenticated using the first admin user (no login required). Useful for local frontend development. **Leave unset or false in production.** To enable: add `AUTH_DEV_ALWAYS_LOGGED_IN=true` to your `.env` and restart the backend. The frontend has a matching flag in `environments/environment.ts` (`devAlwaysLoggedIn`). |
+| **`CORS_ORIGINS`** | Comma-separated list of allowed origins (e.g. `http://localhost:4200,http://127.0.0.1:4200`). Defaults to those two; set in production for your frontend URL(s). |
+| **`SEED_ON_STARTUP`** | When `1` (default), `true`, or unset, startup runs seed and ensures user passwords. Set to `0`, `false`, or `no` to skip seeding on startup (e.g. in production or when using migrations only). |
 
 ---
 
 ## Seeding and reset
 
-- **Idempotent seed:** On every app startup, `run_seed()` runs. If the DB has already been seeded (SeedFlag table has a row), it does nothing.
+- **Idempotent seed:** When `SEED_ON_STARTUP` is enabled (default), `run_seed()` runs on startup. If the DB has already been seeded (SeedFlag table has a row), it does nothing. Disable with `SEED_ON_STARTUP=0` if you do not want seed on startup.
 - **Reset and re-seed** (wipe domain-related data and re-create L0/L1/L2 hierarchy and sample data):
   ```powershell
   # From backend/ with venv activated
