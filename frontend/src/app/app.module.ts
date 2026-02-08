@@ -63,6 +63,7 @@ import { DataConcernsPageComponent } from './pages/data-concerns-page/data-conce
 import { MetricsPageComponent } from './pages/metrics-page/metrics-page.component';
 import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
+import { InboxPageComponent } from './pages/inbox-page/inbox-page.component';
 import { AdminDomainsPageComponent } from './pages/admin-domains-page/admin-domains-page.component';
 import { AdminUsersPageComponent } from './pages/admin-users-page/admin-users-page.component';
 import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-settings-page.component';
@@ -108,6 +109,7 @@ import { AuthInterceptor } from './core/auth-interceptor';
     DataFeedsPageComponent,
     BulkPageComponent,
     HomePageComponent,
+    InboxPageComponent,
     AdminDomainsPageComponent,
     AdminUsersPageComponent,
     AdminSettingsPageComponent,
