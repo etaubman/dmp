@@ -1,0 +1,4 @@
+.dashboard-table th,
+.dashboard-table td {
+  white-space: nowrap;
+}

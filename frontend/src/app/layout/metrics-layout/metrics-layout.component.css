@@ -1,0 +1,65 @@
+.metrics-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.metrics-layout__header {
+  flex-shrink: 0;
+  margin-bottom: 0.75rem;
+}
+
+.metrics-layout__label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.metrics-subnav {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0 0 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.metrics-subnav__link {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #9ca3af;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.metrics-subnav__link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #E8ECF0;
+}
+
+.metrics-subnav__active {
+  background: rgba(91, 156, 254, 0.12);
+  color: #5B9CFE;
+}
+
+.metrics-outlet {
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.metrics-outlet > router-outlet + * {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

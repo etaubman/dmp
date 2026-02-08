@@ -1,0 +1,62 @@
+<div class="dashboard flex flex-col flex-1 min-h-0 overflow-auto">
+  <div class="dashboard__header flex-shrink-0 mb-4">
+    <h2 class="text-lg font-semibold text-gray-100">Exception Monitoring</h2>
+    <p class="text-gray-500 text-sm mt-1">Data quality exceptions and resolution metrics.</p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-shrink-0 mb-6">
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Open exceptions</div>
+      <div class="text-2xl font-semibold text-amber-400 mt-1">{{ kpis.openExceptions }}</div>
+    </div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Resolved this week</div>
+      <div class="text-2xl font-semibold text-emerald-400 mt-1">{{ kpis.resolvedThisWeek }}</div>
+    </div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Avg resolution time</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ kpis.avgResolutionHours }} h</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-shrink-0 mb-6">
+    <div class="card-aurora p-4">
+      <h3 class="text-base font-medium text-gray-200 mb-3">Opened vs resolved (last 4 weeks)</h3>
+      <ag-charts *ngIf="chartOptions" [options]="chartOptions" style="width: 100%; height: 280px;"></ag-charts>
+    </div>
+    <div class="card-aurora p-4">
+      <h3 class="text-base font-medium text-gray-200 mb-3">Open exceptions by severity</h3>
+      <ag-charts *ngIf="severityOptions" [options]="severityOptions" style="width: 100%; height: 280px;"></ag-charts>
+    </div>
+  </div>
+
+  <div class="card-aurora p-4 flex-1 min-h-0 flex flex-col">
+    <h3 class="text-base font-medium text-gray-200 mb-3">Recent exceptions</h3>
+    <div class="overflow-auto flex-1 min-h-0">
+      <table class="dashboard-table w-full text-sm">
+        <thead>
+          <tr class="text-left text-gray-500 border-b border-white/10">
+            <th class="py-2 px-3 font-medium">Rule</th>
+            <th class="py-2 px-3 font-medium">Domain</th>
+            <th class="py-2 px-3 font-medium">Severity</th>
+            <th class="py-2 px-3 font-medium">Raised</th>
+            <th class="py-2 px-3 font-medium">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of exceptionsTable" class="border-b border-white/5 text-gray-300">
+            <td class="py-2 px-3">{{ row.rule }}</td>
+            <td class="py-2 px-3">{{ row.domain }}</td>
+            <td class="py-2 px-3">
+              <span [class]="row.severity === 'High' ? 'text-red-400' : row.severity === 'Medium' ? 'text-amber-400' : 'text-gray-400'">{{ row.severity }}</span>
+            </td>
+            <td class="py-2 px-3">{{ row.raised }}</td>
+            <td class="py-2 px-3">
+              <span [class]="row.status === 'Resolved' ? 'text-emerald-400' : row.status === 'In progress' ? 'text-amber-400' : 'text-gray-400'">{{ row.status }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

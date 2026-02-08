@@ -31,6 +31,7 @@ import { AppEffects } from './store/app.effects';
 
 import { LayoutComponent } from './layout/layout.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
+import { MetricsLayoutComponent } from './layout/metrics-layout/metrics-layout.component';
 import { DomainSelectorComponent } from './layout/domain-selector/domain-selector.component';
 import { DetailModalComponent } from './shared/detail-modal/detail-modal.component';
 import { DetailPanelComponent } from './shared/detail-panel/detail-panel.component';
@@ -61,6 +62,9 @@ import { InstanceCountBadgeCellComponent } from './pages/dq-rules-page/instance-
 import { DqExceptionsPageComponent } from './pages/dq-exceptions-page/dq-exceptions-page.component';
 import { DataConcernsPageComponent } from './pages/data-concerns-page/data-concerns-page.component';
 import { MetricsPageComponent } from './pages/metrics-page/metrics-page.component';
+import { DomainGovernancePageComponent } from './pages/domain-governance-page/domain-governance-page.component';
+import { UseCaseMonitoringPageComponent } from './pages/use-case-monitoring-page/use-case-monitoring-page.component';
+import { ExceptionMonitoringPageComponent } from './pages/exception-monitoring-page/exception-monitoring-page.component';
 import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { InboxPageComponent } from './pages/inbox-page/inbox-page.component';
@@ -77,6 +81,7 @@ import { AuthInterceptor } from './core/auth-interceptor';
     AppComponent,
     LayoutComponent,
     AdminLayoutComponent,
+    MetricsLayoutComponent,
     DomainSelectorComponent,
     DetailModalComponent,
     DetailPanelComponent,
@@ -105,6 +110,9 @@ import { AuthInterceptor } from './core/auth-interceptor';
     DqExceptionsPageComponent,
     DataConcernsPageComponent,
     MetricsPageComponent,
+    DomainGovernancePageComponent,
+    UseCaseMonitoringPageComponent,
+    ExceptionMonitoringPageComponent,
     ProcessModelsPageComponent,
     DataFeedsPageComponent,
     BulkPageComponent,

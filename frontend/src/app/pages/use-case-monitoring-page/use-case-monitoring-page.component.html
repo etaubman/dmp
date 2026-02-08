@@ -1,0 +1,60 @@
+<div class="dashboard flex flex-col flex-1 min-h-0 overflow-auto">
+  <div class="dashboard__header flex-shrink-0 mb-4">
+    <h2 class="text-lg font-semibold text-gray-100">Use Case Monitoring</h2>
+    <p class="text-gray-500 text-sm mt-1">Execution status and performance of registered use cases.</p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-shrink-0 mb-6">
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Active use cases</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ kpis.activeUseCases }}</div>
+    </div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Completion rate</div>
+      <div class="text-2xl font-semibold text-emerald-400 mt-1">{{ kpis.completionRatePct }}%</div>
+    </div>
+    <div class="card-aurora p-5">
+      <div class="text-gray-500 text-sm">Avg response time</div>
+      <div class="text-2xl font-semibold text-accent mt-1">{{ kpis.avgResponseTimeMs }} ms</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-shrink-0 mb-6">
+    <div class="card-aurora p-4">
+      <h3 class="text-base font-medium text-gray-200 mb-3">Runs by day (last 7 days)</h3>
+      <ag-charts *ngIf="chartOptions" [options]="chartOptions" style="width: 100%; height: 280px;"></ag-charts>
+    </div>
+    <div class="card-aurora p-4">
+      <h3 class="text-base font-medium text-gray-200 mb-3">Use case health distribution</h3>
+      <ag-charts *ngIf="donutOptions" [options]="donutOptions" style="width: 100%; height: 280px;"></ag-charts>
+    </div>
+  </div>
+
+  <div class="card-aurora p-4 flex-1 min-h-0 flex flex-col">
+    <h3 class="text-base font-medium text-gray-200 mb-3">Use case status report</h3>
+    <div class="overflow-auto flex-1 min-h-0">
+      <table class="dashboard-table w-full text-sm">
+        <thead>
+          <tr class="text-left text-gray-500 border-b border-white/10">
+            <th class="py-2 px-3 font-medium">Use case</th>
+            <th class="py-2 px-3 font-medium">Domain</th>
+            <th class="py-2 px-3 font-medium">Status</th>
+            <th class="py-2 px-3 font-medium">Last run</th>
+            <th class="py-2 px-3 font-medium">Success rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of useCasesTable" class="border-b border-white/5 text-gray-300">
+            <td class="py-2 px-3">{{ row.name }}</td>
+            <td class="py-2 px-3">{{ row.domain }}</td>
+            <td class="py-2 px-3">
+              <span [class]="row.status === 'Healthy' ? 'text-emerald-400' : row.status === 'Warning' ? 'text-amber-400' : 'text-red-400'">{{ row.status }}</span>
+            </td>
+            <td class="py-2 px-3">{{ row.lastRun }}</td>
+            <td class="py-2 px-3">{{ row.successRate }}%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

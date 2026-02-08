@@ -20,7 +20,10 @@ import { EndpointsPageComponent } from './pages/endpoints-page/endpoints-page.co
 import { DqRulesPageComponent } from './pages/dq-rules-page/dq-rules-page.component';
 import { DqExceptionsPageComponent } from './pages/dq-exceptions-page/dq-exceptions-page.component';
 import { DataConcernsPageComponent } from './pages/data-concerns-page/data-concerns-page.component';
-import { MetricsPageComponent } from './pages/metrics-page/metrics-page.component';
+import { MetricsLayoutComponent } from './layout/metrics-layout/metrics-layout.component';
+import { DomainGovernancePageComponent } from './pages/domain-governance-page/domain-governance-page.component';
+import { UseCaseMonitoringPageComponent } from './pages/use-case-monitoring-page/use-case-monitoring-page.component';
+import { ExceptionMonitoringPageComponent } from './pages/exception-monitoring-page/exception-monitoring-page.component';
 import { BulkPageComponent } from './pages/bulk-page/bulk-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { InboxPageComponent } from './pages/inbox-page/inbox-page.component';
@@ -49,7 +52,16 @@ const routes: Routes = [
       { path: 'data-quality-rules', component: DqRulesPageComponent },
       { path: 'data-quality-exceptions', component: DqExceptionsPageComponent },
       { path: 'data-concerns', component: DataConcernsPageComponent },
-      { path: 'metrics', component: MetricsPageComponent },
+      {
+        path: 'metrics',
+        component: MetricsLayoutComponent,
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'domain-governance' },
+          { path: 'domain-governance', component: DomainGovernancePageComponent },
+          { path: 'use-case-monitoring', component: UseCaseMonitoringPageComponent },
+          { path: 'exception-monitoring', component: ExceptionMonitoringPageComponent },
+        ],
+      },
       { path: 'process-models', component: ProcessModelsPageComponent },
       { path: 'data-feeds', component: DataFeedsPageComponent },
       {

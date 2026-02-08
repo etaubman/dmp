@@ -1,0 +1,13 @@
+<div class="metrics-layout">
+  <div class="metrics-layout__header">
+    <span class="metrics-layout__label">Metrics</span>
+    <nav class="metrics-subnav" aria-label="Metrics section">
+      <a routerLink="/metrics/domain-governance" routerLinkActive="metrics-subnav__active" class="metrics-subnav__link">Domain Governance</a>
+      <a routerLink="/metrics/use-case-monitoring" routerLinkActive="metrics-subnav__active" class="metrics-subnav__link">Use Case Monitoring</a>
+      <a routerLink="/metrics/exception-monitoring" routerLinkActive="metrics-subnav__active" class="metrics-subnav__link">Exception Monitoring</a>
+    </nav>
+  </div>
+  <div class="metrics-outlet">
+    <router-outlet></router-outlet>
+  </div>
+</div>
