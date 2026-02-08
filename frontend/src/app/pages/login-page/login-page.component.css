@@ -1,0 +1,7 @@
+/* Login page uses Aurora theme via Tailwind (bg-aurora-bg, card-aurora, etc.) */
+.login-page {
+  background-color: var(--bg-primary, #060809);
+}
+.login-card {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}

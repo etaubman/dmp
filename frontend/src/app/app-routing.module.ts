@@ -17,11 +17,15 @@ import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.compone
 import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-settings-page.component';
 import { ProcessModelsPageComponent } from './pages/process-models-page/process-models-page.component';
 import { DataFeedsPageComponent } from './pages/data-feeds-page/data-feeds-page.component';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { authGuard } from './core/auth.guard';
 
 const routes: Routes = [
+  { path: 'login', component: LoginPageComponent },
   {
     path: '',
     component: LayoutComponent,
+    canActivate: [authGuard],
     children: [
       { path: '', pathMatch: 'full', component: HomePageComponent },
       { path: 'data-elements', component: DataElementsPageComponent },

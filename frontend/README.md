@@ -17,6 +17,8 @@ npm run start
 - App: http://localhost:4200  
 - The app talks to the API at the URL in `src/environments/environment.ts` (default `http://localhost:8000`). For production builds, use `environment.prod.ts`.
 
+**Development: stay logged in** — To avoid logging in on every refresh during local dev, set `devAlwaysLoggedIn: true` in `src/environments/environment.ts` and set `AUTH_DEV_ALWAYS_LOGGED_IN=true` in the backend `.env` (see backend README). Leave both **off** for production.
+
 ## Project structure (`src/app/`)
 
 - **`core/`** — Shared services: `api.service.ts` (HTTP client and DTOs for all API calls), `data-concern-modal.service.ts`, `time-period.service.ts`

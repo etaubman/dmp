@@ -11,6 +11,7 @@ from app.database import get_engine_and_session, get_db_dep
 from app.seed import run_seed
 from typing import Literal
 from app.api import domains, users, data_elements, applications, eucs, endpoints, data_quality, data_concerns, metrics, bulk
+from app.auth import router as auth_router
 from app.api.domains import get_domains_tree_list
 from app.api.data_elements import list_data_element_sor_by_domain
 from app.schemas.domain import DomainTreeOut
@@ -50,6 +51,7 @@ def api_data_elements_sor(
 
 
 # Include routers
+app.include_router(auth_router, prefix="/api")
 app.include_router(domains.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(data_elements.router, prefix="/api")
@@ -64,11 +66,15 @@ app.include_router(bulk.router, prefix="/api")
 
 @app.on_event("startup")
 def startup():
-    """Create tables, run seed if needed. If DB is unavailable, log and continue so the server stays up."""
+    """Create tables, add auth columns if missing, run seed if needed. If DB is unavailable, log and continue."""
     import logging
+    from app.database import ensure_auth_columns
+    from app.seed import ensure_all_users_have_passwords
     try:
-        get_engine_and_session()  # create tables
+        engine, _ = get_engine_and_session()  # create tables
+        ensure_auth_columns(engine)  # add password_hash to users if existing DB
         run_seed()
+        ensure_all_users_have_passwords()  # guarantee every user has a password (e.g. "password")
     except Exception as e:
         logging.getLogger("uvicorn.error").warning(
             "Startup: DB unavailable (%s). Server will run; /ready will be 503 and API calls will fail until Postgres is up.",

@@ -21,6 +21,9 @@ import {
   setAdminDomainsError,
   setUsers,
   setAdminUsersError,
+  setAuthSession,
+  clearAuth,
+  setAuthError,
 } from 'app/store/app.actions';
 
 export const appReducer = createReducer(
@@ -44,4 +47,7 @@ export const appReducer = createReducer(
   on(setAdminDomainsError, (state, { error }) => ({ ...state, adminDomainsError: error })),
   on(setUsers, (state, { users }) => ({ ...state, adminUsers: users, adminUsersError: null })),
   on(setAdminUsersError, (state, { error }) => ({ ...state, adminUsersError: error })),
+  on(setAuthSession, (state, { user }) => ({ ...state, authUser: user, authError: null })),
+  on(clearAuth, (state) => ({ ...state, authUser: null, authError: null })),
+  on(setAuthError, (state, { error }) => ({ ...state, authError: error })),
 );

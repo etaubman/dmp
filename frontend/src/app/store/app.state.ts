@@ -1,9 +1,9 @@
 /**
  * Global app state shape: domains list, current selected domain, admin tree/users,
- * and domain-scoped entity lists (data elements, applications, EUCs, endpoints, DQ rules/exceptions,
- * data concerns, metrics). Also loading flags and error message.
+ * auth (current user), and domain-scoped entity lists. Also loading flags and error message.
  */
 import { Domain, DomainTreeNode, User, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
+import type { AuthUser } from '../core/models';
 
 export interface AppState {
   domains: Domain[];
@@ -12,6 +12,8 @@ export interface AppState {
   adminDomainsError: string | null;
   adminUsers: User[];
   adminUsersError: string | null;
+  authUser: AuthUser | null;
+  authError: string | null;
   dataElements: DataElement[];
   applications: Application[];
   eucs: EUC[];
@@ -31,6 +33,8 @@ export const initialAppState: AppState = {
   adminDomainsError: null,
   adminUsers: [],
   adminUsersError: null,
+  authUser: null,
+  authError: null,
   dataElements: [],
   applications: [],
   eucs: [],

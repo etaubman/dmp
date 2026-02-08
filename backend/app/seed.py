@@ -21,6 +21,7 @@ from app.models import (
     DataQualityException,
     DataConcern,
 )
+from app.auth.local_provider import hash_password
 
 
 # L0 -> L1 -> L2 domain structure. Each item is (L0_name, [ (L1_name, [L2_names]), ... ]).
@@ -37,22 +38,74 @@ DOMAIN_HIERARCHY = [
 ]
 
 
-# Seed users: portal users for admin (only if table is empty)
+# Seed users: portal users for admin (only if table is empty). Ethan Taubman first = default dev user.
 SEED_USERS = [
+    {"email": "ethan.taubman@example.com", "name": "Ethan Taubman", "role": "admin"},
     {"email": "admin@example.com", "name": "Admin User", "role": "admin"},
     {"email": "viewer@example.com", "name": "Viewer User", "role": "viewer"},
     {"email": "editor@example.com", "name": "Editor User", "role": "editor"},
-    {"email": "ethan.taubman@example.com", "name": "Ethan Taubman", "role": "admin"},
 ]
 
 
+# Default password for seed users (dev only; change in production)
+SEED_DEFAULT_PASSWORD = "password"
+
+
 def _add_users(db):
-    """Create seed users if the users table is empty."""
+    """Create seed users if the users table is empty. Set password_hash for login."""
     if db.query(User).first() is not None:
+        _ensure_users_have_passwords(db)
         return
     for u in SEED_USERS:
-        db.add(User(email=u["email"], name=u["name"], role=u["role"]))
+        db.add(User(
+            email=u["email"],
+            name=u["name"],
+            role=u["role"],
+            password_hash=hash_password(SEED_DEFAULT_PASSWORD),
+        ))
     db.flush()
+
+
+def _ensure_users_have_passwords(db):
+    """Set default password for any user with no password_hash (e.g. after adding column)."""
+    for user in db.query(User).filter(User.password_hash.is_(None)):
+        user.password_hash = hash_password(SEED_DEFAULT_PASSWORD)
+    db.flush()
+
+
+def _set_all_user_passwords(db):
+    """Force-set every user's password to SEED_DEFAULT_PASSWORD. Use to fix 401 when hashes are missing or wrong."""
+    for user in db.query(User).all():
+        user.password_hash = hash_password(SEED_DEFAULT_PASSWORD)
+    db.flush()
+
+
+def ensure_all_users_have_passwords():
+    """Call on startup: set default password for users with none, then force-set all (fixes bad/missing hashes)."""
+    engine, SessionLocal = get_engine_and_session()
+    db = SessionLocal()
+    try:
+        _ensure_users_have_passwords(db)
+        _set_all_user_passwords(db)  # force-set everyone so login works even if hashes were wrong
+        db.commit()
+    finally:
+        db.close()
+
+
+def set_all_passwords():
+    """CLI: set every user's password to the default ('password'). Run once to fix login 401."""
+    engine, SessionLocal = get_engine_and_session()
+    db = SessionLocal()
+    try:
+        _set_all_user_passwords(db)
+        db.commit()
+        count = db.query(User).count()
+        print(f"Set password for {count} user(s). Use email + password 'password' to log in.")
+    except Exception as e:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
 
 def _add_domains(db):
@@ -452,5 +505,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "reset":
         reset_and_reseed()
         print("Database reset and re-seeded with current domain hierarchy.")
+    elif len(sys.argv) > 1 and sys.argv[1] == "set-passwords":
+        set_all_passwords()
     else:
         run_seed()

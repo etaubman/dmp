@@ -43,6 +43,24 @@ export interface User {
   updated_at?: string;
 }
 
+/** Current user returned by /api/auth/me */
+export interface AuthUser {
+  id: number;
+  email: string;
+  name?: string;
+  role?: string;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+}
+
 export interface UserCreate {
   email: string;
   name?: string;

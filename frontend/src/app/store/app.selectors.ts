@@ -27,3 +27,6 @@ export const selectDomainsTree = createSelector(selectAppState, (s) => s.adminDo
 export const selectAdminDomainsError = createSelector(selectAppState, (s) => s.adminDomainsError);
 export const selectAdminUsers = createSelector(selectAppState, (s) => s.adminUsers);
 export const selectAdminUsersError = createSelector(selectAppState, (s) => s.adminUsersError);
+export const selectAuthUser = createSelector(selectAppState, (s) => s.authUser);
+export const selectAuthError = createSelector(selectAppState, (s) => s.authError);
+export const selectIsAuthenticated = createSelector(selectAppState, (s) => s.authUser != null);

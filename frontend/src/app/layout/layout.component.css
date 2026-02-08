@@ -96,6 +96,34 @@
 .header-dropdown:hover .header-dropdown-panel {
   display: block;
 }
+
+/* User menu: click to open (not hover); panel right-aligned */
+.header-user-dropdown .header-dropdown-panel {
+  display: none;
+  left: auto;
+  right: 0;
+  min-width: 10rem;
+}
+.header-user-dropdown .header-dropdown-panel.open {
+  display: block;
+}
+.header-user-dropdown::after {
+  display: none;
+}
+.header-dropdown-item-button {
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.header-logout-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
 .header-dropdown-item {
   display: block;
   padding: 0.35rem 0.5rem;

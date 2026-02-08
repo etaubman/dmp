@@ -9,19 +9,41 @@ Which function to use:
 - get_db_session — Returns a raw session; caller must commit/rollback and close. Use only when
   you need full control (e.g. long-lived or multi-step scripts); avoid in routes.
 """
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
 
 from app.config import get_settings
 from app.models import Base  # noqa: F401 — register all models for create_all
 
 
+def ensure_auth_columns(engine):
+    """Add password_hash to users if missing (existing DBs created before auth)."""
+    try:
+        with engine.connect() as conn:
+            # PostgreSQL: IF NOT EXISTS; SQLite 3.35+: same. Older SQLite: column may already exist from create_all.
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)"))
+            conn.commit()
+    except Exception:
+        # SQLite or other DBs may not support IF NOT EXISTS or column already exists
+        pass
+
+
 def get_engine():
     """Create SQLAlchemy engine from config (one per process)."""
     settings = get_settings()
+    url = settings.database_url
+    # SQLite :memory: needs StaticPool so all connections share the same DB (for tests)
+    if url and "sqlite" in url:
+        return create_engine(
+            url,
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+            echo=False,
+        )
     return create_engine(
-        settings.database_url,
+        url,
         pool_pre_ping=True,
         echo=False,  # Set True for SQL logging during debug
     )

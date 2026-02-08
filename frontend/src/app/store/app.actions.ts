@@ -4,6 +4,7 @@
  */
 import { createAction, props } from '@ngrx/store';
 import { Domain, DomainTreeNode, DomainCreate, DomainUpdate, User, UserCreate, UserUpdate, DataElement, Application, EUC, Endpoint, DataQualityRule, DataQualityException, DataConcern, Metrics } from '../core/api.service';
+import type { AuthUser, LoginCredentials } from '../core/models';
 
 export const setDomains = createAction('[App] Set Domains', props<{ domains: Domain[] }>());
 export const setCurrentDomainId = createAction('[App] Set Current Domain Id', props<{ id: number | null }>());
@@ -43,3 +44,10 @@ export const setAdminUsersError = createAction('[App] Set Admin Users Error', pr
 export const createUserRequest = createAction('[App] Create User Request', props<{ body: UserCreate }>());
 export const updateUserRequest = createAction('[App] Update User Request', props<{ id: number; body: UserUpdate }>());
 export const deleteUserRequest = createAction('[App] Delete User Request', props<{ id: number }>());
+
+// Auth
+export const loginRequest = createAction('[App] Login Request', props<{ credentials: LoginCredentials }>());
+export const setAuthSession = createAction('[App] Set Auth Session', props<{ user: AuthUser; token: string }>());
+export const clearAuth = createAction('[App] Clear Auth');
+export const setAuthError = createAction('[App] Set Auth Error', props<{ error: string | null }>());
+export const checkAuth = createAction('[App] Check Auth');

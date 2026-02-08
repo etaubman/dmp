@@ -16,6 +16,9 @@ import type {
   User,
   UserCreate,
   UserUpdate,
+  AuthUser,
+  LoginCredentials,
+  TokenResponse,
   DataElement,
   DataElementSORSummary,
   Application,
@@ -78,6 +81,19 @@ export class ApiService {
 
   deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${API}/users/${id}`);
+  }
+
+  // ——— Auth ———
+  login(credentials: LoginCredentials): Observable<TokenResponse> {
+    return this.http.post<TokenResponse>(`${API}/auth/login`, credentials);
+  }
+
+  logout(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${API}/auth/logout`, {});
+  }
+
+  getMe(): Observable<AuthUser> {
+    return this.http.get<AuthUser>(`${API}/auth/me`);
   }
 
   // ——— Data Elements ———

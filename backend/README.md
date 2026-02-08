@@ -31,14 +31,14 @@ FastAPI application for the Data Manager Portal: REST API for domains, data elem
 From `backend/` (with venv activated):
 
 ```powershell
-uvicorn app.main:app --reload --host 0.0.0.0
+uvicorn main:app --reload --host 0.0.0.0
 ```
 
 - API: http://localhost:8000  
 - Swagger docs: http://localhost:8000/docs  
 - ReDoc: http://localhost:8000/redoc  
 
-On startup, the app creates tables (if missing) and runs the seed (idempotent: only seeds when the DB has not been seeded before).
+On startup, the app creates tables (if missing) and runs the seed (idempotent: only seeds when the DB has not been seeded before). If you have an **existing** database from before auth was added, add the new column: `ALTER TABLE users ADD COLUMN password_hash VARCHAR(255);` then restart so seed can set default passwords for existing users.
 
 ## Project layout
 
@@ -57,6 +57,8 @@ See root `.env.example`. Main ones:
 
 - **`DATABASE_URL`** — PostgreSQL connection string (use `localhost` when running backend locally; use `postgres` when backend runs in Docker).
 - **`S3_ENDPOINT_URL`**, **`S3_ACCESS_KEY`**, **`S3_SECRET_KEY`**, **`S3_BUCKET_UPLOADS`**, **`S3_BUCKET_EXPORTS`** — For bulk upload/download. Match MinIO credentials when using Docker MinIO.
+- **`AUTH_JWT_SECRET`** — Secret for signing JWTs (set a strong value in production).
+- **`AUTH_DEV_ALWAYS_LOGGED_IN`** — When set to `1`, `true`, or `yes`, the API treats every request as authenticated using the first admin user (no login required). Useful for local frontend development so you don’t have to log in after each refresh. **Leave unset or false in production.** To enable: add `AUTH_DEV_ALWAYS_LOGGED_IN=true` to your `.env` (or export it) and restart the backend. The frontend also has a matching flag; see the frontend README or `environments/environment.ts`.
 
 ## Seeding and reset
 
@@ -71,6 +73,13 @@ See root `.env.example`. Main ones:
   .\reset-domains-reseed.ps1
   ```
 
+- **Fix login 401 (set all user passwords):** If login returns 401 even with correct email/password, force-set every user’s password to `password`:
+  ```powershell
+  # From backend/ with venv activated (or in Docker: docker compose exec backend python -m app.seed set-passwords)
+  python -m app.seed set-passwords
+  ```
+  Then log in with e.g. `ethan.taubman@example.com` / `password`.
+
 ## Health and readiness
 
 - **`GET /health`** — Always 200; for load balancers.
@@ -78,10 +87,10 @@ See root `.env.example`. Main ones:
 
 ## Tests
 
-When tests are added, run from `backend/` with venv activated:
+Auth tests (login, logout, `/me`) live in `tests/test_auth.py`. Run from `backend/` with venv activated:
 
 ```powershell
-pytest
+pytest tests/ -v
 ```
 
-See root `CONTRIBUTING.md` for code style and test expectations.
+Tests use in-memory SQLite and a fixture that creates one user (`ethan.taubman@example.com` / `password`). See root `CONTRIBUTING.md` for code style and test expectations.

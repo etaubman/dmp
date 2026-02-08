@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 import { StoreModule } from '@ngrx/store';
@@ -53,6 +53,8 @@ import { AdminUsersPageComponent } from './pages/admin-users-page/admin-users-pa
 import { AdminSettingsPageComponent } from './pages/admin-settings-page/admin-settings-page.component';
 import { ProcessModelsPageComponent } from './pages/process-models-page/process-models-page.component';
 import { DataFeedsPageComponent } from './pages/data-feeds-page/data-feeds-page.component';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { AuthInterceptor } from './core/auth-interceptor';
 
 @NgModule({
   declarations: [
@@ -93,6 +95,10 @@ import { DataFeedsPageComponent } from './pages/data-feeds-page/data-feeds-page.
     AdminDomainsPageComponent,
     AdminUsersPageComponent,
     AdminSettingsPageComponent,
+    LoginPageComponent,
+  ],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ],
   imports: [
     BrowserModule,
@@ -107,7 +113,6 @@ import { DataFeedsPageComponent } from './pages/data-feeds-page/data-feeds-page.
     EffectsModule.forRoot([AppEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25 }),
   ],
-  providers: [],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -30,3 +30,10 @@ class Settings:
 
     # Optional: use in-memory or local path for tests (no S3)
     s3_use_local: bool = os.getenv("S3_USE_LOCAL", "").lower() in ("1", "true", "yes")
+
+    # Auth: JWT secret (change in production); dev bypass avoids login during local dev
+    auth_jwt_secret: str = os.getenv("AUTH_JWT_SECRET", "dev-secret-change-in-production")
+    auth_jwt_algorithm: str = os.getenv("AUTH_JWT_ALGORITHM", "HS256")
+    auth_jwt_expire_minutes: int = int(os.getenv("AUTH_JWT_EXPIRE_MINUTES", "60"))
+    # When True, unauthenticated requests are treated as a dev user (first admin). See README.
+    auth_dev_always_logged_in: bool = os.getenv("AUTH_DEV_ALWAYS_LOGGED_IN", "").lower() in ("1", "true", "yes")

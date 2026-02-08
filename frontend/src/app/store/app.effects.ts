@@ -3,10 +3,12 @@
  * then dispatch set actions (or error actions) to update the store. List loads use effect-helpers.
  */
 import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import { ApiService } from '../core/api.service';
+import { AuthService } from '../core/auth.service';
 import * as AppActions from './app.actions';
 import { Store } from '@ngrx/store';
 import { createLoadListEffect } from './effect-helpers';
@@ -16,7 +18,9 @@ import type { Domain, DataElement, Application, EUC, Endpoint, DataQualityRule, 
 export class AppEffects {
   private actions$ = inject(Actions);
   private api = inject(ApiService);
+  private authService = inject(AuthService);
   private store = inject(Store);
+  private router = inject(Router);
 
   loadDomains$ = createEffect(() =>
     createLoadListEffect(this.actions$, this.store, {
@@ -315,5 +319,62 @@ export class AppEffects {
       ),
     ),
     { dispatch: false },
+  );
+
+  login$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AppActions.loginRequest),
+      mergeMap(({ credentials }) =>
+        this.api.login(credentials).pipe(
+          mergeMap((res) => {
+            this.authService.setToken(res.access_token);
+            return this.api.getMe().pipe(
+              map((user) => AppActions.setAuthSession({ user, token: res.access_token })),
+            );
+          }),
+          catchError((err) => {
+            const msg = err?.error?.detail || err?.message || 'Login failed';
+            return of(AppActions.setAuthError({ error: typeof msg === 'string' ? msg : 'Login failed' }));
+          }),
+        ),
+      ),
+    ),
+  );
+
+  loginSuccessNavigate$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AppActions.setAuthSession),
+        tap((action) => {
+          if (action.token) {
+            this.router.navigate(['/']);
+          }
+        }),
+      ),
+    { dispatch: false },
+  );
+
+  clearAuth$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AppActions.clearAuth),
+        tap(() => {
+          this.authService.clearToken();
+          this.router.navigate(['/login']);
+        }),
+      ),
+    { dispatch: false },
+  );
+
+  checkAuth$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AppActions.checkAuth),
+      mergeMap(() =>
+        this.api.getMe().pipe(
+          map((user) => AppActions.setAuthSession({ user, token: '' })),
+          catchError(() => of(AppActions.clearAuth())),
+        ),
+      ),
+    ),
   );
 }
