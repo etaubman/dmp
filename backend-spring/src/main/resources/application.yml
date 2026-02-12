@@ -22,3 +22,11 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+app:
+  auth:
+    jwt-secret: ${AUTH_JWT_SECRET:dev-secret-change-in-production-32chars}
+    jwt-algorithm: ${AUTH_JWT_ALGORITHM:HS256}
+    jwt-expire-minutes: ${AUTH_JWT_EXPIRE_MINUTES:60}
+    dev-always-logged-in: ${AUTH_DEV_ALWAYS_LOGGED_IN:false}
+    dev-user-email: "ethan.taubman@example.com"

@@ -1,12 +1,11 @@
 package com.dmp.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.OffsetDateTime;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+/** Match FastAPI: include all fields including null (parent_id, description, updated_at). */
 public class DomainOut {
 
     private Integer id;
