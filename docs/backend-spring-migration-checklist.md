@@ -79,19 +79,24 @@ Complete checklist to replicate all routes and functionality from the FastAPI ba
 
 ---
 
-## Parity Tests (Phases 1–3)
+## Parity Tests (Phases 1–11)
 
-All 11 tests in `backend/tests/test_fastapi_spring_parity.py` pass:
+All 28 tests in `backend/tests/test_fastapi_spring_parity.py` pass:
 - `test_domains_parity_count`, `test_domains_parity_content`, `test_domains_parity_order`
 - `test_domain_tree_parity`
 - `test_auth_login_parity`, `test_auth_me_parity`, `test_logout_parity`
 - `test_get_domain_parity`, `test_create_domain_parity`, `test_update_domain_parity`, `test_delete_domain_parity`
+- `test_applications_parity`, `test_eucs_parity`, `test_endpoints_parity`
+- `test_users_list_parity`, `test_users_get_parity`, `test_users_create_parity`, `test_users_update_parity`, `test_users_delete_parity`
+- `test_data_elements_parity`, `test_data_concerns_parity`, `test_data_feeds_parity`, `test_metrics_parity`
+- `test_data_quality_rules_parity`, `test_data_quality_exceptions_parity`, `test_data_quality_instance_counts_parity`
+- `test_bulk_download_parity`, `test_bulk_upload_parity`
 
-Run: `pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both backends up).
+Run: `python -m pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both backends up).
 
 ---
 
-## Phase 4: Simple domain-scoped lists
+## Phase 4: Simple domain-scoped lists — ✅ DONE
 
 **Shared:** `domain_ids_for_scope(domain_id, scope)` — owned / upstream / downstream.
 
@@ -103,18 +108,18 @@ Run: `pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both back
 
 **Checklist:**
 
-- [ ] `Application`, `EUC`, `Endpoint` entities
-- [ ] `ApplicationRepository`, `EUCRepository`, `EndpointRepository`
-- [ ] `ApplicationOut`, `EUCOut`, `EndpointOut` DTOs
-- [ ] `DomainScopeService` — domain_ids_for_scope logic
-- [ ] `GET /api/applications` — domain_id required, scope default owned
-- [ ] `GET /api/eucs` — same
-- [ ] `GET /api/endpoints` — domain_id optional, application_id optional
-- [ ] Parity tests
+- [x] `Application`, `EUC`, `Endpoint` entities
+- [x] `ApplicationRepository`, `EUCRepository`, `EndpointRepository`
+- [x] `ApplicationOut`, `EUCOut`, `EndpointOut` DTOs
+- [x] `DomainScopeService` — domain_ids_for_scope logic
+- [x] `GET /api/applications` — domain_id required, scope default owned
+- [x] `GET /api/eucs` — same
+- [x] `GET /api/endpoints` — domain_id optional, application_id optional
+- [x] Parity tests
 
 ---
 
-## Phase 5: Users (CRUD)
+## Phase 5: Users (CRUD) — ✅ DONE
 
 | # | Method | Path | Notes |
 |---|--------|------|-------|
@@ -126,15 +131,15 @@ Run: `pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both back
 
 **Checklist:**
 
-- [ ] `UserOut`, `UserCreate`, `UserUpdate` DTOs
-- [ ] `UserRepository`
-- [ ] `UsersController` — full CRUD
-- [ ] Validate email required, unique on create/update
-- [ ] Parity tests
+- [x] `UserOut`, `UserCreate`, `UserUpdate` DTOs
+- [x] `UserRepository`
+- [x] `UsersController` — full CRUD
+- [x] Validate email required, unique on create/update
+- [x] Parity tests
 
 ---
 
-## Phase 6: Data elements
+## Phase 6: Data elements — ✅ DONE
 
 | # | Method | Path | Query params | Notes |
 |---|--------|------|--------------|-------|
@@ -146,19 +151,19 @@ Run: `pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both back
 
 **Checklist:**
 
-- [ ] `DataElement`, `DataElementSOR` entities
-- [ ] `DataElementOut`, `DataElementSORSummaryOut`, `DataElementSOROut` DTOs
-- [ ] `LineageResponse`, `LineageNode`, `LineageEdge`, `LineageApplicationOut` DTOs
-- [ ] `GET /api/data-elements` — domain scope
-- [ ] `GET /api/data-elements/sor` — join SOR + Application, filter by domain scope
-- [ ] `GET /api/data-elements/{id}/lineage` — build graph from SOR + DQ rules/endpoints
-- [ ] `GET /api/data-elements/{id}/lineage-applications` — dedupe from SOR and endpoints
-- [ ] `GET /api/data-elements/{id}/sor` — list SOR for element
-- [ ] Parity tests
+- [x] `DataElement`, `DataElementSOR` entities
+- [x] `DataElementOut`, `DataElementSORSummaryOut`, `DataElementSOROut` DTOs
+- [x] `LineageResponse`, `LineageNode`, `LineageEdge`, `LineageApplicationOut` DTOs
+- [x] `GET /api/data-elements` — domain scope
+- [x] `GET /api/data-elements/sor` — join SOR + Application, filter by domain scope
+- [x] `GET /api/data-elements/{id}/lineage` — build graph from SOR + DQ rules/endpoints
+- [x] `GET /api/data-elements/{id}/lineage-applications` — dedupe from SOR and endpoints
+- [x] `GET /api/data-elements/{id}/sor` — list SOR for element
+- [x] Parity tests
 
 ---
 
-## Phase 7: Data concerns
+## Phase 7: Data concerns — ✅ DONE
 
 | # | Method | Path | Query params | Notes |
 |---|--------|------|--------------|-------|
@@ -166,14 +171,14 @@ Run: `pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both back
 
 **Checklist:**
 
-- [ ] `DataConcern` entity
-- [ ] `DataConcernOut` DTO
-- [ ] `GET /api/data-concerns` — domain_id required; optional filters
-- [ ] Parity test
+- [x] `DataConcern` entity
+- [x] `DataConcernOut` DTO
+- [x] `GET /api/data-concerns` — domain_id required; optional filters
+- [x] Parity test
 
 ---
 
-## Phase 8: Data feeds
+## Phase 8: Data feeds — ✅ DONE
 
 | # | Method | Path | Query params | Notes |
 |---|--------|------|--------------|-------|
@@ -182,15 +187,15 @@ Run: `pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both back
 
 **Checklist:**
 
-- [ ] `DataFeed`, `DataFeedDataElement`, `DataFeedControl` entities
-- [ ] `DataFeedOut`, `DataFeedDetailOut`, `DataFeedDataElementRefOut`, `DataFeedControlOut` DTOs
-- [ ] `GET /api/data-feeds` — joined load producer/consumer, counts
-- [ ] `GET /api/data-feeds/{id}` — full detail with embedded elements and controls
-- [ ] Parity tests
+- [x] `DataFeed`, `DataFeedDataElement`, `DataFeedControl` entities
+- [x] `DataFeedOut`, `DataFeedDetailOut`, `DataFeedDataElementRefOut`, `DataFeedControlOut` DTOs
+- [x] `GET /api/data-feeds` — joined load producer/consumer, counts
+- [x] `GET /api/data-feeds/{id}` — full detail with embedded elements and controls
+- [x] Parity tests
 
 ---
 
-## Phase 9: Data quality
+## Phase 9: Data quality — ✅ DONE
 
 | # | Method | Path | Notes |
 |---|--------|------|-------|
@@ -216,15 +221,15 @@ Run: `pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both back
 
 **Checklist:**
 
-- [ ] `DataQualityRule`, `DataQualityException`, `DataQualityRuleInstance`, `DataQualitySqlVersion`, `RuleModRequest` entities
-- [ ] All DQ DTOs (Rule, Exception, Instance, InstanceDetail, SqlVersion, Performance, Trend, ModRequest)
-- [ ] sqlparse equivalent (SQL prettify) — use `com.github.vertical-blank:sql-formatter` or similar
-- [ ] DQ controllers split by concern (rules, exceptions, instances, sql-versions, performance, mod-requests)
-- [ ] Parity tests for critical paths
+- [x] `DataQualityRule`, `DataQualityException`, `DataQualityRuleInstance`, `DataQualitySqlVersion`, `RuleModRequest` entities
+- [x] All DQ DTOs (Rule, Exception, Instance, InstanceDetail, SqlVersion, Performance, Trend, ModRequest)
+- [x] sqlparse equivalent — `com.github.vertical-blank:sql-formatter` (SqlFormatterService)
+- [x] DataQualityController — all 19 endpoints
+- [x] Parity tests for critical paths
 
 ---
 
-## Phase 10: Metrics
+## Phase 10: Metrics — ✅ DONE
 
 | # | Method | Path | Query params | Notes |
 |---|--------|------|--------------|-------|
@@ -232,32 +237,32 @@ Run: `pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both back
 
 **Checklist:**
 
-- [ ] `MetricsOut` DTO (structure from FastAPI)
-- [ ] `MetricsController` — aggregate counts from domains, data_elements, applications, etc.
-- [ ] Parity test
+- [x] `MetricsOut` DTO (structure from FastAPI)
+- [x] `MetricsController` — aggregate counts from domains, data_elements, applications, etc.
+- [x] Parity test
 
 ---
 
-## Phase 11: Bulk (S3)
+## Phase 11: Bulk (S3) — ✅ DONE
 
 | # | Method | Path | Notes |
 |---|--------|------|-------|
 | 1 | POST | `/api/bulk/upload` | multipart: entity_type, file; parse CSV, upsert; store in S3 |
-| 2 | GET | `/api/bulk/download` | entity_type, domain_id?; stream CSV or S3 link |
+| 2 | GET | `/api/bulk/download` | entity_type, domain_id?; stream CSV |
 
 **Checklist:**
 
-- [ ] AWS SDK v2 (`software.amazon.awssdk:s3`)
-- [ ] S3 config (endpoint, keys, buckets) from env
-- [ ] `S3Service` — upload, download/presign
-- [ ] CSV parsing per entity type (domains, data_elements, applications, eucs, endpoints, data_quality_rules, data_quality_exceptions, data_concerns)
-- [ ] `POST /api/bulk/upload` — validate columns, upsert via repositories
-- [ ] `GET /api/bulk/download` — generate CSV, stream or S3
-- [ ] Parity tests (with S3_USE_LOCAL or MinIO)
+- [x] AWS SDK v2 (`software.amazon.awssdk:s3`)
+- [x] S3 config (endpoint, keys, buckets) from env
+- [x] `S3Service` — upload (skips when S3_USE_LOCAL)
+- [x] CSV parsing via OpenCSV for all 8 entity types
+- [x] `POST /api/bulk/upload` — validate columns, upsert via repositories
+- [x] `GET /api/bulk/download` — generate CSV (unquoted to match FastAPI)
+- [x] Parity tests
 
 ---
 
-## Phase 12: Infrastructure
+## Phase 12: Infrastructure — ✅ DONE (partial: no seed)
 
 | # | Method | Path | Notes |
 |---|--------|------|-------|
@@ -269,11 +274,11 @@ Run: `pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both back
 
 **Checklist:**
 
-- [ ] `GET /health` — simple ok
-- [ ] `GET /ready` — DataSource or JPA query check
-- [ ] `GET /` — API info
-- [ ] CORS from `CORS_ORIGINS` env (comma-separated)
-- [ ] Optional seed on startup (SEED_ON_STARTUP); ensure_all_users_have_passwords
+- [x] `GET /health` — simple ok
+- [x] `GET /ready` — DataSource SELECT 1 check; 503 if down
+- [x] `GET /` — API info
+- [x] CORS from `CORS_ORIGINS` env (comma-separated)
+- [ ] Optional seed on startup (SEED_ON_STARTUP); ensure_all_users_have_passwords — deferred
 - [ ] Flyway/Liquibase for schema (optional; or rely on FastAPI during parallel phase)
 
 ---
@@ -306,7 +311,7 @@ Run: `pytest backend/tests/test_fastapi_spring_parity.py -v` (requires both back
 
 - **Total endpoints:** ~53
 - **Total entities:** 17
-- **Phases:** 12 (Phase 1 done)
+- **Phases:** 12 — ✅ ALL DONE (Phase 12 seed optional, deferred)
 
 ---
 

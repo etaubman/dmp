@@ -1,6 +1,6 @@
 # Spring Migration: Lessons Learned and Implementation Guide
 
-Summary of learnings from Phases 1–3 and a guide for implementing the remaining phases.
+Summary of learnings from Phases 1–11 and implementation guide. **Migration complete** — all phases implemented with full parity.
 
 ---
 
@@ -81,6 +81,27 @@ public SecurityConfig(@Lazy JwtAuthenticationFilter jwtAuthFilter) { ... }
 long countRelatedData(@Param("id") int id);
 ```
 
+### Lambda "effectively final" requirement
+
+**Gotcha:** Variables used inside lambdas must be final or effectively final. Assigning to a variable inside `ifPresent()` or similar breaks this.
+
+**Fix:** Use `map().orElse()` instead of `ifPresent()` when you need to extract a value, or use a final variable/array holder.
+
+### CSV format parity (bulk download)
+
+**Gotcha:** OpenCSV quotes all fields by default; Python's `csv.DictWriter` uses `QUOTE_MINIMAL` (quotes only when necessary). Headers differ: `"id","name"` vs `id,name`.
+
+**Fix:** Use `CSVWriter` with `NO_QUOTE_CHARACTER` ('\u0000') to match FastAPI output:
+```java
+new CSVWriter(sw, ',', '\u0000', '\u0000', "\n")
+```
+
+### Bulk download parity test (line endings)
+
+**Gotcha:** Responses may have `\r\n` (FastAPI/Windows) vs `\n` (Spring). Header comparison fails on exact string match.
+
+**Fix:** Normalize in parity test: strip `\r` from lines, compare sorted header column names.
+
 ---
 
 ## 2. Parity Test Patterns
@@ -123,7 +144,7 @@ Flatten tree to list of `(id, name, parent_id, level)` and compare. Recursive st
 
 ## 3. Steps to Implement Next Phases
 
-### Phase 4: Simple domain-scoped lists
+### Phase 4: Simple domain-scoped lists — ✅ DONE
 
 1. **Create `DomainScopeService`**
    - Port `domain_ids_for_scope(domain_id, scope)` from `backend/app/api/domain_scope.py`.
@@ -147,7 +168,7 @@ Flatten tree to list of `(id, name, parent_id, level)` and compare. Recursive st
 6. **Parity tests**
    - Add tests for each list endpoint; compare output with FastAPI.
 
-### Phase 5: Users (CRUD)
+### Phase 5: Users (CRUD) — ✅ DONE
 
 1. **DTOs**
    - `UserOut`, `UserCreate`, `UserUpdate` — User entity exists.
@@ -158,7 +179,7 @@ Flatten tree to list of `(id, name, parent_id, level)` and compare. Recursive st
 3. **Parity tests**
    - List, get, create, update, delete.
 
-### Phase 6: Data elements
+### Phase 6: Data elements — ✅ DONE
 
 1. **Entities**
    - `DataElement`, `DataElementSOR` (and `Application` if not done).
@@ -170,7 +191,7 @@ Flatten tree to list of `(id, name, parent_id, level)` and compare. Recursive st
 3. **Parity tests**
    - List, SOR, lineage, lineage-applications.
 
-### Phase 9: Data quality (largest)
+### Phase 9: Data quality (largest) — ✅ DONE
 
 1. **Entities**
    - `DataQualityRule`, `DataQualityException`, `DataQualityRuleInstance`, `DataQualitySqlVersion`, `RuleModRequest`.
@@ -184,7 +205,7 @@ Flatten tree to list of `(id, name, parent_id, level)` and compare. Recursive st
 4. **Performance/trend**
    - Port aggregation logic from FastAPI.
 
-### Phase 11: Bulk (S3)
+### Phase 11: Bulk (S3) — ✅ DONE
 
 1. **AWS SDK v2**
    - Add `software.amazon.awssdk:s3`; configure endpoint for MinIO.
@@ -200,9 +221,9 @@ Flatten tree to list of `(id, name, parent_id, level)` and compare. Recursive st
 
 ---
 
-## 4. Implementation Checklist (Next Phase)
+## 4. Implementation Checklist (Reference)
 
-Before starting a new phase:
+When extending or adding new endpoints:
 
 - [ ] Read the FastAPI router and schemas for that resource.
 - [ ] Identify all DTOs (request/response) and their JSON shape.
@@ -222,7 +243,7 @@ Before starting a new phase:
 docker-compose up -d postgres backend backend-spring
 
 # Run parity tests
-pytest backend/tests/test_fastapi_spring_parity.py -v
+python -m pytest backend/tests/test_fastapi_spring_parity.py -v
 
 # Rebuild Spring after code changes
 docker-compose build backend-spring

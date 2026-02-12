@@ -24,6 +24,14 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  cors-origins: ${CORS_ORIGINS:http://localhost:4200,http://127.0.0.1:4200}
+  s3:
+    endpoint-url: ${S3_ENDPOINT_URL:http://localhost:9000}
+    access-key: ${S3_ACCESS_KEY:minioadmin}
+    secret-key: ${S3_SECRET_KEY:minioadmin}
+    bucket-uploads: ${S3_BUCKET_UPLOADS:bulk-uploads}
+    bucket-exports: ${S3_BUCKET_EXPORTS:exports}
+    use-local: ${S3_USE_LOCAL:false}
   auth:
     jwt-secret: ${AUTH_JWT_SECRET:dev-secret-change-in-production-32chars}
     jwt-algorithm: ${AUTH_JWT_ALGORITHM:HS256}

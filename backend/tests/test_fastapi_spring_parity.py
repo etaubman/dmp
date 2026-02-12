@@ -265,3 +265,280 @@ def test_logout_parity(both_backends_up):
     sp = httpx.post(f"{SPRING_URL}/api/auth/logout", timeout=5.0)
     assert fa.status_code == 200 and sp.status_code == 200
     assert fa.json() == sp.json() == {"message": "Logged out"}
+
+
+# --- Phase 4: Applications, EUCs, Endpoints parity ---
+
+
+def test_applications_parity(both_backends_up, fastapi_domains):
+    """Both backends return same applications list for domain_id + scope=owned."""
+    if not fastapi_domains:
+        pytest.skip("No domains in DB")
+    domain_id = fastapi_domains[0]["id"]
+    fa = httpx.get(f"{FASTAPI_URL}/api/applications?domain_id={domain_id}&scope=owned", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/applications?domain_id={domain_id}&scope=owned", timeout=5.0)
+    assert fa.status_code == 200, f"FastAPI returned {fa.status_code}"
+    assert sp.status_code == 200, f"Spring returned {sp.status_code}"
+    fa_list = fa.json()
+    sp_list = sp.json()
+    assert len(fa_list) == len(sp_list), f"Count mismatch: FastAPI={len(fa_list)}, Spring={len(sp_list)}"
+    fa_by_id = {a["id"]: a for a in fa_list}
+    sp_by_id = {a["id"]: a for a in sp_list}
+    assert set(fa_by_id.keys()) == set(sp_by_id.keys())
+    for aid in fa_by_id:
+        assert fa_by_id[aid]["name"] == sp_by_id[aid]["name"]
+        assert fa_by_id[aid]["domain_id"] == sp_by_id[aid]["domain_id"]
+        assert fa_by_id[aid].get("description") == sp_by_id[aid].get("description")
+
+
+def test_eucs_parity(both_backends_up, fastapi_domains):
+    """Both backends return same EUCs list for domain_id + scope=owned."""
+    if not fastapi_domains:
+        pytest.skip("No domains in DB")
+    domain_id = fastapi_domains[0]["id"]
+    fa = httpx.get(f"{FASTAPI_URL}/api/eucs?domain_id={domain_id}&scope=owned", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/eucs?domain_id={domain_id}&scope=owned", timeout=5.0)
+    assert fa.status_code == 200, f"FastAPI returned {fa.status_code}"
+    assert sp.status_code == 200, f"Spring returned {sp.status_code}"
+    fa_list = fa.json()
+    sp_list = sp.json()
+    assert len(fa_list) == len(sp_list), f"Count mismatch: FastAPI={len(fa_list)}, Spring={len(sp_list)}"
+    fa_by_id = {e["id"]: e for e in fa_list}
+    sp_by_id = {e["id"]: e for e in sp_list}
+    assert set(fa_by_id.keys()) == set(sp_by_id.keys())
+    for eid in fa_by_id:
+        assert fa_by_id[eid]["name"] == sp_by_id[eid]["name"]
+        assert fa_by_id[eid]["domain_id"] == sp_by_id[eid]["domain_id"]
+        assert fa_by_id[eid].get("euc_type") == sp_by_id[eid].get("euc_type")
+
+
+def test_endpoints_parity(both_backends_up, fastapi_domains):
+    """Both backends return same endpoints list (no filter and with domain_id)."""
+    fa_all = httpx.get(f"{FASTAPI_URL}/api/endpoints", timeout=5.0)
+    sp_all = httpx.get(f"{SPRING_URL}/api/endpoints", timeout=5.0)
+    assert fa_all.status_code == 200 and sp_all.status_code == 200
+    fa_list = fa_all.json()
+    sp_list = sp_all.json()
+    assert len(fa_list) == len(sp_list), f"Count mismatch (no filter): FastAPI={len(fa_list)}, Spring={len(sp_list)}"
+    fa_by_id = {e["id"]: e for e in fa_list}
+    sp_by_id = {e["id"]: e for e in sp_list}
+    assert set(fa_by_id.keys()) == set(sp_by_id.keys())
+    for eid in fa_by_id:
+        assert fa_by_id[eid]["name"] == sp_by_id[eid]["name"]
+        assert fa_by_id[eid].get("domain_id") == sp_by_id[eid].get("domain_id")
+        assert fa_by_id[eid].get("application_id") == sp_by_id[eid].get("application_id")
+
+    if fastapi_domains:
+        domain_id = fastapi_domains[0]["id"]
+        fa_dom = httpx.get(f"{FASTAPI_URL}/api/endpoints?domain_id={domain_id}&scope=owned", timeout=5.0)
+        sp_dom = httpx.get(f"{SPRING_URL}/api/endpoints?domain_id={domain_id}&scope=owned", timeout=5.0)
+        assert fa_dom.status_code == 200 and sp_dom.status_code == 200
+        assert len(fa_dom.json()) == len(sp_dom.json())
+
+
+# --- Phase 5: Users CRUD parity ---
+
+
+def test_users_list_parity(both_backends_up):
+    """Both backends return same users list."""
+    fa = httpx.get(f"{FASTAPI_URL}/api/users", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/users", timeout=5.0)
+    assert fa.status_code == 200 and sp.status_code == 200
+    fa_list = fa.json()
+    sp_list = sp.json()
+    assert len(fa_list) == len(sp_list), f"Count mismatch: FastAPI={len(fa_list)}, Spring={len(sp_list)}"
+    fa_by_id = {u["id"]: u for u in fa_list}
+    sp_by_id = {u["id"]: u for u in sp_list}
+    assert set(fa_by_id.keys()) == set(sp_by_id.keys())
+    for uid in fa_by_id:
+        assert fa_by_id[uid]["email"] == sp_by_id[uid]["email"]
+        assert fa_by_id[uid].get("name") == sp_by_id[uid].get("name")
+        assert fa_by_id[uid].get("role") == sp_by_id[uid].get("role")
+
+
+def test_users_get_parity(both_backends_up, fastapi_domains):
+    """Both backends return same user for GET /api/users/{id}."""
+    # Get first user from list
+    fa_list = httpx.get(f"{FASTAPI_URL}/api/users", timeout=5.0)
+    assert fa_list.status_code == 200
+    users = fa_list.json()
+    if not users:
+        pytest.skip("No users in DB")
+    user_id = users[0]["id"]
+    fa = httpx.get(f"{FASTAPI_URL}/api/users/{user_id}", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/users/{user_id}", timeout=5.0)
+    assert fa.status_code == 200 and sp.status_code == 200
+    assert fa.json()["email"] == sp.json()["email"]
+    assert fa.json().get("name") == sp.json().get("name")
+    assert fa.json().get("role") == sp.json().get("role")
+
+
+def test_users_create_parity(both_backends_up):
+    """Both backends create user with same structure."""
+    payload_fa = {"email": "parity-create-fa@example.com", "name": "Parity FA", "role": "viewer"}
+    payload_sp = {"email": "parity-create-sp@example.com", "name": "Parity SP", "role": "viewer"}
+    fa = httpx.post(f"{FASTAPI_URL}/api/users", json=payload_fa, timeout=5.0)
+    sp = httpx.post(f"{SPRING_URL}/api/users", json=payload_sp, timeout=5.0)
+    assert fa.status_code == 201, f"FastAPI: {fa.status_code} {fa.text}"
+    assert sp.status_code == 201, f"Spring: {sp.status_code} {sp.text}"
+    fa_u = fa.json()
+    sp_u = sp.json()
+    for key in ("id", "email", "name", "role", "created_at", "updated_at"):
+        assert key in fa_u and key in sp_u, f"Missing key {key}"
+    assert fa_u["email"] == payload_fa["email"]
+    assert sp_u["email"] == payload_sp["email"]
+    # Cleanup: delete both
+    httpx.delete(f"{FASTAPI_URL}/api/users/{fa_u['id']}", timeout=5.0)
+    httpx.delete(f"{SPRING_URL}/api/users/{sp_u['id']}", timeout=5.0)
+
+
+def test_users_update_parity(both_backends_up):
+    """Both backends return identical user after PATCH."""
+    # Create user via FastAPI
+    create = httpx.post(f"{FASTAPI_URL}/api/users", json={"email": "parity-patch@example.com", "name": "Original", "role": "viewer"}, timeout=5.0)
+    assert create.status_code == 201
+    user_id = create.json()["id"]
+    # PATCH via Spring
+    patch_body = {"name": "Patched", "role": "editor"}
+    sp = httpx.patch(f"{SPRING_URL}/api/users/{user_id}", json=patch_body, timeout=5.0)
+    assert sp.status_code == 200
+    # GET via FastAPI (same DB)
+    fa = httpx.get(f"{FASTAPI_URL}/api/users/{user_id}", timeout=5.0)
+    assert fa.status_code == 200
+    assert fa.json()["name"] == sp.json()["name"] == "Patched"
+    assert fa.json()["role"] == sp.json()["role"] == "editor"
+    # Cleanup
+    httpx.delete(f"{FASTAPI_URL}/api/users/{user_id}", timeout=5.0)
+
+
+def test_users_delete_parity(both_backends_up):
+    """Both backends return 204 on DELETE and user is gone."""
+    create = httpx.post(f"{FASTAPI_URL}/api/users", json={"email": "parity-del@example.com", "name": "To Del", "role": "viewer"}, timeout=5.0)
+    assert create.status_code == 201
+    user_id = create.json()["id"]
+    d = httpx.delete(f"{SPRING_URL}/api/users/{user_id}", timeout=5.0)
+    assert d.status_code == 204
+    assert httpx.get(f"{FASTAPI_URL}/api/users/{user_id}", timeout=5.0).status_code == 404
+
+
+# --- Phase 6, 7, 8, 10: Data elements, data concerns, data feeds, metrics parity ---
+
+
+def test_data_elements_parity(both_backends_up, fastapi_domains):
+    """Both backends return same data elements list."""
+    if not fastapi_domains:
+        pytest.skip("No domains")
+    domain_id = fastapi_domains[0]["id"]
+    fa = httpx.get(f"{FASTAPI_URL}/api/data-elements?domain_id={domain_id}&scope=owned", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/data-elements?domain_id={domain_id}&scope=owned", timeout=5.0)
+    assert fa.status_code == 200 and sp.status_code == 200
+    assert len(fa.json()) == len(sp.json())
+
+
+def test_data_concerns_parity(both_backends_up, fastapi_domains):
+    """Both backends return same data concerns list."""
+    if not fastapi_domains:
+        pytest.skip("No domains")
+    domain_id = fastapi_domains[0]["id"]
+    fa = httpx.get(f"{FASTAPI_URL}/api/data-concerns?domain_id={domain_id}", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/data-concerns?domain_id={domain_id}", timeout=5.0)
+    assert fa.status_code == 200 and sp.status_code == 200
+    assert len(fa.json()) == len(sp.json())
+
+
+def test_data_feeds_parity(both_backends_up, fastapi_domains):
+    """Both backends return same data feeds list."""
+    if not fastapi_domains:
+        pytest.skip("No domains")
+    domain_id = fastapi_domains[0]["id"]
+    fa = httpx.get(f"{FASTAPI_URL}/api/data-feeds?domain_id={domain_id}&scope=owned", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/data-feeds?domain_id={domain_id}&scope=owned", timeout=5.0)
+    assert fa.status_code == 200 and sp.status_code == 200
+    assert len(fa.json()) == len(sp.json())
+
+
+def test_metrics_parity(both_backends_up):
+    """Both backends return same metrics structure."""
+    fa = httpx.get(f"{FASTAPI_URL}/api/metrics", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/metrics", timeout=5.0)
+    assert fa.status_code == 200 and sp.status_code == 200
+    fa_m = fa.json()
+    sp_m = sp.json()
+    assert fa_m.get("domains_count") == sp_m.get("domains_count")
+    assert fa_m.get("data_elements_count") == sp_m.get("data_elements_count")
+
+
+# --- Phase 9: Data quality parity ---
+
+
+def test_data_quality_rules_parity(both_backends_up, fastapi_domains):
+    """Both backends return same data quality rules list."""
+    if not fastapi_domains:
+        pytest.skip("No domains")
+    domain_id = fastapi_domains[0]["id"]
+    fa = httpx.get(f"{FASTAPI_URL}/api/data-quality-rules?domain_id={domain_id}", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/data-quality-rules?domain_id={domain_id}", timeout=5.0)
+    assert fa.status_code == 200 and sp.status_code == 200
+    assert len(fa.json()) == len(sp.json())
+
+
+def test_data_quality_exceptions_parity(both_backends_up, fastapi_domains):
+    """Both backends return same data quality exceptions list."""
+    if not fastapi_domains:
+        pytest.skip("No domains")
+    domain_id = fastapi_domains[0]["id"]
+    fa = httpx.get(f"{FASTAPI_URL}/api/data-quality-exceptions?domain_id={domain_id}", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/data-quality-exceptions?domain_id={domain_id}", timeout=5.0)
+    assert fa.status_code == 200 and sp.status_code == 200
+    assert len(fa.json()) == len(sp.json())
+
+
+def test_data_quality_instance_counts_parity(both_backends_up, fastapi_domains):
+    """Both backends return same instance counts."""
+    if not fastapi_domains:
+        pytest.skip("No domains")
+    domain_id = fastapi_domains[0]["id"]
+    fa = httpx.get(f"{FASTAPI_URL}/api/data-quality-rules/instance-counts?domain_id={domain_id}", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/data-quality-rules/instance-counts?domain_id={domain_id}", timeout=5.0)
+    assert fa.status_code == 200 and sp.status_code == 200
+    fa_list = fa.json()
+    sp_list = sp.json()
+    assert len(fa_list) == len(sp_list)
+
+
+# --- Phase 11: Bulk parity ---
+
+
+def test_bulk_download_parity(both_backends_up):
+    """Both backends return same CSV for bulk download."""
+    fa = httpx.get(f"{FASTAPI_URL}/api/bulk/download?entity_type=domains", timeout=5.0)
+    sp = httpx.get(f"{SPRING_URL}/api/bulk/download?entity_type=domains", timeout=5.0)
+    assert fa.status_code == 200 and sp.status_code == 200
+    fa_lines = [line.strip().rstrip("\r") for line in fa.text.strip().split("\n")]
+    sp_lines = [line.strip().rstrip("\r") for line in sp.text.strip().split("\n")]
+    fa_header = sorted(fa_lines[0].replace('"', "").split(","))
+    sp_header = sorted(sp_lines[0].replace('"', "").split(","))
+    assert fa_header == sp_header, f"CSV headers should match: FastAPI={fa_header}, Spring={sp_header}"
+    assert len(fa_lines) == len(sp_lines), f"Row count should match: FastAPI={len(fa_lines)}, Spring={len(sp_lines)}"
+
+
+def test_bulk_upload_parity(both_backends_up):
+    """Both backends create domains from same CSV upload."""
+    import io
+    content = "name,description\nParityBulk1,Desc1\nParityBulk2,Desc2"
+    fa = httpx.post(
+        f"{FASTAPI_URL}/api/bulk/upload",
+        data={"entity_type": "domains"},
+        files={"file": ("domains.csv", io.BytesIO(content.encode("utf-8")), "text/csv")},
+        timeout=5.0,
+    )
+    sp = httpx.post(
+        f"{SPRING_URL}/api/bulk/upload",
+        data={"entity_type": "domains"},
+        files={"file": ("domains.csv", io.BytesIO(content.encode("utf-8")), "text/csv")},
+        timeout=5.0,
+    )
+    assert fa.status_code == 200 and sp.status_code == 200
+    fa_r = fa.json()
+    sp_r = sp.json()
+    assert fa_r.get("created", 0) + fa_r.get("updated", 0) == sp_r.get("created", 0) + sp_r.get("updated", 0)
