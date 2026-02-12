@@ -5,6 +5,9 @@ import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * OpenAPI (Swagger) metadata for the REST API.
+ */
 @Configuration
 public class OpenApiConfig {
 
@@ -14,6 +17,6 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Data Manager Portal API (Spring)")
                         .version("0.1.0")
-                        .description("Backend for the Data Manager Portal (incremental migration from FastAPI)."));
+                        .description("REST API for the Data Manager Portal. Errors return a consistent ApiError body (timestamp, status, error, message, path, optional fieldErrors)."));
     }
 }

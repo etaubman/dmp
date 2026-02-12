@@ -1,16 +1,17 @@
 package com.dmp.service;
 
 import com.dmp.dto.*;
+import com.dmp.exception.ResourceNotFoundException;
 import com.dmp.model.*;
 import com.dmp.repository.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
+/**
+ * Data feed listing and detail; builds DTOs with element/control counts and application names.
+ */
 @Service
 public class DataFeedService {
 
@@ -56,7 +57,7 @@ public class DataFeedService {
 
     public DataFeedDetailOut getDataFeed(int dataFeedId) {
         DataFeed feed = feedRepository.findById(dataFeedId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Data feed not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Data feed not found"));
 
         List<DataFeedDataElement> links = feedElementRepository.findByDataFeedId(dataFeedId);
         List<DataFeedDataElementRefOut> elements = new ArrayList<>();

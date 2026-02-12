@@ -1,5 +1,6 @@
 package com.dmp.service;
 
+import com.dmp.exception.BadRequestException;
 import com.dmp.model.*;
 import com.dmp.repository.*;
 import org.springframework.stereotype.Service;
@@ -67,7 +68,7 @@ public class BulkService {
     }
 
     @Transactional
-    public Map<String, Object> upload(String entityType, MultipartFile file) throws IOException, CsvException {
+    public Map<String, Object> upload(String entityType, MultipartFile file) throws IOException {
         EntityHandler handler = HANDLERS.get(entityType);
         if (handler == null) {
             throw new ResponseStatusException(BAD_REQUEST, "Unknown entity_type: " + entityType);
@@ -98,6 +99,8 @@ public class BulkService {
                 }
                 rows.add(row);
             }
+        } catch (CsvException e) {
+            throw new BadRequestException("Invalid CSV: " + (e.getMessage() != null ? e.getMessage() : "parse error"));
         }
 
         return handler.upsert(rows, this);

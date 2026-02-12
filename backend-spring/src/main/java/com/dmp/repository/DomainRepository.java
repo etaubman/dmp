@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+/** JPA repository for {@link Domain} hierarchy and related-data count. */
 public interface DomainRepository extends JpaRepository<Domain, Integer> {
 
     List<Domain> findAllByOrderByNameAsc();

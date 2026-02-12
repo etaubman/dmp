@@ -2,18 +2,22 @@ package com.dmp.service;
 
 import com.dmp.config.S3Properties;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 
 import jakarta.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * S3-compatible storage for bulk uploads. When {@link S3Properties#isUseLocal()} is true, no client is
+ * created and uploads are no-ops (returns null). Otherwise uses configured endpoint and path-style access.
+ */
 @Service
 public class S3Service {
 

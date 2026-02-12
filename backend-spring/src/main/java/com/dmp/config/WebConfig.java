@@ -7,6 +7,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 
+/**
+ * Web MVC configuration (CORS for /api/**). Origins from {@code app.cors-origins}, comma-separated.
+ */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 

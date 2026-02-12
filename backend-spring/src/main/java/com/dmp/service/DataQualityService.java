@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
+/**
+ * Data quality rules, instances, exceptions, SQL versions, performance metrics and mod requests.
+ * Uses {@link org.springframework.web.server.ResponseStatusException} for HTTP errors; mapped to ApiError by {@link com.dmp.exception.GlobalExceptionHandler}.
+ */
 @Service
 public class DataQualityService {
 

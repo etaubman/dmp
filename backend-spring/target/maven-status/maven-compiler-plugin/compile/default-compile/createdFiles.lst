@@ -8,15 +8,18 @@ com\dmp\repository\RuleModRequestRepository.class
 com\dmp\service\MetricsService.class
 com\dmp\dto\AuthUserOut.class
 com\dmp\repository\DataElementSORRepository.class
+com\dmp\exception\ApiError$FieldError.class
 com\dmp\service\BulkService$EndpointHandler.class
 com\dmp\service\EUCService.class
 com\dmp\dto\RuleModRequestOut.class
 com\dmp\dto\DataQualityRuleUpdate.class
+com\dmp\exception\BadRequestException.class
 com\dmp\model\Endpoint.class
 com\dmp\service\DomainService.class
 com\dmp\dto\LineageEdge.class
 com\dmp\dto\DataQualityRuleInstanceOut.class
 com\dmp\dto\DataConcernOut.class
+com\dmp\exception\ConflictException.class
 com\dmp\repository\DataQualityExceptionRepository.class
 com\dmp\service\BulkService$DataQualityExceptionHandler.class
 com\dmp\controller\ApplicationsController.class
@@ -66,6 +69,8 @@ com\dmp\model\EUC.class
 com\dmp\dto\DataQualityRuleCreate.class
 com\dmp\model\DataElementSOR.class
 com\dmp\dto\DataQualityRuleInstanceCreate.class
+com\dmp\exception\package-info.class
+com\dmp\exception\ApiError.class
 com\dmp\model\DataQualityException.class
 com\dmp\controller\DomainsController.class
 com\dmp\repository\DataElementRepository.class
@@ -73,11 +78,13 @@ com\dmp\repository\DataFeedControlRepository.class
 com\dmp\controller\UsersController.class
 com\dmp\dto\DomainOut.class
 com\dmp\model\Domain.class
+com\dmp\package-info.class
 com\dmp\repository\DataQualitySqlVersionRepository.class
 com\dmp\model\DataFeed.class
 com\dmp\dto\DataQualityRuleInstanceDetailOut.class
 com\dmp\service\DataFeedService.class
 com\dmp\service\BulkService$DomainHandler.class
+com\dmp\exception\ResourceNotFoundException.class
 com\dmp\repository\DataFeedDataElementRepository.class
 com\dmp\service\BulkService$EntityHandler.class
 com\dmp\service\DataQualityService.class
@@ -95,6 +102,7 @@ com\dmp\dto\TokenResponse.class
 com\dmp\dto\EUCOut.class
 com\dmp\dto\LoginRequest.class
 com\dmp\dto\DQPerformanceSummary.class
+com\dmp\exception\GlobalExceptionHandler.class
 com\dmp\service\BulkService$DataElementHandler.class
 com\dmp\dto\DataQualityRuleOut.class
 com\dmp\service\DomainScopeService.class
@@ -103,6 +111,7 @@ com\dmp\service\S3Service.class
 com\dmp\repository\DataQualityRuleInstanceRepository.class
 com\dmp\dto\LineageNode.class
 com\dmp\controller\MetricsController.class
+com\dmp\exception\UnauthorizedException.class
 com\dmp\repository\DataQualityRuleRepository.class
 com\dmp\dto\DataQualitySqlVersionOut.class
 com\dmp\controller\BulkController.class

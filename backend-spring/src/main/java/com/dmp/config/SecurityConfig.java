@@ -13,6 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Spring Security configuration: stateless JWT-only auth, no sessions, no CSRF for API.
+ * Public: health, ready, error, auth login/logout, Swagger. /api/auth/me requires authentication.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

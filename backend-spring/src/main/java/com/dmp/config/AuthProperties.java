@@ -2,13 +2,20 @@ package com.dmp.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Configuration for JWT and auth behaviour. Bound to {@code app.auth.*}.
+ */
 @ConfigurationProperties(prefix = "app.auth")
 public class AuthProperties {
 
+    /** Secret used to sign/verify JWTs; must be at least 32 bytes for HS256. */
     private String jwtSecret = "dev-secret-change-in-production";
     private String jwtAlgorithm = "HS256";
+    /** Token validity in minutes. */
     private int jwtExpireMinutes = 60;
+    /** If true, all requests are treated as authenticated as devUserEmail (dev only). */
     private boolean devAlwaysLoggedIn = false;
+    /** Email used when devAlwaysLoggedIn is true; fallback to first admin if user missing. */
     private String devUserEmail = "ethan.taubman@example.com";
 
     public String getJwtSecret() { return jwtSecret; }

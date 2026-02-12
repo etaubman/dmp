@@ -3,6 +3,10 @@ package com.dmp.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+/**
+ * S3/MinIO configuration. Bound to {@code app.s3.*}. When {@code useLocal} is true,
+ * a path-style client is used for local MinIO.
+ */
 @Component
 @ConfigurationProperties(prefix = "app.s3")
 public class S3Properties {
@@ -12,6 +16,7 @@ public class S3Properties {
     private String secretKey = "minioadmin";
     private String bucketUploads = "bulk-uploads";
     private String bucketExports = "exports";
+    /** Use path-style access (e.g. for local MinIO). */
     private boolean useLocal = false;
 
     public String getEndpointUrl() { return endpointUrl; }

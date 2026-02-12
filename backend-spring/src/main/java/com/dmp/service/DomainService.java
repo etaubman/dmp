@@ -4,23 +4,28 @@ import com.dmp.dto.DomainCreate;
 import com.dmp.dto.DomainOut;
 import com.dmp.dto.DomainTreeOut;
 import com.dmp.dto.DomainUpdate;
+import com.dmp.exception.BadRequestException;
+import com.dmp.exception.ConflictException;
+import com.dmp.exception.ResourceNotFoundException;
 import com.dmp.model.Domain;
 import com.dmp.repository.DomainRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpStatus.*;
-
+/**
+ * Domain hierarchy (L0–L3) CRUD, tree view, and validation (max depth, no circular parent).
+ * Throws domain exceptions for consistent API error handling.
+ */
 @Service
 public class DomainService {
 
-    private static final int MAX_DEPTH = 4;  // L0 through L3
+    /** Maximum hierarchy levels: L0 (root) through L3. */
+    private static final int MAX_DEPTH = 4;
 
     private final DomainRepository domainRepository;
 
@@ -45,24 +50,24 @@ public class DomainService {
 
     public DomainOut getDomain(int domainId) {
         Domain d = domainRepository.findById(domainId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Domain not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Domain not found"));
         return toDomainOut(d);
     }
 
     @Transactional
     public DomainOut createDomain(DomainCreate body) {
         if (body.getParentId() != null) {
-            Domain parent = domainRepository.findById(body.getParentId())
-                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Parent domain not found"));
+            domainRepository.findById(body.getParentId())
+                    .orElseThrow(() -> new BadRequestException("Parent domain not found"));
             int depth = depthOf(body.getParentId());
             if (depth >= MAX_DEPTH - 1) {
-                throw new ResponseStatusException(BAD_REQUEST, "Maximum hierarchy depth is " + MAX_DEPTH + " (L0–L3). Cannot add a child here.");
+                throw new BadRequestException("Maximum hierarchy depth is " + MAX_DEPTH + " (L0–L3). Cannot add a child here.");
             }
         }
 
         Domain domain = new Domain();
         domain.setName((body.getName() != null ? body.getName() : "").trim());
-        domain.setDescription(body.getDescription() != null && !body.getDescription().trim().isEmpty() ? body.getDescription().trim() : null);
+        domain.setDescription(blankToNull(body.getDescription()));
         domain.setParentId(body.getParentId());
         domain = domainRepository.save(domain);
         return toDomainOut(domain);
@@ -71,7 +76,7 @@ public class DomainService {
     @Transactional
     public DomainOut updateDomain(int domainId, DomainUpdate body) {
         Domain domain = domainRepository.findById(domainId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Domain not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Domain not found"));
 
         if (body.getName() != null) {
             domain.setName(body.getName().trim());
@@ -79,31 +84,28 @@ public class DomainService {
         if (body.getDescription() != null) {
             domain.setDescription(body.getDescription().trim().isEmpty() ? null : body.getDescription().trim());
         }
-        // parent_id: use getParentId() - if DomainUpdate was built from JSON with "parent_id" key, it's set.
-        // To support "set to root" (parent_id=null), we must allow null. We update whenever the field was provided.
-        // With a simple DTO we can't distinguish omit vs null - assume caller sends parent_id explicitly when changing.
         if (body.hasParentIdUpdate()) {
             Integer newParentId = body.getParentId();
-            if (newParentId.equals(domainId)) {
-                throw new ResponseStatusException(BAD_REQUEST, "Domain cannot be its own parent");
+            if (newParentId != null && newParentId.equals(domainId)) {
+                throw new BadRequestException("Domain cannot be its own parent");
             }
-            if (newParentId < 1) {
-                throw new ResponseStatusException(BAD_REQUEST, "Invalid parent_id");
+            if (newParentId != null && newParentId < 1) {
+                throw new BadRequestException("Invalid parent_id");
             }
             if (newParentId != null) {
                 Set<Integer> descendants = descendantIds(domainId);
                 if (descendants.contains(newParentId)) {
-                    throw new ResponseStatusException(BAD_REQUEST, "Circular parent: cannot move under a descendant");
+                    throw new BadRequestException("Circular parent: cannot move under a descendant");
                 }
-                Domain parent = domainRepository.findById(newParentId)
-                        .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Parent domain not found"));
+                domainRepository.findById(newParentId)
+                        .orElseThrow(() -> new BadRequestException("Parent domain not found"));
                 int newDepth = depthOf(newParentId) + 1;
                 int subtreeDepth = subtreeDepth(domainId);
                 if (newDepth + subtreeDepth >= MAX_DEPTH) {
-                    throw new ResponseStatusException(BAD_REQUEST, "Maximum hierarchy depth is " + MAX_DEPTH + " (L0–L3). Moving here would exceed it.");
+                    throw new BadRequestException("Maximum hierarchy depth is " + MAX_DEPTH + " (L0–L3). Moving here would exceed it.");
                 }
             }
-            domain.setParentId(newParentId);  // can be null (make root)
+            domain.setParentId(newParentId);
         }
 
         domain = domainRepository.save(domain);
@@ -113,16 +115,20 @@ public class DomainService {
     @Transactional
     public void deleteDomain(int domainId) {
         Domain domain = domainRepository.findById(domainId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Domain not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Domain not found"));
 
         if (!domainRepository.findByParentIdOrderByNameAsc(domainId).isEmpty()) {
-            throw new ResponseStatusException(CONFLICT, "Cannot delete domain that has child domains. Remove or move children first.");
+            throw new ConflictException("Cannot delete domain that has child domains. Remove or move children first.");
         }
         long relatedCount = domainRepository.countRelatedData(domainId);
         if (relatedCount > 0) {
-            throw new ResponseStatusException(CONFLICT, "Cannot delete domain that has related data (data elements, applications, EUCs, endpoints, data feeds, DQ rules, or data concerns). Remove or reassign them first.");
+            throw new ConflictException("Cannot delete domain that has related data (data elements, applications, EUCs, endpoints, data feeds, DQ rules, or data concerns). Remove or reassign them first.");
         }
         domainRepository.delete(domain);
+    }
+
+    private static String blankToNull(String s) {
+        return s != null && !s.trim().isEmpty() ? s.trim() : null;
     }
 
     private int depthOf(int domainId) {

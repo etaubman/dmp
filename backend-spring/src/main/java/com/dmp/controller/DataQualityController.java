@@ -2,6 +2,7 @@ package com.dmp.controller;
 
 import com.dmp.dto.*;
 import com.dmp.service.DataQualityService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -11,8 +12,10 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
+/** Data quality rules, instances, exceptions, SQL versions, performance and mod requests. */
 @RestController
 @RequestMapping("/api")
+@Tag(name = "data-quality", description = "Data quality rules, instances, exceptions, trends")
 public class DataQualityController {
 
     private final DataQualityService dataQualityService;
