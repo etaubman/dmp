@@ -68,6 +68,22 @@ services:
       postgres:
         condition: service_healthy
 
+  backend-spring:
+    build:
+      context: ./backend-spring
+      dockerfile: Dockerfile
+    container_name: dmp-backend-spring
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-dmp}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-dmp}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-dmp_secret}
+      SERVER_PORT: "8081"
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   # DB admin (separate container per plan)
   db-admin:
     image: adminer:latest

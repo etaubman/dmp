@@ -7,6 +7,7 @@ Short high-level view for onboarding. Details are in the code and in `admin-doma
 - **Frontend (Angular)** — SPA at http://localhost:4200 (dev). Uses NgRx for state; calls the backend API for all data. User selects a **domain** in the sidebar; most list/detail views are scoped by that domain.
 - **Backend (FastAPI)** — REST API at http://localhost:8000. Serves domains, data elements, applications, EUCs, endpoints, DQ rules/exceptions, data concerns, metrics, users, and bulk upload/download. Creates DB tables and runs seed on startup.
 - **PostgreSQL** — Persistent store for all entities. Connection via `DATABASE_URL`.
+- **Redis** — Optional. Cache for domain tree, list responses, or session data; reduces DB load and helps meet &lt;200 ms response targets at scale. See `docs/hardware-sizing.md`.
 - **MinIO (S3-compatible)** — Optional. Used for bulk upload and export files (buckets `bulk-uploads`, `exports`). Not required for core CRUD.
 
 ## Main entities and relationships

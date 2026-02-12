@@ -1,0 +1,7 @@
+com\dmp\model\Domain.class
+com\dmp\DmpApplication.class
+com\dmp\controller\DomainsController.class
+com\dmp\dto\DomainOut.class
+com\dmp\config\WebConfig.class
+com\dmp\config\OpenApiConfig.class
+com\dmp\repository\DomainRepository.class
