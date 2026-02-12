@@ -56,6 +56,12 @@ Thumbs.db
 *.log
 docker-compose.override.yml
 
+# Java / Maven
+target/
+*.jar
+*.class
+*.war
+
 # Test and coverage
 .coverage
 htmlcov/
