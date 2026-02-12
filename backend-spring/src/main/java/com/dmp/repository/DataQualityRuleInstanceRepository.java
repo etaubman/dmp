@@ -15,8 +15,8 @@ public interface DataQualityRuleInstanceRepository extends JpaRepository<DataQua
            "(:ruleId IS NULL OR i.ruleId = :ruleId) AND " +
            "(:dataElementId IS NULL OR i.dataElementId = :dataElementId) AND " +
            "(:applicationId IS NULL OR i.applicationId = :applicationId) AND " +
-           "(:fromDate IS NULL OR i.runAt >= :fromDate) AND " +
-           "(:toDate IS NULL OR i.runAt <= :toDate) " +
+           "i.runAt >= COALESCE(:fromDate, i.runAt) AND " +
+           "i.runAt <= COALESCE(:toDate, i.runAt) " +
            "ORDER BY i.runAt DESC")
     List<DataQualityRuleInstance> findWithFilters(@Param("ruleId") Integer ruleId,
                                                    @Param("dataElementId") Integer dataElementId,
