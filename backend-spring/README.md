@@ -1,6 +1,6 @@
-# Data Manager Portal — Spring Backend (Phase 1)
+# Data Manager Portal — Spring Backend
 
-Incremental migration: Spring Boot backend running in parallel with FastAPI. Phase 1 implements `GET /api/domains` only.
+Spring Boot backend with full API parity to FastAPI. The frontend can switch between backends via `npm run start` (FastAPI) or `npm run start:spring` (Spring). See [frontend/README.md](../frontend/README.md) for switching.
 
 ## Prerequisites
 
@@ -24,6 +24,12 @@ App runs on port 8081. Test: `GET http://localhost:8081/api/domains`
 **API docs** (when running):
 - Swagger UI: http://localhost:8081/swagger-ui.html
 
+## Run with frontend
+
+1. Start Postgres (e.g. `.\start-postgres-only.ps1` from repo root).
+2. Run Spring: `mvn spring-boot:run` from `backend-spring/`.
+3. Run frontend: `cd frontend && npm run start:spring` (targets Spring at port 8081).
+
 ## Run with Docker
 
 ```powershell
@@ -35,7 +41,7 @@ docker-compose up -d postgres backend backend-spring
 
 ## Parity tests
 
-Verifies FastAPI and Spring return identical output for `GET /api/domains`:
+Verifies FastAPI and Spring return identical output for all migrated endpoints:
 
 ```powershell
 # With both backends running:

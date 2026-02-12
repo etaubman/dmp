@@ -30,6 +30,7 @@ Install these before running the app:
 |------|--------|
 | **Node.js** 18+ and **npm** | Frontend (Angular) |
 | **Python** 3.10+ and **pip** | Backend (FastAPI) |
+| **Java** 17+ and **Maven** 3.9+ | Backend (Spring Boot, optional) |
 | **Docker** and **Docker Compose** | Postgres, MinIO, optional backend |
 | **PowerShell** | Repo scripts (e.g. `start-postgres-only.ps1`, `reset-domains-reseed.ps1`) |
 
@@ -53,11 +54,14 @@ Optional: **Git** for cloning; **Angular CLI** can be used via `npx ng` if you p
    ```
 4. **Open in browser:**
    - **App:** http://localhost:4200  
-   - **API docs:** http://localhost:8000/docs  
+   - **API docs (FastAPI):** http://localhost:8000/docs  
+   - **API docs (Spring):** http://localhost:8081/swagger-ui.html (when using Spring backend)  
    - **DB admin (Adminer):** http://localhost:8080 — System: `PostgreSQL`, Server: `postgres`, User/Password: from `.env`  
    - **S3 admin (MinIO Console):** http://localhost:9001 — login with MinIO root user/password from `.env`
 
 **Tip:** Select a **domain** in the sidebar to load data. The app is domain-scoped: most pages show data for the selected domain.
+
+**Switching backends:** The frontend can use either FastAPI (port 8000) or Spring Boot (port 8081). See [Development modes](#development-modes) and [frontend/README.md](frontend/README.md).
 
 ---
 
@@ -80,7 +84,7 @@ Optional: **Git** for cloning; **Angular CLI** can be used via `npx ng` if you p
 ### Full stack with Docker (backend in container)
 
 - Run `docker-compose up -d` so Postgres, MinIO, and the backend API run in containers.
-- Run the frontend locally: `cd frontend && npm run start`. The app uses the API at http://localhost:8000 (see `frontend/src/environments/environment.ts`).
+- Run the frontend locally: `cd frontend && npm run start`. The app uses the FastAPI API at http://localhost:8000 by default.
 
 ### Local backend (Postgres only in Docker)
 
@@ -91,12 +95,12 @@ Useful when you want to run the API on your machine and attach a debugger.
    .\start-postgres-only.ps1
    ```
 2. In repo root, ensure `.env` has `DATABASE_URL=postgresql://dmp:dmp_secret@localhost:5432/dmp` (use `localhost` when the backend runs on the host).
-3. In `backend/`: create a venv, `pip install -r requirements.txt`, then:
-   ```powershell
-   .\venv\Scripts\Activate.ps1
-   uvicorn app.main:app --reload --host 0.0.0.0
-   ```
-4. Run the frontend from `frontend/` with `npm run start` as above.
+3. Start either backend:
+   - **FastAPI:** In `backend/`: create a venv, `pip install -r requirements.txt`, then `uvicorn app.main:app --reload --host 0.0.0.0`
+   - **Spring Boot:** In `backend-spring/`: `mvn spring-boot:run` (see [backend-spring/README.md](backend-spring/README.md))
+4. Run the frontend:
+   - For FastAPI (default): `cd frontend && npm run start`
+   - For Spring: `cd frontend && npm run start:spring` (or set `backend: 'spring'` in `frontend/src/environments/environment.ts`)
 
 ### Helper scripts
 
@@ -123,6 +127,7 @@ For architecture and product requirements, see the **Repo layout** section below
 | Path | Description |
 |------|-------------|
 | **`backend/`** | FastAPI app, SQLAlchemy, S3 client. See [backend/README.md](backend/README.md). |
+| **`backend-spring/`** | Spring Boot backend (full API parity). See [backend-spring/README.md](backend-spring/README.md). |
 | **`frontend/`** | Angular 18, NgRx, Tailwind. See [frontend/README.md](frontend/README.md). |
 | **`e2e/`** | Cucumber E2E tests (Playwright). See [e2e/README.md](e2e/README.md). |
 | **`docker/`** | Postgres init scripts, S3 bucket setup. See [docker/README.md](docker/README.md). |
@@ -136,7 +141,7 @@ For architecture and product requirements, see the **Repo layout** section below
 | Layer | Technologies |
 |-------|--------------|
 | **Frontend** | Angular 18.2, NgRx (Store/Effects), Tailwind CSS, TypeScript, AG Grid/Charts |
-| **Backend** | FastAPI, SQLAlchemy, Pydantic |
+| **Backend** | FastAPI, SQLAlchemy, Pydantic; or Spring Boot (see `backend-spring/`) |
 | **Database** | PostgreSQL |
 | **Storage** | MinIO (S3-compatible), Docker |
 | **Containers** | Docker, Docker Compose |
@@ -159,7 +164,7 @@ For architecture and product requirements, see the **Repo layout** section below
 | **Port already in use** | Ensure nothing else uses 5432 (Postgres), 8000 (API), 4200 (frontend), 8080 (Adminer), 9000/9001 (MinIO). Change ports in `docker-compose.yml` or stop the conflicting service. |
 | **"DB not ready" / connection refused** | Wait for Postgres to be healthy after `docker-compose up -d` (about 5–10 seconds). For local backend, use `DATABASE_URL` with `localhost`, not `postgres`. |
 | **CORS errors in browser** | The API uses `CORS_ORIGINS` from `backend/app/config.py` (env: comma-separated list; defaults include `http://localhost:4200`, `http://127.0.0.1:4200`). To add an origin, set `CORS_ORIGINS` in `.env` or adjust the default in `config.py`. |
-| **Frontend can't reach API** | Confirm the API is running and that `frontend/src/environments/environment.ts` has `apiUrl` pointing to it (e.g. `http://localhost:8000`). |
+| **Frontend can't reach API** | Confirm the API is running and that `frontend/src/environments/environment.ts` has `apiUrl` pointing to it (FastAPI: `http://localhost:8000`, Spring: `http://localhost:8081`). Use `npm run start:spring` to target Spring. |
 | **Login 401 / forgot password** | See backend README: run `python -m app.seed set-passwords` from `backend/` with venv activated, then log in with e.g. `ethan.taubman@example.com` / `password`. |
 
 ---

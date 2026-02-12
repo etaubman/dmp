@@ -21,9 +21,10 @@ The root `docker-compose.yml` defines these services. Run from **repo root**: `d
 | **minio** | `minio/minio:latest` | S3-compatible storage for bulk upload/download. | 9000 (API), 9001 (Console UI) |
 | **s3-init** | `minio/mc:latest` | One-off job: creates buckets `bulk-uploads` and `exports` in MinIO. Runs after MinIO is up; exits when done. | — |
 | **backend** | Built from `./backend` | FastAPI app. Connects to `postgres` and `minio`; creates tables and runs seed on startup. | 8000 |
+| **backend-spring** | Built from `./backend-spring` | Spring Boot app (optional). Same DB as FastAPI; full API parity. | 8081 |
 | **db-admin** | `adminer:latest` | Web UI for PostgreSQL (DB admin). | 8080 |
 
-**Frontend** is **not** in docker-compose; run it locally with `cd frontend && npm run start` for development.
+**Frontend** is **not** in docker-compose; run it locally with `cd frontend && npm run start` (FastAPI) or `npm run start:spring` (Spring).
 
 ---
 

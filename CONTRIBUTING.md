@@ -10,6 +10,7 @@ Thank you for contributing. This document helps **new team members** get set up,
 2. **Copy `.env.example` to `.env`** and start services (Docker and/or local backend + frontend) as described in the root README.
 3. **Skim the sub-project READMEs:**
    - [backend/README.md](backend/README.md) — API structure, env vars, seeding, tests
+   - [backend-spring/README.md](backend-spring/README.md) — Spring Boot backend (optional)
    - [frontend/README.md](frontend/README.md) — app structure, NgRx, conventions
 
 Optional: read [docs/architecture.md](docs/architecture.md) for the high-level design.
@@ -23,6 +24,8 @@ Optional: read [docs/architecture.md](docs/architecture.md) for the high-level d
   Use `.\start-postgres-only.ps1` from repo root if you run Postgres in Docker only.
 - **Frontend:** From `frontend/`: `npm install` then `npm run start`.  
   App at http://localhost:4200; API URL is in `frontend/src/environments/environment.ts`.
+- **Alternative backend (Spring):** From `backend-spring/`: `mvn spring-boot:run`.  
+  Then run the frontend with `npm run start:spring` to target Spring. See [frontend/README.md](frontend/README.md).
 
 ---
 
@@ -104,7 +107,7 @@ Optional: read [docs/architecture.md](docs/architecture.md) for the high-level d
 
 - **Backend:** Run with `uvicorn app.main:app --reload --host 0.0.0.0` and set breakpoints in your IDE; use "local backend" mode (Postgres only in Docker) so the API process is on your machine.
 - **Frontend:** Use browser DevTools; NgRx DevTools extension helps inspect store and actions. Check `environment.ts` for `apiUrl` and `devAlwaysLoggedIn`.
-- **API not reachable:** Verify CORS: set `CORS_ORIGINS` in env or `backend/app/config.py` (defaults include `http://localhost:4200`, `http://127.0.0.1:4200`). Check `apiUrl` in `frontend/src/environments/environment.ts`.
+- **API not reachable:** Verify CORS: set `CORS_ORIGINS` in env (FastAPI: `backend/app/config.py`; Spring: `backend-spring` application.yml). Defaults include `http://localhost:4200`, `http://127.0.0.1:4200`. Check `apiUrl` in `frontend/src/environments/environment.ts` — use `npm run start:spring` to target Spring.
 
 ---
 

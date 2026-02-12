@@ -31,7 +31,18 @@ npm run start
 ```
 
 - **App:** http://localhost:4200  
-- The app talks to the API at the URL in `src/environments/environment.ts` (default `http://localhost:8000`). For production builds, use `environment.prod.ts`.
+- The app talks to the API at the URL in `src/environments/environment.ts`. By default it uses **FastAPI** at `http://localhost:8000`.
+
+### Switching backends (FastAPI vs Spring)
+
+The frontend supports both FastAPI (port 8000) and Spring Boot (port 8081) backends:
+
+| Backend | Command | API URL |
+|---------|---------|---------|
+| FastAPI (default) | `npm run start` | http://localhost:8000 |
+| Spring Boot | `npm run start:spring` | http://localhost:8081 |
+
+Alternatively, edit `src/environments/environment.ts` and set `backend: 'spring'` to use the Spring backend without changing the serve command.
 
 **Development: stay logged in** — To avoid logging in on every refresh during local dev:
 1. Set `devAlwaysLoggedIn: true` in `src/environments/environment.ts`.
@@ -60,7 +71,7 @@ Leave both **off** for production.
 - **NgRx flow:** User action → dispatch action → effect (optional API call) → reducer updates state → selectors feed components. See `store/app.actions.ts`, `app.effects.ts`, `app.reducer.ts`, `app.selectors.ts`.
 - **Domain context:** The selected domain is in the store; pages and the API service use it for scoped requests. The domain selector in the layout updates the store.
 - **Auth:** `auth.guard.ts` protects routes; `auth-interceptor.ts` adds the JWT to requests. Admin routes use the same guard (role checks can be extended there).
-- **Environment:** `environment.ts` (dev) and `environment.prod.ts` (prod build) define `apiUrl` and `devAlwaysLoggedIn`. Use these instead of hardcoding URLs.
+- **Environment:** `environment.ts` (dev) and `environment.prod.ts` (prod build) define `apiUrl`, `backend`, and `devAlwaysLoggedIn`. Use these instead of hardcoding URLs. Use `environment.spring.ts` (via `npm run start:spring`) to target the Spring backend.
 
 ---
 
@@ -70,7 +81,7 @@ Leave both **off** for production.
 npm run build
 ```
 
-Artifacts go to `dist/frontend-app/`. For production, the build uses `environment.prod.ts` — set `apiUrl` there for your API host.
+Artifacts go to `dist/frontend-app/`. For production, the build uses `environment.prod.ts` (typically `apiUrl: '/api'` for same-origin). To build for Spring: `ng build --configuration=spring`.
 
 ### Rebuild from scratch
 
@@ -108,7 +119,8 @@ Runs unit tests with Karma/Jasmine. Add specs for new components and services as
 
 | Script | Purpose |
 |--------|---------|
-| `npm run start` | Dev server (default port 4200). |
+| `npm run start` | Dev server (default port 4200, FastAPI backend). |
+| `npm run start:spring` | Dev server with Spring backend (port 8081). |
 | `npm run build` | Production build to `dist/`. |
 | `npm run test` | Run unit tests (Karma/Jasmine). |
 | `npx ng generate module pages/my-page --routing` | Generate a new feature module (example). |
@@ -118,7 +130,7 @@ Runs unit tests with Karma/Jasmine. Add specs for new components and services as
 
 ## CORS and API URL
 
-If the frontend runs on a different origin (e.g. different port or host), the backend must allow it via `CORS_ORIGINS` in `backend/app/config.py` (env: comma-separated list). The frontend does not use a dev proxy by default; it calls `apiUrl` from the environment directly. Ensure `environment.ts` has the correct `apiUrl` for your backend (e.g. `http://localhost:8000`).
+If the frontend runs on a different origin (e.g. different port or host), the backend must allow it via CORS. FastAPI: `CORS_ORIGINS` in `backend/app/config.py`; Spring: `CORS_ORIGINS` in `backend-spring` (env: comma-separated list). The frontend does not use a dev proxy by default; it calls `apiUrl` from the environment directly. Ensure `environment.ts` has the correct `apiUrl` for your backend (FastAPI: `http://localhost:8000`, Spring: `http://localhost:8081`).
 
 ---
 

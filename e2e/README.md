@@ -1,6 +1,6 @@
 # E2E Tests (Cucumber + Playwright)
 
-Cucumber BDD tests for the Data Manager Portal. They run against the real frontend (Angular) and backend (FastAPI) in a browser.
+Cucumber BDD tests for the Data Manager Portal. They run against the real frontend (Angular) and backend (FastAPI or Spring) in a browser. Ensure the frontend is configured for the backend you are running (see [frontend/README.md](../frontend/README.md)).
 
 ## Prerequisites
 
